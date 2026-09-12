@@ -1075,7 +1075,17 @@ if(CLOUD){
     try{
       await firebase.auth().signInWithEmailAndPassword($("login-email").value.trim(), $("login-pass").value);
     }catch(e){
-      $("login-err").textContent = "เข้าสู่ระบบไม่สำเร็จ — เช็คอีเมล/รหัสผ่าน";
+      const map = {
+        "auth/invalid-credential":"อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+        "auth/wrong-password":"รหัสผ่านไม่ถูกต้อง",
+        "auth/user-not-found":"ไม่พบผู้ใช้นี้ — เช็คอีเมลใน Firebase → Authentication → Users",
+        "auth/invalid-email":"รูปแบบอีเมลไม่ถูกต้อง",
+        "auth/unauthorized-domain":"โดเมนเว็บยังไม่ได้รับอนุญาต — เพิ่ม gglfootage-hub-max.github.io ใน Authentication → Settings → Authorized domains",
+        "auth/operation-not-allowed":"ยังไม่ได้เปิด Email/Password ใน Authentication → Sign-in method",
+        "auth/too-many-requests":"ลองผิดหลายครั้งเกินไป — รอสักครู่แล้วลองใหม่",
+        "auth/network-request-failed":"เชื่อมต่ออินเทอร์เน็ตไม่ได้"
+      };
+      $("login-err").textContent = (map[e.code] || "เข้าสู่ระบบไม่สำเร็จ") + "  [" + (e.code||"unknown") + "]";
     }
   });
   $("login-pass").addEventListener("keydown",e=>{ if(e.key==="Enter") $("login-btn").click(); });
