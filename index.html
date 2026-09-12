@@ -7,6 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 :root{
   --paper:#F6F8F4; --card:#FFFFFF; --ink:#1A2A22; --muted:#5C6E63;
@@ -21,8 +24,13 @@ header.site{border-bottom:1px solid var(--line);background:var(--card);padding:1
 header.site .wrap{display:flex;flex-wrap:wrap;gap:.75rem 1.5rem;align-items:baseline;justify-content:space-between}
 h1{font-size:1.35rem;font-weight:700}
 h1 .sub{display:block;font-size:.85rem;font-weight:500;color:var(--muted)}
-.month-pick{display:flex;align-items:center;gap:.5rem;font-size:.9rem;color:var(--muted)}
+.hd-right{display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:center;font-size:.85rem;color:var(--muted)}
+.month-pick{display:flex;align-items:center;gap:.5rem}
 .month-pick input{font-family:inherit;font-size:.95rem;border:1px solid var(--line);border-radius:6px;padding:.3rem .5rem;background:var(--card);color:var(--ink)}
+.sync{display:inline-flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:600;padding:.15rem .6rem;border-radius:999px;background:var(--money-soft);color:var(--money)}
+.sync.off{background:#EEF0EC;color:var(--muted)}
+.sync .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+button.linkish{font-family:inherit;font-size:.8rem;background:none;border:none;color:var(--muted);cursor:pointer;text-decoration:underline}
 
 nav.tabs{display:flex;gap:.25rem;border-bottom:1px solid var(--line);margin-bottom:1.25rem;overflow-x:auto}
 nav.tabs button{font-family:inherit;font-size:.95rem;font-weight:600;background:none;border:none;border-bottom:3px solid transparent;padding:.55rem .9rem;color:var(--muted);cursor:pointer;white-space:nowrap}
@@ -67,7 +75,6 @@ button.danger{background:var(--card);color:var(--deduct);border:1px solid var(--
 .slip tr.sect td{border-bottom:none;padding-top:.7rem;font-size:.78rem;font-weight:700;color:var(--muted)}
 .slip tr.total td{border-top:2px solid var(--ink);border-bottom:none;padding-top:.55rem;font-weight:700;font-size:1rem}
 .slip tr.total td.amt{font-size:1.15rem;color:var(--money)}
-.slip .note{font-size:.75rem;color:var(--muted);margin-top:.8rem}
 
 .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--card)}
 table.team{border-collapse:collapse;width:100%;font-size:.85rem}
@@ -102,25 +109,47 @@ table.tiers button{background:none;border:none;color:var(--deduct);cursor:pointe
 details.imp{margin-top:.8rem}
 details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--money)}
 .warnbar{background:#FFF3DC;border:1px solid #EAD59A;color:#6B4E00;border-radius:8px;padding:.5rem .8rem;font-size:.82rem;margin-bottom:1rem}
+
+/* login overlay */
+#login-overlay{position:fixed;inset:0;background:rgba(26,42,34,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:1rem}
+#login-overlay .card{max-width:360px;width:100%}
+#login-err{color:var(--deduct);font-size:.82rem;margin-top:.4rem;min-height:1.2em}
 </style>
 </head>
 <body>
+
+<div id="login-overlay" hidden>
+  <div class="card">
+    <h2 style="margin-bottom:.2rem">เข้าสู่ระบบทีม</h2>
+    <p class="hint">ใช้อีเมลและรหัสผ่านที่ตั้งไว้ใน Firebase (ทีมใช้ร่วมกันได้)</p>
+    <div class="frow" style="grid-template-columns:1fr">
+      <label class="f"><span>อีเมล</span><input type="email" id="login-email" autocomplete="username"></label>
+      <label class="f"><span>รหัสผ่าน</span><input type="password" id="login-pass" autocomplete="current-password"></label>
+    </div>
+    <div class="btnrow"><button class="primary" id="login-btn" style="width:100%">เข้าสู่ระบบ</button></div>
+    <div id="login-err"></div>
+  </div>
+</div>
 
 <header class="site">
   <div class="wrap">
     <h1>คำนวณค่าคอม · เงินเดือน · พนักงาน
       <span class="sub">ระบบคิด Incentive และทะเบียนพนักงาน UO</span>
     </h1>
-    <div class="month-pick">
-      <label for="month">งวดเดือน</label>
-      <input type="month" id="month">
+    <div class="hd-right">
+      <span class="sync off" id="syncchip"><span class="dot"></span><span id="synctext">โหมดเครื่องเดียว</span></span>
+      <div class="month-pick"><label for="month">งวดเดือน</label><input type="month" id="month"></div>
+      <button class="linkish" id="btn-logout" hidden>ออกจากระบบ</button>
     </div>
   </div>
 </header>
 
 <div class="wrap">
 
-<div class="warnbar" id="storagewarn" hidden>เบราว์เซอร์นี้บันทึกข้อมูลถาวรไม่ได้ — ข้อมูลจะหายเมื่อปิดหน้า ใช้ปุ่ม "สำรองข้อมูล" เก็บไฟล์ไว้ก่อน</div>
+<div class="warnbar" id="setupwarn" hidden>
+  ยังไม่ได้ตั้งค่า Firebase — ตอนนี้ข้อมูลเก็บในเครื่องนี้เครื่องเดียว ทีมจะไม่เห็นข้อมูลเดียวกัน
+  ทำตามขั้นตอนใน README (หัวข้อ "ตั้งค่า Firebase") แล้ววางค่า config ในไฟล์นี้ตรงบรรทัด <code>FIREBASE_CONFIG</code>
+</div>
 
 <nav class="tabs" role="tablist">
   <button role="tab" aria-selected="true"  data-panel="p-comm">คำนวณค่าคอม</button>
@@ -133,7 +162,7 @@ details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--
 <!-- ================= คำนวณค่าคอมทั้งบริษัท ================= -->
 <section class="panel active" id="p-comm">
   <div class="card" style="margin-bottom:1rem">
-    <h2>คำนวณค่าคอมประจำเดือน <small>พนักงานปัจจุบันขึ้นให้อัตโนมัติ · กรอกยอดในตาราง ระบบคิดและบันทึกให้ทันที (แยกเก็บรายเดือน)</small></h2>
+    <h2>คำนวณค่าคอมประจำเดือน <small>พนักงานปัจจุบันขึ้นให้อัตโนมัติ · กรอกยอดแล้วระบบคิดและซิงก์ให้ทันที (แยกเก็บรายเดือน)</small></h2>
     <div class="frow" style="max-width:560px">
       <label class="f"><span>ค้นหา</span><input type="text" id="c-q" placeholder="ชื่อเล่น / รหัส"></label>
       <label class="f"><span>สาขา</span><select id="c-branch"><option value="">ทุกสาขา</option></select></label>
@@ -162,7 +191,7 @@ details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--
       <tfoot><tr id="commfoot"></tr></tfoot>
     </table>
   </div>
-  <p class="hint">ค่าคอม % คิดจากขั้นเทียร์ของ "ยอดสุทธิ CRM+แนะนำ" · Ontime จ่ายเมื่อ ลา=0 และ สาย=0 · เงินเดือนดึงฐานจากทะเบียนพนักงาน หักลา (÷26/วัน) และหักสายตามเรต</p>
+  <p class="hint">ค่าคอม % คิดจากขั้นเทียร์ของ "ยอดสุทธิ CRM+แนะนำ" · Ontime จ่ายเมื่อ ลา=0 และ สาย=0 · เงินเดือนดึงฐานจากทะเบียนพนักงาน หักลา และหักสายตามเรต</p>
 </section>
 
 <!-- ================= รายคน ================= -->
@@ -321,7 +350,7 @@ details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--
     </div>
     <div class="card">
       <h2>บันทึก</h2>
-      <p class="hint">การตั้งค่าเก็บไว้ในเครื่องนี้ กด "บันทึก" ทุกครั้งหลังแก้ แล้วตารางค่าคอมจะคำนวณใหม่ให้ทันที</p>
+      <p class="hint">กด "บันทึก" ทุกครั้งหลังแก้ การตั้งค่าจะซิงก์ไปทุกเครื่อง แล้วตารางค่าคอมคำนวณใหม่ให้ทันที</p>
       <div class="btnrow">
         <button class="primary" id="btn-save">บันทึกการตั้งค่า</button>
         <span class="saved-flash" id="savedflash">บันทึกแล้ว ✓</span>
@@ -334,18 +363,44 @@ details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--
 
 <script>
 "use strict";
+
+/* ============================================================
+   ★★★ ตั้งค่า FIREBASE ตรงนี้ ★★★
+   ทำตาม README หัวข้อ "ตั้งค่า Firebase" แล้วเอาค่า firebaseConfig
+   ที่ได้จากหน้า Project settings มาวางแทนที่ก้อนด้านล่างนี้ทั้งก้อน
+   ตราบใดที่ยังไม่วาง เว็บจะทำงานแบบ "โหมดเครื่องเดียว" (ไม่ซิงก์ทีม)
+   ============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAf88PpVF7hhcJzzEG5O_mPs41glg3xAU4",
+  authDomain: "uo-commission.firebaseapp.com",
+  projectId: "uo-commission",
+  storageBucket: "uo-commission.firebasestorage.app",
+  messagingSenderId: "507935967947",
+  appId: "1:507935967947:web:0ddffe2d2764a1bc24294e",
+  measurementId: "G-YYW1D6YSHK"
+};
+/* ============================================================ */
+
 const $ = id => document.getElementById(id);
 const fmt = n => (isFinite(n)?n:0).toLocaleString("th-TH",{maximumFractionDigits:2});
 const num = v => { const n = parseFloat(String(v??"").replace(/[, ]/g,"")); return isFinite(n)?n:0; };
 const esc = s => String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
 
-/* ---------- storage ---------- */
+const CLOUD = (typeof firebase !== "undefined") && FIREBASE_CONFIG.apiKey && !FIREBASE_CONFIG.apiKey.includes("วาง");
+let fdb = null;
+if(CLOUD){
+  firebase.initializeApp(FIREBASE_CONFIG);
+  fdb = firebase.firestore();
+}
+const DOC = name => fdb.collection("app").doc(name);
+const MONTHDOC = ym => fdb.collection("months").doc(ym);
+
+/* ---------- local storage (โหมดเครื่องเดียว / แคช) ---------- */
 let CAN_STORE = true;
 function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ CAN_STORE=false; return null; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){ CAN_STORE=false; } }
 
 /* ---------- seed จากชีท UO: Manday (ไม่รวมข้อมูลอ่อนไหว) ---------- */
-/* [รหัส, ชื่อ-นามสกุล, ชื่อเล่น, แผนก, สาขา, ยังทำงาน(1/0), วันเริ่มงาน พ.ศ., ตำแหน่ง] */
 const SEED = [
 ["00001","วรวุฒิ วรศิริกมล","เจี๋ย","ผู้บริหาร","สำนักงานใหญ่",1,"","ผู้บริหาร"],
 ["00002","พรีม วรศิริกมล","ต้น","ผู้บริหาร","สำนักงานใหญ่",1,"","ผู้บริหาร"],
@@ -447,17 +502,26 @@ const SEED = [
 ["00060","ปราณภณัฏธ์ รักกฤษ","มิ้นท์","บริหารทรัพยากรบุคคล","ปราจีนบุรี",1,"11/23/2566",""],
 ["00061","มณิฐชญาณ์ ศิลาวงสกุลล์","หวาน","บริหารทรัพยากรบุคคล","ปราจีนบุรี",1,"9/4/2569",""]
 ];
+function seedEmp(){
+  return SEED.map(r=>({code:r[0],name:r[1],nick:r[2],dept:r[3],branch:r[4],
+    status:r[5]?"ปัจจุบัน":"ลาออก",start:r[6],pos:r[7]||"เจ้าหน้าที่",sup:"",pass:"",resign:"",salary:0}));
+}
 
 const DB_KEY = "uo-db-v2";
-let DB = loadDB();
-function loadDB(){
+let DB = loadLocalDB();
+function loadLocalDB(){
   const raw = lsGet(DB_KEY);
   if(raw){ try{ const o = JSON.parse(raw); if(o && Array.isArray(o.emp)) return o; }catch(e){} }
-  return { emp: SEED.map(r=>({code:r[0],name:r[1],nick:r[2],dept:r[3],branch:r[4],
-      status:r[5]?"ปัจจุบัน":"ลาออก",start:r[6],pos:r[7]||"เจ้าหน้าที่",sup:"",pass:"",resign:"",salary:0})),
-    hist:[] };
+  return { emp: seedEmp(), hist: [] };
 }
-function saveDB(){ lsSet(DB_KEY, JSON.stringify(DB)); }
+function saveDB(){
+  if(CLOUD && fdb && AUTHED){
+    DOC("employees").set({list: DB.emp}).catch(cloudErr);
+    DOC("hist").set({list: DB.hist.slice(0,500)}).catch(cloudErr);
+  }else{
+    lsSet(DB_KEY, JSON.stringify(DB));
+  }
+}
 const isWorking = e => e.status !== "ลาออก";
 
 /* ---------- settings ---------- */
@@ -469,7 +533,10 @@ const DEFAULTS = {
 let S = (()=>{ const raw = lsGet("comweb-settings-v2");
   if(raw){ try{ return Object.assign({}, JSON.parse(JSON.stringify(DEFAULTS)), JSON.parse(raw)); }catch(e){} }
   return JSON.parse(JSON.stringify(DEFAULTS)); })();
-function persistS(){ lsSet("comweb-settings-v2", JSON.stringify(S)); }
+function persistS(){
+  if(CLOUD && fdb && AUTHED) DOC("settings").set({s:S}).catch(cloudErr);
+  else lsSet("comweb-settings-v2", JSON.stringify(S));
+}
 
 /* ---------- dates (พ.ศ.) ---------- */
 function parseBE(str){
@@ -534,23 +601,64 @@ document.querySelectorAll("nav.tabs button").forEach(btn=>{
 });
 
 /* ================= คำนวณค่าคอมทั้งบริษัท ================= */
-function monthKey(){ return "uo-comm-" + ($("month").value || "none"); }
-let M = {}; // {code:{crm,ref,sub690,leave,late,ret,bonus,kpi}}
-function loadMonth(){
-  const raw = lsGet(monthKey());
+let M = {}; // ยอดของเดือนที่เลือก {code:{crm,ref,...}}
+let monthUnsub = null;
+function ym(){ return $("month").value || "none"; }
+function localMonthKey(){ return "uo-comm-" + ym(); }
+function loadMonthLocal(){
+  const raw = lsGet(localMonthKey());
   M = raw ? (()=>{try{return JSON.parse(raw)}catch(e){return {}}})() : {};
 }
-let saveTimer = null;
-function saveMonth(){
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(()=>{ lsSet(monthKey(), JSON.stringify(M));
-    $("c-status").textContent = CAN_STORE ? "บันทึกอัตโนมัติแล้ว · "+nowTH() : "บันทึกไม่ได้ (โหมดชั่วคราว)";
-  }, 400);
+function subscribeMonth(){
+  if(!CLOUD || !AUTHED){ loadMonthLocal(); renderComm(); return; }
+  if(monthUnsub) monthUnsub();
+  monthUnsub = MONTHDOC(ym()).onSnapshot(snap=>{
+    if(snap.metadata.hasPendingWrites) return; // การพิมพ์ของเราเอง — ไม่ต้องวาดทับ
+    applyRemoteMonth(snap.exists ? (snap.data()||{}) : {});
+    $("c-status").textContent = "ซิงก์ล่าสุด · " + nowTH();
+  }, cloudErr);
 }
-function rowData(code){
-  return M[code] || (M[code] = {crm:0,ref:0,sub690:0,leave:0,late:0,ret:0,bonus:0,kpi:0});
+function applyRemoteMonth(data){
+  const active = document.activeElement;
+  const editing = active && active.dataset && active.dataset.code
+      ? {code:active.dataset.code, f:active.dataset.f, val:num(active.value)} : null;
+  M = data || {};
+  if(editing){ (M[editing.code] = M[editing.code]||{})[editing.f] = editing.val; }
+  if(active && active.closest && active.closest("#commtable")){
+    $("commbody").querySelectorAll("input").forEach(inp=>{
+      if(inp!==active) inp.value = (rowData(inp.dataset.code)[inp.dataset.f]||0);
+    });
+    refreshCommComputed();
+  }else renderComm();
 }
-const C_FIELDS = ["crm","ref","sub690","leave","late","ret","bonus","kpi"];
+let saveTimer = null, pendingWrites = {};
+function queueWrite(code, f, v){
+  if(CLOUD && AUTHED){
+    pendingWrites[code+"."+f] = v;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async ()=>{
+      const q = pendingWrites; pendingWrites = {};
+      try{ await MONTHDOC(ym()).update(q); }
+      catch(e){ // เอกสารยังไม่มี → สร้างใหม่แบบ merge
+        const nested = {};
+        for(const [k,val] of Object.entries(q)){ const [c,fld]=k.split(".");
+          (nested[c]=nested[c]||{})[fld]=val; }
+        MONTHDOC(ym()).set(nested,{merge:true}).catch(cloudErr);
+      }
+      $("c-status").textContent = "ซิงก์แล้ว · " + nowTH();
+    }, 500);
+  }else{
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(()=>{ lsSet(localMonthKey(), JSON.stringify(M));
+      $("c-status").textContent = "บันทึกในเครื่องแล้ว · " + nowTH(); }, 400);
+  }
+}
+function writeWholeMonth(){
+  if(CLOUD && AUTHED) MONTHDOC(ym()).set(M).catch(cloudErr);
+  else lsSet(localMonthKey(), JSON.stringify(M));
+}
+function rowData(code){ return M[code] || (M[code] = {crm:0,ref:0,sub690:0,leave:0,late:0,ret:0,bonus:0,kpi:0}); }
+
 function renderComm(){
   const q = ($("c-q").value||"").trim().toLowerCase();
   const br = $("c-branch").value;
@@ -579,19 +687,15 @@ function renderComm(){
        <td>${fmt(r.salaryNet)}</td>
        <td class="pos"><strong>${fmt(r.grand)}</strong></td></tr>`);
   }
+  commFoot(sum, n);
+}
+function commFoot(sum, n){
   $("commfoot").innerHTML =
     `<td class="l" colspan="2">รวม ${n} คน</td><td colspan="8"></td>
      <td>${fmt(sum.net)}</td><td>${fmt(sum.commission)}</td><td>${fmt(sum.ontime)}</td><td>${fmt(sum.travel)}</td>
      <td>${fmt(sum.incentive)}</td><td>${fmt(sum.salaryNet)}</td><td>${fmt(sum.grand)}</td>`;
 }
-$("commbody").addEventListener("input",e=>{
-  const t = e.target;
-  if(!t.dataset || !t.dataset.code) return;
-  rowData(t.dataset.code)[t.dataset.f] = num(t.value);
-  saveMonth();
-  refreshCommComputed();
-});
-function refreshCommComputed(){ // อัปเดตเฉพาะช่องผลลัพธ์ โดยไม่รีเซ็ตช่องที่กำลังพิมพ์
+function refreshCommComputed(){
   const rows = $("commbody").querySelectorAll("tr");
   const sum = {net:0,commission:0,ontime:0,travel:0,incentive:0,salaryNet:0,grand:0};
   let n = 0;
@@ -603,7 +707,7 @@ function refreshCommComputed(){ // อัปเดตเฉพาะช่อง
     const e = DB.emp.find(x=>x.code===code); if(!e) return;
     const r = calc({...rowData(code), salary:e.salary||0});
     const tds = tr.querySelectorAll("td");
-    const base = 10; // index ของ "ยอดสุทธิ"
+    const base = 10;
     tds[base].textContent = fmt(r.net);
     tds[base+1].innerHTML = r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct}%)</span>`:"0";
     tds[base+1].className = r.commission?'pos':'';
@@ -615,11 +719,16 @@ function refreshCommComputed(){ // อัปเดตเฉพาะช่อง
     sum.net+=r.net; sum.commission+=r.commission; sum.ontime+=r.ontime; sum.travel+=r.travel;
     sum.incentive+=r.incentive; sum.salaryNet+=r.salaryNet; sum.grand+=r.grand;
   });
-  $("commfoot").innerHTML =
-    `<td class="l" colspan="2">รวม ${n} คน</td><td colspan="8"></td>
-     <td>${fmt(sum.net)}</td><td>${fmt(sum.commission)}</td><td>${fmt(sum.ontime)}</td><td>${fmt(sum.travel)}</td>
-     <td>${fmt(sum.incentive)}</td><td>${fmt(sum.salaryNet)}</td><td>${fmt(sum.grand)}</td>`;
+  commFoot(sum, n);
 }
+$("commbody").addEventListener("input",e=>{
+  const t = e.target;
+  if(!t.dataset || !t.dataset.code) return;
+  const v = num(t.value);
+  rowData(t.dataset.code)[t.dataset.f] = v;
+  queueWrite(t.dataset.code, t.dataset.f, v);
+  refreshCommComputed();
+});
 ["c-q","c-branch"].forEach(id=>$(id).addEventListener("input", renderComm));
 $("c-import").addEventListener("click",()=>{
   const lines = ($("c-paste").value||"").split(/\r?\n/).filter(l=>l.trim());
@@ -634,7 +743,7 @@ $("c-import").addEventListener("click",()=>{
     d.crm=num(c[1]); d.ref=num(c[2]); d.sub690=num(c[3]); d.leave=num(c[4]); d.late=num(c[5]); d.ret=num(c[6]);
     ok++;
   }
-  saveMonth(); renderComm();
+  writeWholeMonth(); renderComm();
   $("c-import-msg").textContent = `นำเข้า ${ok} คน` + (miss.length?` · หาไม่เจอ: ${miss.slice(0,6).join(", ")}${miss.length>6?"…":""}`:"");
 });
 $("c-export").addEventListener("click",()=>{
@@ -649,22 +758,21 @@ $("c-export").addEventListener("click",()=>{
   const csv = "\uFEFF"+[head,...rows].map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
-  a.download = `incentive-${$("month").value||"export"}.csv`;
+  a.download = `incentive-${ym()}.csv`;
   a.click(); URL.revokeObjectURL(a.href);
 });
 $("c-clear").addEventListener("click",()=>{
-  if(!confirm("ล้างยอดทุกคนของเดือนนี้?")) return;
-  M = {}; saveMonth(); renderComm();
+  if(!confirm("ล้างยอดทุกคนของเดือนนี้? (มีผลกับทุกเครื่องในทีม)")) return;
+  M = {}; writeWholeMonth(); renderComm();
 });
 
-/* ================= พนักงาน: ตาราง + ฟอร์ม + ประวัติ ================= */
+/* ================= พนักงาน ================= */
 const EMP_FIELDS = [
   ["code","รหัสพนักงาน"],["name","ชื่อ-นามสกุล"],["nick","ชื่อเล่น"],["dept","แผนก"],["pos","ตำแหน่ง"],
   ["branch","สาขา"],["sup","หัวหน้า"],["status","สถานะ"],["start","วันเริ่มงาน"],["pass","วันผ่านงาน"],
   ["resign","วันที่ลาออก"],["salary","ฐานเงินเดือน"]
 ];
 let editingCode = null;
-
 function uniq(field){ return [...new Set(DB.emp.map(e=>e[field]).filter(Boolean))].sort(); }
 function fillFilters(){
   const set = (sel, items, keep)=>{ const cur = $(sel).value;
@@ -740,7 +848,7 @@ $("e-save").addEventListener("click",()=>{
     for(const [f,label] of EMP_FIELDS){
       if(f==="code") continue;
       const from = e[f], to = v[f];
-      if(String(from??"") !== String(to??"")) changes.push({f,label,from,to});
+      if(String(from??"") !== String(to??"")) changes.push({f,label,from:String(from??""),to:String(to??"")});
     }
     if(changes.length){
       Object.assign(e, v, {code:e.code});
@@ -750,7 +858,7 @@ $("e-save").addEventListener("click",()=>{
     if(DB.emp.some(x=>x.code===v.code)){ alert("รหัสพนักงานนี้มีอยู่แล้ว"); return; }
     DB.emp.unshift(v);
     DB.hist.unshift({ts:nowTH(), code:v.code, nick:v.nick||v.name, action:"เพิ่มพนักงานใหม่",
-      changes:[{f:"salary",label:"ฐานเงินเดือน",from:"",to:v.salary},{f:"status",label:"สถานะ",from:"",to:v.status}]});
+      changes:[{f:"salary",label:"ฐานเงินเดือน",from:"",to:String(v.salary)},{f:"status",label:"สถานะ",from:"",to:v.status}]});
   }
   saveDB();
   $("empform-card").hidden = true; editingCode = null;
@@ -761,8 +869,11 @@ $("e-save").addEventListener("click",()=>{
 /* สำรอง / กู้คืน */
 $("btn-backup").addEventListener("click",()=>{
   const data = {db:DB, settings:S, months:{}};
-  for(let i=0;i<200;i++){ let k; try{ k=localStorage.key(i); }catch(e){ break; }
-    if(!k) break; if(k.startsWith("uo-comm-")) data.months[k]=lsGet(k); }
+  data.months["uo-comm-"+ym()] = JSON.stringify(M);
+  if(!CLOUD){
+    for(let i=0;i<300;i++){ let k; try{ k=localStorage.key(i); }catch(e){ break; }
+      if(!k) break; if(k.startsWith("uo-comm-")) data.months[k]=lsGet(k); }
+  }
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/json"}));
   a.download = `uo-backup-${new Date().toISOString().slice(0,10)}.json`;
@@ -776,8 +887,15 @@ $("restore-file").addEventListener("change",e=>{
       const data = JSON.parse(fr.result);
       if(data.db && Array.isArray(data.db.emp)){ DB = data.db; saveDB(); }
       if(data.settings){ S = Object.assign({}, DEFAULTS, data.settings); persistS(); }
-      if(data.months) for(const [k,v] of Object.entries(data.months)) if(v) lsSet(k, v);
-      loadMonth(); fillFilters(); fillSettings(); renderEmp(); renderComm(); renderHist(); fillEmpPicker();
+      if(data.months){
+        for(const [k,v] of Object.entries(data.months)){
+          if(!v) continue;
+          if(CLOUD && AUTHED){ try{ fdb.collection("months").doc(k.replace("uo-comm-","")).set(JSON.parse(v)); }catch(err){} }
+          else lsSet(k, v);
+        }
+      }
+      if(!CLOUD) loadMonthLocal();
+      fillFilters(); fillSettings(); renderEmp(); renderComm(); renderHist(); fillEmpPicker();
       alert("กู้คืนข้อมูลเรียบร้อย");
     }catch(err){ alert("ไฟล์ไม่ถูกต้อง"); } };
   fr.readAsText(file);
@@ -788,7 +906,7 @@ $("restore-file").addEventListener("change",e=>{
 function renderHist(){
   const q = ($("h-q").value||"").trim().toLowerCase();
   const ul = $("histlist"); ul.innerHTML = "";
-  const items = DB.hist.filter(h=>!q || h.code.includes(q) || (h.nick||"").toLowerCase().includes(q));
+  const items = (DB.hist||[]).filter(h=>!q || h.code.includes(q) || (h.nick||"").toLowerCase().includes(q));
   $("hist-empty").hidden = items.length>0;
   for(const h of items.slice(0,300)){
     const lines = (h.changes||[]).map(c=>{
@@ -898,17 +1016,95 @@ $("btn-save").addEventListener("click",()=>{
   const f=$("savedflash"); f.classList.add("show"); setTimeout(()=>f.classList.remove("show"),1600);
 });
 
+/* ================= Firebase auth + realtime ================= */
+let AUTHED = false;
+let unsubs = [];
+function cloudErr(e){
+  console.error(e);
+  $("synctext").textContent = "ซิงก์มีปัญหา — เช็คอินเทอร์เน็ต/สิทธิ์";
+  $("syncchip").classList.add("off");
+}
+function setSync(on, text){
+  $("syncchip").classList.toggle("off", !on);
+  $("synctext").textContent = text;
+}
+async function cloudStart(){
+  // seed ครั้งแรก: ถ้ายังไม่มีข้อมูลบนคลาวด์ ให้อัปโหลดจากเครื่องนี้ (หรือ SEED)
+  try{
+    const empSnap = await DOC("employees").get();
+    if(!empSnap.exists){
+      await DOC("employees").set({list: DB.emp});
+      await DOC("hist").set({list: DB.hist||[]});
+      await DOC("settings").set({s: S});
+    }
+  }catch(e){ cloudErr(e); return; }
+
+  unsubs.push(DOC("employees").onSnapshot(s=>{
+    if(s.metadata.hasPendingWrites) return;
+    const d = s.data();
+    if(d && Array.isArray(d.list)){
+      DB.emp = d.list;
+      fillFilters(); renderEmp(); renderComm(); fillEmpPicker();
+    }
+  }, cloudErr));
+  unsubs.push(DOC("hist").onSnapshot(s=>{
+    if(s.metadata.hasPendingWrites) return;
+    const d = s.data();
+    if(d && Array.isArray(d.list)){ DB.hist = d.list; renderHist(); }
+  }, cloudErr));
+  unsubs.push(DOC("settings").onSnapshot(s=>{
+    if(s.metadata.hasPendingWrites) return;
+    const d = s.data();
+    if(d && d.s){
+      S = Object.assign({}, JSON.parse(JSON.stringify(DEFAULTS)), d.s);
+      const inSettings = document.activeElement && document.activeElement.closest && document.activeElement.closest("#p-set");
+      if(!inSettings) fillSettings();
+      renderComm();
+    }
+  }, cloudErr));
+  subscribeMonth();
+  setSync(true, "ซิงก์ทีมแบบเรียลไทม์");
+}
+function cloudStop(){
+  unsubs.forEach(u=>u&&u()); unsubs=[];
+  if(monthUnsub){ monthUnsub(); monthUnsub=null; }
+}
+if(CLOUD){
+  $("login-btn").addEventListener("click", async ()=>{
+    $("login-err").textContent = "";
+    try{
+      await firebase.auth().signInWithEmailAndPassword($("login-email").value.trim(), $("login-pass").value);
+    }catch(e){
+      $("login-err").textContent = "เข้าสู่ระบบไม่สำเร็จ — เช็คอีเมล/รหัสผ่าน";
+    }
+  });
+  $("login-pass").addEventListener("keydown",e=>{ if(e.key==="Enter") $("login-btn").click(); });
+  $("btn-logout").addEventListener("click",()=>firebase.auth().signOut());
+  firebase.auth().onAuthStateChanged(user=>{
+    AUTHED = !!user;
+    $("login-overlay").hidden = AUTHED;
+    $("btn-logout").hidden = !AUTHED;
+    if(AUTHED){ cloudStart(); }
+    else { cloudStop(); setSync(false, "ยังไม่ได้เข้าสู่ระบบ"); }
+  });
+}
+
 /* ================= init ================= */
 (function(){
   const d = new Date();
   $("month").value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
-  lsSet("uo-probe","1");
-  $("storagewarn").hidden = CAN_STORE;
-  saveDB();
-  loadMonth();
+  $("setupwarn").hidden = CLOUD;
+  if(!CLOUD){
+    setSync(false, "โหมดเครื่องเดียว (ยังไม่ตั้งค่า Firebase)");
+    loadMonthLocal();
+  }
   fillFilters(); fillSettings(); fillEmpPicker();
   renderEmp(); renderComm(); renderHist();
-  $("month").addEventListener("input",()=>{ loadMonth(); renderEmp(); renderComm(); });
+  $("month").addEventListener("input",()=>{
+    if(CLOUD && AUTHED) subscribeMonth();
+    else { loadMonthLocal(); renderComm(); }
+    renderEmp();
+  });
 })();
 </script>
 </body>
