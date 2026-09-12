@@ -3,99 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>คำนวณค่าคอม · เงินเดือน · วันทำงาน</title>
+<title>คำนวณค่าคอม · เงินเดือน · พนักงาน</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#F6F8F4;
-  --card:#FFFFFF;
-  --ink:#1A2A22;
-  --muted:#5C6E63;
-  --line:#DCE4DA;
-  --money:#0E7A5F;
-  --money-soft:#E4F1EB;
-  --deduct:#B23A2E;
-  --deduct-soft:#F7E9E6;
-  --focus:#0E7A5F;
-  --radius:10px;
+  --paper:#F6F8F4; --card:#FFFFFF; --ink:#1A2A22; --muted:#5C6E63;
+  --line:#DCE4DA; --money:#0E7A5F; --money-soft:#E4F1EB;
+  --deduct:#B23A2E; --deduct-soft:#F7E9E6; --focus:#0E7A5F; --radius:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px}
-body{
-  font-family:'Anuphan',sans-serif;
-  background:var(--paper);
-  color:var(--ink);
-  line-height:1.55;
-  font-variant-numeric:tabular-nums;
-  padding-bottom:4rem;
-}
-.wrap{max-width:1080px;margin:0 auto;padding:0 1rem}
-header.site{
-  border-bottom:1px solid var(--line);
-  background:var(--card);
-  padding:1.1rem 0 .9rem;
-  margin-bottom:1.25rem;
-}
+body{font-family:'Anuphan',sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;font-variant-numeric:tabular-nums;padding-bottom:4rem}
+.wrap{max-width:1180px;margin:0 auto;padding:0 1rem}
+header.site{border-bottom:1px solid var(--line);background:var(--card);padding:1.1rem 0 .9rem;margin-bottom:1.25rem}
 header.site .wrap{display:flex;flex-wrap:wrap;gap:.75rem 1.5rem;align-items:baseline;justify-content:space-between}
-h1{font-size:1.35rem;font-weight:700;letter-spacing:.01em}
+h1{font-size:1.35rem;font-weight:700}
 h1 .sub{display:block;font-size:.85rem;font-weight:500;color:var(--muted)}
 .month-pick{display:flex;align-items:center;gap:.5rem;font-size:.9rem;color:var(--muted)}
 .month-pick input{font-family:inherit;font-size:.95rem;border:1px solid var(--line);border-radius:6px;padding:.3rem .5rem;background:var(--card);color:var(--ink)}
 
 nav.tabs{display:flex;gap:.25rem;border-bottom:1px solid var(--line);margin-bottom:1.25rem;overflow-x:auto}
-nav.tabs button{
-  font-family:inherit;font-size:.95rem;font-weight:600;
-  background:none;border:none;border-bottom:3px solid transparent;
-  padding:.55rem .9rem;color:var(--muted);cursor:pointer;white-space:nowrap;
-}
+nav.tabs button{font-family:inherit;font-size:.95rem;font-weight:600;background:none;border:none;border-bottom:3px solid transparent;padding:.55rem .9rem;color:var(--muted);cursor:pointer;white-space:nowrap}
 nav.tabs button[aria-selected="true"]{color:var(--money);border-bottom-color:var(--money)}
 nav.tabs button:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
-
 section.panel{display:none}
 section.panel.active{display:block}
 
 .grid{display:grid;gap:1rem}
 @media(min-width:860px){.grid.cols-2{grid-template-columns:1fr 1fr}.grid.form-slip{grid-template-columns:1.1fr .9fr}}
-
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.2rem}
 .card h2{font-size:1rem;font-weight:700;margin-bottom:.8rem}
 .card h2 small{font-weight:500;color:var(--muted);font-size:.8rem;margin-left:.4rem}
-
 fieldset{border:none;margin-bottom:1rem}
 legend{font-size:.85rem;font-weight:700;color:var(--money);margin-bottom:.5rem;padding-top:.25rem}
 .frow{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.6rem .8rem}
 label.f{display:block;font-size:.8rem;color:var(--muted)}
 label.f span{display:block;margin-bottom:.15rem}
-input[type=number],input[type=text],textarea,select{
-  font-family:inherit;font-size:.95rem;width:100%;
-  border:1px solid var(--line);border-radius:6px;
-  padding:.4rem .55rem;background:#FCFDFB;color:var(--ink);
-}
+input,textarea,select{font-family:inherit;font-size:.95rem;width:100%;border:1px solid var(--line);border-radius:6px;padding:.4rem .55rem;background:#FCFDFB;color:var(--ink)}
 input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
-textarea{resize:vertical;min-height:130px;font-size:.85rem;line-height:1.5}
-
-button.primary,button.ghost{
-  font-family:inherit;font-size:.95rem;font-weight:600;
-  border-radius:8px;padding:.5rem 1.1rem;cursor:pointer;
-}
+textarea{resize:vertical;min-height:110px;font-size:.85rem;line-height:1.5}
+button.primary,button.ghost,button.danger{font-family:inherit;font-size:.95rem;font-weight:600;border-radius:8px;padding:.5rem 1.1rem;cursor:pointer}
 button.primary{background:var(--money);color:#fff;border:1px solid var(--money)}
 button.primary:hover{background:#0B6A52}
 button.ghost{background:var(--card);color:var(--money);border:1px solid var(--money)}
 button.ghost:hover{background:var(--money-soft)}
-.btnrow{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.5rem}
+button.danger{background:var(--card);color:var(--deduct);border:1px solid var(--deduct)}
+.btnrow{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.5rem;align-items:center}
+.hint{font-size:.8rem;color:var(--muted);margin:.4rem 0 .8rem}
+.hint code{background:#EEF2EC;padding:.05rem .3rem;border-radius:4px;font-size:.75rem}
 
-/* ---- payslip ---- */
-.slip{
-  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-  overflow:hidden;position:relative;
-}
-.slip::before{ /* perforated top edge */
-  content:"";display:block;height:10px;
-  background:radial-gradient(circle at 6px 0, var(--paper) 5px, transparent 5.5px) repeat-x;
-  background-size:14px 10px;border-bottom:1px dashed var(--line);
-}
+.slip{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.slip::before{content:"";display:block;height:10px;background:radial-gradient(circle at 6px 0, var(--paper) 5px, transparent 5.5px) repeat-x;background-size:14px 10px;border-bottom:1px dashed var(--line)}
 .slip .inner{padding:1rem 1.2rem 1.2rem}
 .slip h2{font-size:1rem;font-weight:700}
 .slip .who{color:var(--muted);font-size:.85rem;margin-bottom:.75rem}
@@ -109,35 +69,47 @@ button.ghost:hover{background:var(--money-soft)}
 .slip tr.total td.amt{font-size:1.15rem;color:var(--money)}
 .slip .note{font-size:.75rem;color:var(--muted);margin-top:.8rem}
 
-/* ---- team table ---- */
 .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--card)}
-table.team{border-collapse:collapse;width:100%;font-size:.85rem;min-width:900px}
-table.team th,table.team td{padding:.45rem .6rem;border-bottom:1px solid #EEF2EC;text-align:right;white-space:nowrap}
-table.team th{background:#F0F4EE;font-weight:700;font-size:.78rem;color:var(--ink);position:sticky;top:0}
-table.team th:first-child,table.team td:first-child,
-table.team th:nth-child(2),table.team td:nth-child(2){text-align:left}
+table.team{border-collapse:collapse;width:100%;font-size:.85rem}
+table.team th,table.team td{padding:.42rem .55rem;border-bottom:1px solid #EEF2EC;text-align:right;white-space:nowrap}
+table.team th{background:#F0F4EE;font-weight:700;font-size:.76rem;position:sticky;top:0;z-index:1}
+table.team td.l,table.team th.l{text-align:left}
 table.team td.pos{color:var(--money);font-weight:600}
 table.team td.neg{color:var(--deduct);font-weight:600}
 table.team tfoot td{font-weight:700;border-top:2px solid var(--ink);background:#F7FAF6}
-.hint{font-size:.8rem;color:var(--muted);margin:.4rem 0 .8rem}
-.hint code{background:#EEF2EC;padding:.05rem .3rem;border-radius:4px;font-size:.75rem}
+table.team input{width:88px;padding:.2rem .35rem;font-size:.85rem;text-align:right}
+table.team input.narrow{width:52px}
+table.team tr.rowhl:hover td{background:#F7FAF6;cursor:pointer}
 
-/* ---- settings ---- */
+.badge{display:inline-block;font-size:.72rem;font-weight:600;padding:.1rem .5rem;border-radius:999px}
+.badge.on{background:var(--money-soft);color:var(--money)}
+.badge.off{background:var(--deduct-soft);color:var(--deduct)}
+.badge.trial{background:#FFF3DC;color:#8A6100}
+
 table.tiers{border-collapse:collapse;width:100%;max-width:460px;font-size:.9rem;margin-bottom:.6rem}
 table.tiers th,table.tiers td{padding:.3rem .4rem;border-bottom:1px solid #EEF2EC;text-align:left}
 table.tiers input{max-width:140px}
 table.tiers button{background:none;border:none;color:var(--deduct);cursor:pointer;font-size:1rem}
-.saved-flash{display:inline-block;margin-left:.6rem;font-size:.85rem;color:var(--money);opacity:0;transition:opacity .3s}
+.saved-flash{display:inline-block;font-size:.85rem;color:var(--money);opacity:0;transition:opacity .3s}
 .saved-flash.show{opacity:1}
 @media (prefers-reduced-motion:reduce){.saved-flash{transition:none}}
+
+.hist{font-size:.85rem}
+.hist li{list-style:none;padding:.5rem 0;border-bottom:1px solid #EEF2EC}
+.hist .t{color:var(--muted);font-size:.75rem}
+.hist .up{color:var(--money);font-weight:600}
+.hist .down{color:var(--deduct);font-weight:600}
+details.imp{margin-top:.8rem}
+details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--money)}
+.warnbar{background:#FFF3DC;border:1px solid #EAD59A;color:#6B4E00;border-radius:8px;padding:.5rem .8rem;font-size:.82rem;margin-bottom:1rem}
 </style>
 </head>
 <body>
 
 <header class="site">
   <div class="wrap">
-    <h1>คำนวณค่าคอม · เงินเดือน · วันทำงาน
-      <span class="sub">ระบบคิด Incentive ทีมขาย — ใช้แทนตาราง Commission, Incentive</span>
+    <h1>คำนวณค่าคอม · เงินเดือน · พนักงาน
+      <span class="sub">ระบบคิด Incentive และทะเบียนพนักงาน UO</span>
     </h1>
     <div class="month-pick">
       <label for="month">งวดเดือน</label>
@@ -148,138 +120,192 @@ table.tiers button{background:none;border:none;color:var(--deduct);cursor:pointe
 
 <div class="wrap">
 
+<div class="warnbar" id="storagewarn" hidden>เบราว์เซอร์นี้บันทึกข้อมูลถาวรไม่ได้ — ข้อมูลจะหายเมื่อปิดหน้า ใช้ปุ่ม "สำรองข้อมูล" เก็บไฟล์ไว้ก่อน</div>
+
 <nav class="tabs" role="tablist">
-  <button role="tab" aria-selected="true" data-panel="p-one">คำนวณรายคน</button>
-  <button role="tab" aria-selected="false" data-panel="p-team">ทั้งทีม (วางจากชีท)</button>
+  <button role="tab" aria-selected="true"  data-panel="p-comm">คำนวณค่าคอม</button>
+  <button role="tab" aria-selected="false" data-panel="p-one">คำนวณรายคน</button>
+  <button role="tab" aria-selected="false" data-panel="p-emp">พนักงาน</button>
+  <button role="tab" aria-selected="false" data-panel="p-hist">ประวัติการแก้ไข</button>
   <button role="tab" aria-selected="false" data-panel="p-set">ตั้งค่าเรต</button>
 </nav>
 
+<!-- ================= คำนวณค่าคอมทั้งบริษัท ================= -->
+<section class="panel active" id="p-comm">
+  <div class="card" style="margin-bottom:1rem">
+    <h2>คำนวณค่าคอมประจำเดือน <small>พนักงานปัจจุบันขึ้นให้อัตโนมัติ · กรอกยอดในตาราง ระบบคิดและบันทึกให้ทันที (แยกเก็บรายเดือน)</small></h2>
+    <div class="frow" style="max-width:560px">
+      <label class="f"><span>ค้นหา</span><input type="text" id="c-q" placeholder="ชื่อเล่น / รหัส"></label>
+      <label class="f"><span>สาขา</span><select id="c-branch"><option value="">ทุกสาขา</option></select></label>
+    </div>
+    <details class="imp">
+      <summary>นำเข้ายอดจากชีท (วางข้อมูล)</summary>
+      <p class="hint">คัดลอกจาก Google Sheets แล้ววาง — คอลัมน์: <code>ชื่อเล่น</code> <code>CRM</code> <code>แนะนำ</code> <code>หัก690</code> <code>ลา</code> <code>สาย</code> <code>ตีกลับ</code> (จับคู่พนักงานด้วยชื่อเล่น)</p>
+      <textarea id="c-paste" placeholder="มีน	642535	10130	3150	0	0	2"></textarea>
+      <div class="btnrow"><button class="ghost" id="c-import">นำเข้า</button><span class="hint" id="c-import-msg" style="margin:0"></span></div>
+    </details>
+    <div class="btnrow" style="margin-top:.8rem">
+      <button class="ghost" id="c-export">ดาวน์โหลด CSV เดือนนี้</button>
+      <button class="danger" id="c-clear">ล้างยอดเดือนนี้</button>
+      <span class="hint" style="margin:0" id="c-status"></span>
+    </div>
+  </div>
+
+  <div class="tablewrap">
+    <table class="team" id="commtable" style="min-width:1340px">
+      <thead><tr>
+        <th class="l">ชื่อเล่น</th><th class="l">สาขา</th>
+        <th>CRM</th><th>แนะนำ</th><th>หัก690</th><th>ลา</th><th>สาย</th><th>ตีกลับ</th><th>โบนัส/อื่น</th><th>หักKPI</th>
+        <th>ยอดสุทธิ</th><th>ค่าคอม %</th><th>Ontime</th><th>เดินทาง</th><th>Incentive</th><th>เงินเดือน</th><th>รวมรับ</th>
+      </tr></thead>
+      <tbody id="commbody"></tbody>
+      <tfoot><tr id="commfoot"></tr></tfoot>
+    </table>
+  </div>
+  <p class="hint">ค่าคอม % คิดจากขั้นเทียร์ของ "ยอดสุทธิ CRM+แนะนำ" · Ontime จ่ายเมื่อ ลา=0 และ สาย=0 · เงินเดือนดึงฐานจากทะเบียนพนักงาน หักลา (÷26/วัน) และหักสายตามเรต</p>
+</section>
+
 <!-- ================= รายคน ================= -->
-<section class="panel active" id="p-one">
+<section class="panel" id="p-one">
   <div class="grid form-slip">
     <div class="card">
-      <h2>ข้อมูลพนักงาน <small>กรอกเฉพาะช่องที่มียอด ที่เหลือปล่อย 0 ได้</small></h2>
-
+      <h2>คำนวณรายคน</h2>
       <fieldset>
-        <legend>ชื่อ</legend>
+        <legend>เลือกพนักงาน</legend>
         <div class="frow">
-          <label class="f"><span>ชื่อ / ชื่อเล่น</span><input type="text" id="f-name" placeholder="เช่น มีน"></label>
-          <label class="f"><span>ทีม</span><input type="text" id="f-team" placeholder="เช่น tang"></label>
-          <label class="f"><span>ตำแหน่ง</span>
-            <select id="f-pos"><option>CRM</option><option>Admin</option><option>อื่น ๆ</option></select>
+          <label class="f" style="grid-column:1/-1"><span>พิมพ์ชื่อเล่นหรือรหัส</span>
+            <input type="text" id="f-emp" list="emp-list" placeholder="เช่น มีน · 00005">
+            <datalist id="emp-list"></datalist>
           </label>
         </div>
       </fieldset>
-
       <fieldset>
         <legend>ยอดขาย (บาท)</legend>
         <div class="frow">
           <label class="f"><span>ยอดขาย CRM</span><input type="number" id="f-crm" value="0" min="0"></label>
           <label class="f"><span>ยอดแนะนำ</span><input type="number" id="f-ref" value="0" min="0"></label>
-          <label class="f"><span>ยอดออเดอร์ต่ำกว่า 690 (หักออก)</span><input type="number" id="f-sub690" value="0" min="0"></label>
-          <label class="f"><span>FB</span><input type="number" id="f-fb" value="0" min="0"></label>
-          <label class="f"><span>UPSELL</span><input type="number" id="f-up" value="0" min="0"></label>
-          <label class="f"><span>INBCALL</span><input type="number" id="f-inb" value="0" min="0"></label>
-          <label class="f"><span>LINE</span><input type="number" id="f-line" value="0" min="0"></label>
+          <label class="f"><span>ยอดต่ำกว่า 690 (หัก)</span><input type="number" id="f-sub690" value="0" min="0"></label>
         </div>
       </fieldset>
-
       <fieldset>
-        <legend>วันทำงาน / วินัย</legend>
+        <legend>วินัย / อื่น ๆ</legend>
         <div class="frow">
           <label class="f"><span>ลา (วัน)</span><input type="number" id="f-leave" value="0" min="0"></label>
           <label class="f"><span>สาย (ครั้ง)</span><input type="number" id="f-late" value="0" min="0"></label>
           <label class="f"><span>ตีกลับ (ครั้ง)</span><input type="number" id="f-return" value="0" min="0"></label>
-        </div>
-      </fieldset>
-
-      <fieldset>
-        <legend>โบนัส / รายการอื่น (กรอกเอง)</legend>
-        <div class="frow">
-          <label class="f"><span>โบนัสไตรมาส</span><input type="number" id="f-qbonus" value="0" min="0"></label>
-          <label class="f"><span>Target อายุงาน</span><input type="number" id="f-tenure" value="0" min="0"></label>
-          <label class="f"><span>ค่าแนะนำ Friend Get Friends</span><input type="number" id="f-fgf" value="0" min="0"></label>
+          <label class="f"><span>โบนัส/อื่น ๆ</span><input type="number" id="f-bonus" value="0" min="0"></label>
           <label class="f"><span>หัก KPI</span><input type="number" id="f-kpi" value="0" min="0"></label>
+          <label class="f"><span>เงินเดือนฐาน</span><input type="number" id="f-salary" value="0" min="0"></label>
         </div>
       </fieldset>
-
-      <fieldset>
-        <legend>เงินเดือน</legend>
-        <div class="frow">
-          <label class="f"><span>เงินเดือน (บาท)</span><input type="number" id="f-salary" value="0" min="0"></label>
-          <label class="f"><span>วันทำงานเต็มเดือน</span><input type="number" id="f-workdays" value="26" min="1"></label>
-        </div>
-      </fieldset>
-
       <div class="btnrow">
         <button class="primary" id="btn-calc">คำนวณ</button>
         <button class="ghost" id="btn-clear">ล้างฟอร์ม</button>
       </div>
     </div>
-
-    <div class="slip" id="slip" aria-live="polite">
+    <div class="slip">
       <div class="inner">
         <h2>สลิปสรุปยอด</h2>
-        <div class="who" id="slip-who">ยังไม่ได้คำนวณ — กรอกข้อมูลด้านซ้ายแล้วกด "คำนวณ"</div>
-        <table id="slip-table" hidden>
-          <tbody id="slip-body"></tbody>
-        </table>
-        <p class="note" id="slip-note" hidden>Ontime เบี้ยขยันจ่ายเมื่อไม่มีลาและไม่สายเท่านั้น · ปรับเรตทั้งหมดได้ที่แท็บ "ตั้งค่าเรต"</p>
+        <div class="who" id="slip-who">เลือกพนักงานแล้วกด "คำนวณ"</div>
+        <table id="slip-table" hidden><tbody id="slip-body"></tbody></table>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ================= ทั้งทีม ================= -->
-<section class="panel" id="p-team">
-  <div class="card" style="margin-bottom:1rem">
-    <h2>วางข้อมูลจาก Google Sheets</h2>
-    <p class="hint">
-      คัดลอกช่วงข้อมูลจากชีท (ลากคลุมแล้ว Ctrl+C) มาวางในกล่องนี้ได้เลย ระบบอ่านคอลัมน์จากหัวตาราง
-      รองรับหัวคอลัมน์: <code>ชื่อ</code> <code>ทีม</code> <code>CRM</code> <code>แนะนำ</code> <code>หัก690</code>
-      <code>FB</code> <code>UPSELL</code> <code>INBCALL</code> <code>LINE</code> <code>ลา</code> <code>สาย</code>
-      <code>ตีกลับ</code> <code>โบนัส</code> <code>อายุงาน</code> <code>FGF</code> <code>KPI</code> <code>เงินเดือน</code>
-      — หรือถ้าไม่มีหัวตาราง ให้เรียงคอลัมน์ตามลำดับนี้
-    </p>
-    <textarea id="paste" placeholder="ชื่อ	ทีม	CRM	แนะนำ	หัก690	ลา	สาย	ตีกลับ	เงินเดือน&#10;มีน	tang	642535	10130	3150	0	0	2	0"></textarea>
+<!-- ================= พนักงาน ================= -->
+<section class="panel" id="p-emp">
+  <div class="card" id="empform-card" style="margin-bottom:1rem" hidden>
+    <h2 id="empform-title">แก้ไขพนักงาน</h2>
+    <div class="frow">
+      <label class="f"><span>รหัสพนักงาน *</span><input type="text" id="e-code"></label>
+      <label class="f"><span>ชื่อ-นามสกุล *</span><input type="text" id="e-name"></label>
+      <label class="f"><span>ชื่อเล่น</span><input type="text" id="e-nick"></label>
+      <label class="f"><span>แผนก</span><input type="text" id="e-dept" list="dept-list"><datalist id="dept-list"></datalist></label>
+      <label class="f"><span>ตำแหน่ง</span><input type="text" id="e-pos" list="pos-list"><datalist id="pos-list"></datalist></label>
+      <label class="f"><span>สาขา</span><input type="text" id="e-branch" list="branch-list"><datalist id="branch-list"></datalist></label>
+      <label class="f"><span>หัวหน้า</span><input type="text" id="e-sup" list="sup-list"><datalist id="sup-list"></datalist></label>
+      <label class="f"><span>สถานะ</span>
+        <select id="e-status"><option>ทดลองงาน</option><option>ปัจจุบัน</option><option>ลาออก</option></select>
+      </label>
+      <label class="f"><span>วันเริ่มงาน (ว/ด/ปปปป พ.ศ.)</span><input type="text" id="e-start" placeholder="เช่น 15/6/2569"></label>
+      <label class="f"><span>วันผ่านงาน (ว/ด/ปปปป พ.ศ.)</span><input type="text" id="e-pass" placeholder="เว้นว่างถ้ายังไม่ผ่าน"></label>
+      <label class="f"><span>วันที่ลาออก (ว/ด/ปปปป พ.ศ.)</span><input type="text" id="e-resign"></label>
+      <label class="f"><span>ฐานเงินเดือน (บาท)</span><input type="number" id="e-salary" min="0"></label>
+    </div>
     <div class="btnrow">
-      <button class="primary" id="btn-parse">คำนวณทั้งตาราง</button>
-      <button class="ghost" id="btn-example">ใส่ตัวอย่าง</button>
-      <button class="ghost" id="btn-export" hidden>ดาวน์โหลด CSV</button>
+      <button class="primary" id="e-save">บันทึก</button>
+      <button class="ghost" id="e-cancel">ยกเลิก</button>
+      <span class="saved-flash" id="e-flash">บันทึกแล้ว ✓</span>
     </div>
   </div>
 
-  <div class="tablewrap" id="teamwrap" hidden>
-    <table class="team" id="teamtable">
-      <thead>
-        <tr>
-          <th>ชื่อ</th><th>ทีม</th>
-          <th>CRM+แนะนำ</th><th>หัก 690</th><th>ยอดสุทธิ</th>
-          <th>ค่าคอม</th><th>Ontime</th><th>ค่าเดินทาง</th><th>โบนัส/อื่น ๆ</th>
-          <th>หักตีกลับ</th><th>หัก KPI</th><th>รวม Incentive</th>
-          <th>เงินเดือนสุทธิ</th><th>รวมรับ</th>
-        </tr>
-      </thead>
-      <tbody id="teambody"></tbody>
-      <tfoot><tr id="teamfoot"></tr></tfoot>
+  <div class="card" style="margin-bottom:1rem">
+    <h2>ทะเบียนพนักงาน <small>คลิกแถวเพื่อแก้ไข · ทุกการแก้ไขถูกบันทึกลงประวัติ</small></h2>
+    <div class="frow" style="max-width:960px">
+      <label class="f"><span>ค้นหา</span><input type="text" id="emp-q" placeholder="ชื่อ / ชื่อเล่น / รหัส"></label>
+      <label class="f"><span>สาขา</span><select id="emp-branch"><option value="">ทุกสาขา</option></select></label>
+      <label class="f"><span>แผนก</span><select id="emp-dept"><option value="">ทุกแผนก</option></select></label>
+      <label class="f"><span>หัวหน้า</span><select id="emp-sup"><option value="">ทุกคน</option></select></label>
+      <label class="f"><span>สถานะ</span>
+        <select id="emp-status"><option value="ปัจจุบัน+ทดลองงาน" selected>ยังทำงานอยู่</option><option value="ปัจจุบัน">ปัจจุบัน</option><option value="ทดลองงาน">ทดลองงาน</option><option value="ลาออก">ลาออก</option><option value="">ทั้งหมด</option></select>
+      </label>
+    </div>
+    <div class="btnrow">
+      <button class="primary" id="btn-addemp">+ เพิ่มพนักงานใหม่</button>
+      <button class="ghost" id="btn-backup">สำรองข้อมูล (ไฟล์ .json)</button>
+      <button class="ghost" id="btn-restore">กู้คืนจากไฟล์</button>
+      <input type="file" id="restore-file" accept=".json" hidden>
+      <span class="hint" id="emp-count" style="margin:0"></span>
+    </div>
+  </div>
+
+  <div class="tablewrap">
+    <table class="team" id="emptable" style="min-width:1150px">
+      <thead><tr>
+        <th class="l">รหัส</th><th class="l">ชื่อเล่น</th><th class="l">ชื่อ-นามสกุล</th>
+        <th class="l">แผนก</th><th class="l">ตำแหน่ง</th><th class="l">สาขา</th><th class="l">หัวหน้า</th>
+        <th>เริ่มงาน</th><th>ผ่านงาน</th><th>อายุงาน</th><th>เงินเดือน</th><th class="l">สถานะ</th>
+      </tr></thead>
+      <tbody id="empbody"></tbody>
     </table>
+  </div>
+</section>
+
+<!-- ================= ประวัติ ================= -->
+<section class="panel" id="p-hist">
+  <div class="card">
+    <h2>ประวัติการแก้ไขข้อมูลพนักงาน <small>ปรับเงินเดือน เข้า-ออก และการแก้ไขทุกช่อง</small></h2>
+    <div class="frow" style="max-width:420px">
+      <label class="f"><span>กรองตามคน</span><input type="text" id="h-q" placeholder="ชื่อเล่น / รหัส"></label>
+    </div>
+    <ul class="hist" id="histlist"></ul>
+    <p class="hint" id="hist-empty" hidden>ยังไม่มีประวัติการแก้ไข</p>
   </div>
 </section>
 
 <!-- ================= ตั้งค่า ================= -->
 <section class="panel" id="p-set">
-  <div class="grid cols-2">
-    <div class="card">
-      <h2>เปอร์เซ็นต์ค่าคอมต่อช่องทาง <small>% ของยอด (0 = ไม่คิด)</small></h2>
-      <div class="frow">
-        <label class="f"><span>% ยอดสุทธิ CRM+แนะนำ</span><input type="number" step="0.01" id="s-pct-net"></label>
-        <label class="f"><span>% FB</span><input type="number" step="0.01" id="s-pct-fb"></label>
-        <label class="f"><span>% UPSELL</span><input type="number" step="0.01" id="s-pct-up"></label>
-        <label class="f"><span>% INBCALL</span><input type="number" step="0.01" id="s-pct-inb"></label>
-        <label class="f"><span>% LINE</span><input type="number" step="0.01" id="s-pct-line"></label>
-      </div>
-    </div>
+  <div class="card" style="margin-bottom:1rem">
+    <h2>เทียร์ % ค่าคอม ยอดสุทธิ CRM+แนะนำ <small>ใช้ % ของขั้นสูงสุดที่ยอดสุทธิถึง คูณยอดสุทธิทั้งก้อน</small></h2>
+    <table class="tiers">
+      <thead><tr><th>ยอดสุทธิตั้งแต่ (บาท)</th><th>ค่าคอม (%)</th><th></th></tr></thead>
+      <tbody id="ctierbody"></tbody>
+    </table>
+    <div class="btnrow"><button class="ghost" id="btn-addctier">เพิ่มเทียร์</button></div>
+    <p class="hint">ตัวอย่าง: 0 → 0.5%, 100,000 → 1%, 300,000 → 1.5% หมายถึงยอด 350,000 ได้ค่าคอม 350,000 × 1.5% = 5,250 บาท</p>
+  </div>
 
+  <div class="card" style="margin-bottom:1rem">
+    <h2>ขั้น Ontime เบี้ยขยัน <small>จ่ายเมื่อไม่มีลา/สาย · ใช้ขั้นสูงสุดที่ยอดสุทธิถึง</small></h2>
+    <table class="tiers">
+      <thead><tr><th>ยอดสุทธิตั้งแต่ (บาท)</th><th>จ่าย (บาท)</th><th></th></tr></thead>
+      <tbody id="tierbody"></tbody>
+    </table>
+    <div class="btnrow"><button class="ghost" id="btn-addtier">เพิ่มขั้น</button></div>
+  </div>
+
+  <div class="grid cols-2">
     <div class="card">
       <h2>ค่าเดินทาง · ตีกลับ · สาย · ลา</h2>
       <div class="frow">
@@ -287,25 +313,20 @@ table.tiers button{background:none;border:none;color:var(--deduct);cursor:pointe
         <label class="f"><span>ค่าเดินทางที่จ่าย</span><input type="number" id="s-travel-amt"></label>
         <label class="f"><span>หักตีกลับ (บาท/ครั้ง)</span><input type="number" id="s-return"></label>
         <label class="f"><span>หักสาย (บาท/ครั้ง)</span><input type="number" id="s-late"></label>
+        <label class="f"><span>วันทำงานเต็มเดือน (หาร)</span><input type="number" id="s-workdays" min="1"></label>
         <label class="f"><span>ลาหักเงินเดือนตามวัน</span>
-          <select id="s-leave-deduct"><option value="1">หัก (เงินเดือน ÷ วันทำงาน × วันลา)</option><option value="0">ไม่หัก</option></select>
+          <select id="s-leave-deduct"><option value="1">หัก</option><option value="0">ไม่หัก</option></select>
         </label>
       </div>
     </div>
-  </div>
-
-  <div class="card" style="margin-top:1rem">
-    <h2>ขั้น Ontime เบี้ยขยัน <small>จ่ายเมื่อไม่มีลา/สาย · ใช้ขั้นสูงสุดที่ยอดสุทธิถึง</small></h2>
-    <table class="tiers">
-      <thead><tr><th>ยอดสุทธิตั้งแต่ (บาท)</th><th>จ่ายเบี้ยขยัน (บาท)</th><th></th></tr></thead>
-      <tbody id="tierbody"></tbody>
-    </table>
-    <div class="btnrow">
-      <button class="ghost" id="btn-addtier">เพิ่มขั้น</button>
-      <button class="primary" id="btn-save">บันทึกการตั้งค่า</button>
-      <span class="saved-flash" id="savedflash">บันทึกแล้ว ✓</span>
+    <div class="card">
+      <h2>บันทึก</h2>
+      <p class="hint">การตั้งค่าเก็บไว้ในเครื่องนี้ กด "บันทึก" ทุกครั้งหลังแก้ แล้วตารางค่าคอมจะคำนวณใหม่ให้ทันที</p>
+      <div class="btnrow">
+        <button class="primary" id="btn-save">บันทึกการตั้งค่า</button>
+        <span class="saved-flash" id="savedflash">บันทึกแล้ว ✓</span>
+      </div>
     </div>
-    <p class="hint" style="margin-top:.6rem">ค่าตั้งต้นประมาณจากชีทเดือนสิงหาคม — ตรวจกับเรตจริงของบริษัทก่อนใช้จ่ายเงิน</p>
   </div>
 </section>
 
@@ -313,275 +334,581 @@ table.tiers button{background:none;border:none;color:var(--deduct);cursor:pointe
 
 <script>
 "use strict";
+const $ = id => document.getElementById(id);
+const fmt = n => (isFinite(n)?n:0).toLocaleString("th-TH",{maximumFractionDigits:2});
+const num = v => { const n = parseFloat(String(v??"").replace(/[, ]/g,"")); return isFinite(n)?n:0; };
+const esc = s => String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
 
-/* ---------------- settings ---------------- */
+/* ---------- storage ---------- */
+let CAN_STORE = true;
+function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ CAN_STORE=false; return null; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){ CAN_STORE=false; } }
+
+/* ---------- seed จากชีท UO: Manday (ไม่รวมข้อมูลอ่อนไหว) ---------- */
+/* [รหัส, ชื่อ-นามสกุล, ชื่อเล่น, แผนก, สาขา, ยังทำงาน(1/0), วันเริ่มงาน พ.ศ., ตำแหน่ง] */
+const SEED = [
+["00001","วรวุฒิ วรศิริกมล","เจี๋ย","ผู้บริหาร","สำนักงานใหญ่",1,"","ผู้บริหาร"],
+["00002","พรีม วรศิริกมล","ต้น","ผู้บริหาร","สำนักงานใหญ่",1,"","ผู้บริหาร"],
+["00003","วดีย์ วารีวนิช","อาแหมะ","ผู้บริหาร","สำนักงานใหญ่",1,"","ผู้บริหาร"],
+["00004","สิทธิกร วงศ์วานิชกิจ","ก๊อป","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"2/21/2565",""],
+["00005","กมลรัตน์ ศิริสำราญ","มีน","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"11/1/2565",""],
+["00006","มินตรา แจ่มขุนทด","มิ้งค์","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"5/20/2566",""],
+["00007","ปรเมธ เพชรรัตน์","แบงค์","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"12/8/2568",""],
+["00008","ธิดาวดี บุญมี","ครีม","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"1/17/2569",""],
+["00009","สุนิสา สุทธิโชติ","แอน","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"3/25/2569",""],
+["00010","อำภา ปิ่นวงษ์งาม","ตังค์","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"12/6/2565",""],
+["00011","ฉวีวรรณ ศิริศรี","ยุ้ย","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"5/27/2568",""],
+["00012","ธันย์นิชา ภูวเลิศหิรัญวดี","ขวัญ","บริหารทรัพยากรบุคคล","สำนักงานใหญ่",1,"15/6/2569",""],
+["000128","กัญญารัตน์ เจริญมาตร","ปอ","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"12/1/2564","หัวหน้างาน"],
+["000129","ณัฐพงศ์ ปาลี","เจมส์","บริหารทรัพยากรบุคคล","ขอนแก่น",0,"7/4/2569",""],
+["00013","จตุรภัทร เจริญสุดใจ","วี","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",0,"2/6/2569",""],
+["000130","นทีธาร คุณตะโก","ทิว","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"1/26/2566",""],
+["000131","ชัชรีญา เพียยุระ","อีฟ","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"3/2/2569",""],
+["000132","สุนิสา เพียยุระ","ออย","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"3/2/2569",""],
+["000133","อิสรีย์ สุดเฉลียวรสา","กุ้ง","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"3/2/2569",""],
+["000134","วันชัย บัวหลวง","เอส","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"3/2/2569",""],
+["000135","มธุรี คำมงคุณ","แป๊ป","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"7/4/2569",""],
+["000136","วรัชพร กรรณลา","ปุ๋ย","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"7/4/2569",""],
+["000137","พรสุดา ธนาคุณ","ฝน","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"7/4/2569",""],
+["000138","กนกพร วงษ์วิลัย","เจนนี่","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"8/5/2569",""],
+["000139","นพรัตน์ ทอดสนิท","แบม","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"21/5/2569",""],
+["00014","อภิริยา สิริชาติธาดา","ปลา","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",0,"8/6/2569",""],
+["000140","ชลธิชา พุ่มขจร","บีม","บริหารทรัพยากรบุคคล","ขอนแก่น",1,"15/6/2569",""],
+["000141","สิรินารา ภูทองชนะ","แนน","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"15/6/2569",""],
+["000142","พรพรรณ ยูระทัย","มิว","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"15/6/2569",""],
+["000143","นวภัทร พลประเสริฐ","จอย","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"2/6/2569",""],
+["000144","พัทธนันท์ กิจจรัส","แพม","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"8/5/2569",""],
+["000145","ธนวรรธน์ โพธิศรี","โตชิ","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"8/6/2569",""],
+["000146","ตะวัน แสนสงค์","พีช","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"8/6/2569",""],
+["000147","ละอองดาว พิเศก","ดาว","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"9/5/2569",""],
+["000148","นภัค จันทเรือง","แก้วใจ","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"8/5/2569",""],
+["000149","นันทิชา งอสอน","กิ๊ฟ","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"23/4/2569",""],
+["00015","ศศิณา เหลืองพานิช","บี","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",0,"8/6/2569",""],
+["000150","ธมลวรรณ อินบำรุง","ธมล","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"8/5/2569",""],
+["000151","พรพณา สุวรรณวงค์","ใบเตย","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"27/4/2569",""],
+["000152","ธันยธรณ์ ภาษา","เนย","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"17/4/2569",""],
+["000153","เบญจรัตน์ ปรีเปรม","น้ำเงิน","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"23/4/2569",""],
+["00175","จันทิรา สอนเตจา","กวาง","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"1/7/2569",""],
+["00179","ยุภาวรุณ โคตะโน","เปิ้ล","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"7/7/2569","หัวหน้างาน"],
+["00176","ชลธิชา สุวรรณเพชร","นุ้ย","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"1/7/2569",""],
+["000154","ดาวสุดา ล้นทม","ดาว","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"17/4/2569",""],
+["000155","สุพิชญา เจนคุณพัฒศ์","บี","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",1,"11/1/2564","Freelance"],
+["000156","ธเนษฐ สิทธิการกูล","มังกร","Sales Admin Freelance","Freelance",1,"6/8/2564","Freelance"],
+["000157","มัทนา มะแอ","กุ๊กกิ๊ก","Sales Admin Freelance","Freelance",1,"3/1/2567","Freelance"],
+["000158","สุภาทิพย์ กำเนิดสาม","โม","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",1,"1/3/2568",""],
+["000159","ภูริส พูลเชื้อ","เนเน่","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",0,"5/5/2569",""],
+["00016","สุดารัช ชิดเอื้อ","นะนา","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",0,"2/18/2569",""],
+["000160","จิตติมา บุญยงค์","โบว์","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",0,"3/9/2569",""],
+["000161","นิรุชา อินนาค","กาย","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",0,"2/4/2569",""],
+["000162","พรรณธิภา แสงทอง","มุกดา","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",0,"2/20/2569",""],
+["000163","นันท์ชญาน์ บุญญาภิสิทธิ์โสภา","วิว","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",1,"7/7/2569",""],
+["00017","วารี เกตนันท์","แพรวา","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",0,"13/5/2569",""],
+["00018","นาฏอนงค์ วังยายฉิม","นิ้ง","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",0,"6/4/2569",""],
+["00019","นันทิตา ศรีจันทร์","ต้องตา","บริหารทรัพยากรบุคคล","สำนักงานใหญ่",0,"2/18/2569",""],
+["00020","กมลชนก จินดา","สมายด์","ผู้จัดการทั่วไป","ปราจีนบุรี",1,"9/1/2564","ผู้จัดการ"],
+["00021","ปทิตตา ทุมพล","ทิตา","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"3/1/2565",""],
+["00022","เหมือนฝัน ราสีประโคน","มะปราง","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"11/1/2565",""],
+["00023","ธิดารัตน์ เจริญรุ่งเรือง","เอเอ้","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"3/1/2565",""],
+["00024","สิราวรรณ อู่รัก","นิว","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"5/13/2566",""],
+["00025","จินดารัตน์ เจริญรุ่งเรือง","เอ๊ะ","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"5/13/2566",""],
+["00026","วิภาดา ขุนทอง","ป๊อป","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"8/21/2566",""],
+["00027","นิภา สงวนทรัพย์","ติ่ง","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"10/14/2566",""],
+["00028","จรินทร์ ถนอมจิตร์","ปุ๋ย","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"11/1/2566",""],
+["00029","ชญาณี พุ่มพฤกษา","ผึ้ง","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"11/1/2566",""],
+["00030","รัชนีกร สุขโข","แป้งโกะ","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"4/6/2567",""],
+["00031","ธันวา เจิมกระจีน","วา","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"9/21/2567",""],
+["00032","กรกช สุระขัน","โอริโอ้","Facebook Ads Specialist","ปราจีนบุรี",1,"11/4/2567",""],
+["00033","บังอร ภาเรือง","อร","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"12/6/2567",""],
+["00034","กนกวรรณ วรรณชาติ","ปีใหม่","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"2/17/2568",""],
+["00035","ณัฐวรรณ ภู่สอาด","ทรายทอง","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"3/17/2568",""],
+["00036","มนทกาญณ์ ห้อฤทธิ์","หมิว","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"5/13/2568",""],
+["00037","พัชณัท สระแก้ว","กิ๊บ","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"7/14/2568",""],
+["00038","พัชรา พิมมังกร","กิ๊ก","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"9/26/2568",""],
+["00039","กัญญาณัฐ บุญมี","แอมแปร์","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"1/12/2569",""],
+["00040","สรินทร ช่อชบา","ตั๊ก","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"2/4/2569",""],
+["00041","กุลรภัส ขันตี","เมเปิ้ล","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"2/4/2569",""],
+["00042","จิระเดช เจือจีน","ปอ","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",0,"2/6/2569",""],
+["00043","อัจฉรา เกตุมณี","น้อยหน่า","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"2/6/2569",""],
+["00044","พรรณภัทร ศรีวงษ์","ลูกน้ำ","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"2/6/2569",""],
+["00045","สุชาวดี ผิวขาว","มายด์","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",0,"2/6/2569",""],
+["00046","สุรีรัตน์ ฉานวัฒนะ","แน๊ต","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",0,"11/6/2569",""],
+["00047","หรรษา พันตาเอก","อู๋","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"11/6/2569",""],
+["00048","กัญญารัตน์ ศรีภิญโญ","น้ำ","Video Editor","ปราจีนบุรี",1,"1/3/2568",""],
+["00049","นภัสชิชญาฌ์ อุดม","นิดา","Video Editor","ปราจีนบุรี",1,"11/14/2568",""],
+["00050","ภูมิพัฒน์ ระยับ","บิ๊ก","Video Editor","ปราจีนบุรี",1,"1/2/2569",""],
+["00051","นิรชา สาพิมพ์","ป๊อป","Video Editor","ปราจีนบุรี",1,"3/9/2569",""],
+["00052","วีรพงศ์ วงค์บุตรศรี","คิง","Video Editor","ปราจีนบุรี",1,"28/4/2569",""],
+["00053","ภาณุภัทร เฉลิมป้อม","เม่น","Video Editor","ปราจีนบุรี",1,"5/5/2569",""],
+["00054","วันปิยะ มณีโส๊ะ","ไทม์","Facebook Ads Specialist","ปราจีนบุรี",0,"10/1/2567",""],
+["00055","ณรงค์วัฒน์ เจนคุณพัฒศ์","หนึ่ง","Facebook Ads Specialist","ปราจีนบุรี",1,"11/1/2566",""],
+["00057","ณัฏฐณิชา ดีนุช","วิว","Content Creator","ปราจีนบุรี",1,"3/4/2568",""],
+["00058","อารียา อโนพันธ์","เมษ์","Content Creator","ปราจีนบุรี",1,"4/17/2568",""],
+["00059","ธมลวรรณ บัวไสย์","เตยเตย","Content Creator","ปราจีนบุรี",1,"5/5/2569",""],
+["00060","ปราณภณัฏธ์ รักกฤษ","มิ้นท์","บริหารทรัพยากรบุคคล","ปราจีนบุรี",1,"11/23/2566",""],
+["00061","มณิฐชญาณ์ ศิลาวงสกุลล์","หวาน","บริหารทรัพยากรบุคคล","ปราจีนบุรี",1,"9/4/2569",""]
+];
+
+const DB_KEY = "uo-db-v2";
+let DB = loadDB();
+function loadDB(){
+  const raw = lsGet(DB_KEY);
+  if(raw){ try{ const o = JSON.parse(raw); if(o && Array.isArray(o.emp)) return o; }catch(e){} }
+  return { emp: SEED.map(r=>({code:r[0],name:r[1],nick:r[2],dept:r[3],branch:r[4],
+      status:r[5]?"ปัจจุบัน":"ลาออก",start:r[6],pos:r[7]||"เจ้าหน้าที่",sup:"",pass:"",resign:"",salary:0})),
+    hist:[] };
+}
+function saveDB(){ lsSet(DB_KEY, JSON.stringify(DB)); }
+const isWorking = e => e.status !== "ลาออก";
+
+/* ---------- settings ---------- */
 const DEFAULTS = {
-  pctNet:0, pctFb:0, pctUp:0, pctInb:0, pctLine:0,
-  travelTh:250000, travelAmt:1500,
-  returnFee:20, lateFee:0, leaveDeduct:1,
-  tiers:[ // จากมากไปน้อย
-    {min:600000, pay:4500},
-    {min:350000, pay:4000},
-    {min:300000, pay:3500},
-    {min:250000, pay:2500},
-    {min:130000, pay:1500},
-    {min:100000, pay:1000},
-  ]
+  commTiers:[{min:0,pct:0},{min:100000,pct:0},{min:300000,pct:0}],
+  tiers:[{min:600000,pay:4500},{min:350000,pay:4000},{min:300000,pay:3500},{min:250000,pay:2500},{min:130000,pay:1500},{min:100000,pay:1000}],
+  travelTh:250000, travelAmt:1500, returnFee:20, lateFee:0, leaveDeduct:1, workdays:26
 };
-let S = load();
+let S = (()=>{ const raw = lsGet("comweb-settings-v2");
+  if(raw){ try{ return Object.assign({}, JSON.parse(JSON.stringify(DEFAULTS)), JSON.parse(raw)); }catch(e){} }
+  return JSON.parse(JSON.stringify(DEFAULTS)); })();
+function persistS(){ lsSet("comweb-settings-v2", JSON.stringify(S)); }
 
-function load(){
-  try{
-    const raw = localStorage.getItem("comweb-settings-v1");
-    if(raw){ const o = JSON.parse(raw); return Object.assign({}, DEFAULTS, o); }
-  }catch(e){/* private mode ฯลฯ — ใช้ค่าตั้งต้น */}
-  return JSON.parse(JSON.stringify(DEFAULTS));
+/* ---------- dates (พ.ศ.) ---------- */
+function parseBE(str){
+  if(!str) return null;
+  const parts = String(str).trim().split("/");
+  let a,b,y;
+  if(parts.length===3){ [a,b,y] = parts.map(Number); }
+  else if(parts.length===2 && parts[1].length===5){ a=Number(parts[0]); b=Number(parts[1][0]); y=Number(parts[1].slice(1)); }
+  else return null;
+  if(!y || y<2500) return null;
+  let day,month;
+  if(a>12){ day=a; month=b; } else if(b>12){ month=a; day=b; } else { month=a; day=b; }
+  if(month<1||month>12||day<1||day>31) return null;
+  return new Date(y-543, month-1, day);
 }
-function persist(){
-  try{ localStorage.setItem("comweb-settings-v1", JSON.stringify(S)); }catch(e){}
+function tenureText(start, asOf){
+  const d = parseBE(start); if(!d) return "—";
+  let months = (asOf.getFullYear()-d.getFullYear())*12 + (asOf.getMonth()-d.getMonth());
+  if(asOf.getDate() < d.getDate()) months--;
+  if(months < 0) return "—";
+  const yy = Math.floor(months/12), mm = months%12;
+  return (yy? yy+" ปี ":"") + mm + " ด.";
 }
+function asOfDate(){
+  const v = $("month").value;
+  return v ? new Date(Number(v.slice(0,4)), Number(v.slice(5,7)), 0) : new Date();
+}
+function nowTH(){ return new Date().toLocaleString("th-TH",{dateStyle:"medium",timeStyle:"short"}); }
 
-/* ---------------- core calc ---------------- */
+/* ---------- core calc ---------- */
+function commPct(net){
+  let pct = 0;
+  for(const t of [...S.commTiers].sort((x,y)=>y.min-x.min)){ if(net >= t.min){ pct = t.pct; break; } }
+  return pct;
+}
 function calc(p){
-  const crmRef = p.crm + p.ref;
-  const net = Math.max(0, crmRef - p.sub690);
-  const commission =
-      net    * S.pctNet /100 +
-      p.fb   * S.pctFb  /100 +
-      p.up   * S.pctUp  /100 +
-      p.inb  * S.pctInb /100 +
-      p.line * S.pctLine/100;
-
+  const net = Math.max(0, p.crm + p.ref - p.sub690);
+  const pct = commPct(net);
+  const commission = net * pct / 100;
   let ontime = 0;
-  if(p.leave === 0 && p.late === 0){
-    const tiers = [...S.tiers].sort((a,b)=>b.min-a.min);
-    for(const t of tiers){ if(net >= t.min){ ontime = t.pay; break; } }
+  if(p.leave===0 && p.late===0){
+    for(const t of [...S.tiers].sort((x,y)=>y.min-x.min)){ if(net >= t.min){ ontime = t.pay; break; } }
   }
   const travel = net >= S.travelTh ? S.travelAmt : 0;
   const returnDed = p.ret * S.returnFee;
-  const incentive = commission + ontime + travel + p.qbonus + p.tenure + p.fgf - returnDed - p.kpi;
-
-  const daily = p.workdays > 0 ? p.salary / p.workdays : 0;
+  const incentive = commission + ontime + travel + p.bonus - returnDed - p.kpi;
+  const daily = S.workdays > 0 ? p.salary / S.workdays : 0;
   const leaveDed = S.leaveDeduct ? p.leave * daily : 0;
-  const lateDed  = p.late * S.lateFee;
+  const lateDed = p.late * S.lateFee;
   const salaryNet = Math.max(0, p.salary - leaveDed - lateDed);
-  const grand = salaryNet + incentive;
-
-  return {crmRef, net, commission, ontime, travel, returnDed, incentive,
-          daily, leaveDed, lateDed, salaryNet, grand};
+  return {net, pct, commission, ontime, travel, returnDed, incentive, daily, leaveDed, lateDed, salaryNet, grand:salaryNet+incentive};
 }
 
-const fmt = n => n.toLocaleString("th-TH",{maximumFractionDigits:2});
-const num = v => { const n = parseFloat(String(v??"").replace(/[, ]/g,"")); return isFinite(n)?n:0; };
-
-/* ---------------- tabs ---------------- */
+/* ---------- tabs ---------- */
 document.querySelectorAll("nav.tabs button").forEach(btn=>{
   btn.addEventListener("click",()=>{
     document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected","false"));
     document.querySelectorAll("section.panel").forEach(s=>s.classList.remove("active"));
     btn.setAttribute("aria-selected","true");
-    document.getElementById(btn.dataset.panel).classList.add("active");
+    $(btn.dataset.panel).classList.add("active");
   });
 });
 
-/* ---------------- single calc ---------------- */
-const $ = id => document.getElementById(id);
-function readForm(){
-  return {
-    name:$("f-name").value.trim()||"—", team:$("f-team").value.trim(), pos:$("f-pos").value,
-    crm:num($("f-crm").value), ref:num($("f-ref").value), sub690:num($("f-sub690").value),
-    fb:num($("f-fb").value), up:num($("f-up").value), inb:num($("f-inb").value), line:num($("f-line").value),
-    leave:num($("f-leave").value), late:num($("f-late").value), ret:num($("f-return").value),
-    qbonus:num($("f-qbonus").value), tenure:num($("f-tenure").value), fgf:num($("f-fgf").value), kpi:num($("f-kpi").value),
-    salary:num($("f-salary").value), workdays:num($("f-workdays").value)||26
-  };
+/* ================= คำนวณค่าคอมทั้งบริษัท ================= */
+function monthKey(){ return "uo-comm-" + ($("month").value || "none"); }
+let M = {}; // {code:{crm,ref,sub690,leave,late,ret,bonus,kpi}}
+function loadMonth(){
+  const raw = lsGet(monthKey());
+  M = raw ? (()=>{try{return JSON.parse(raw)}catch(e){return {}}})() : {};
 }
-function row(label, amt, sign){
-  const cls = sign>0?"pos":sign<0?"neg":"";
-  const prefix = sign<0&&amt!==0?"−":"";
-  return `<tr><td>${label}</td><td class="amt ${cls}">${prefix}${fmt(Math.abs(amt))}</td></tr>`;
+let saveTimer = null;
+function saveMonth(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>{ lsSet(monthKey(), JSON.stringify(M));
+    $("c-status").textContent = CAN_STORE ? "บันทึกอัตโนมัติแล้ว · "+nowTH() : "บันทึกไม่ได้ (โหมดชั่วคราว)";
+  }, 400);
 }
-$("btn-calc").addEventListener("click",()=>{
-  const p = readForm(), r = calc(p);
-  const m = $("month").value ? new Date($("month").value+"-01").toLocaleDateString("th-TH",{month:"long",year:"numeric"}) : "";
-  $("slip-who").textContent = `${p.name}${p.team?" · ทีม "+p.team:""} · ${p.pos}${m?" · งวด "+m:""}`;
-  const b = [];
-  b.push(`<tr class="sect"><td colspan="2">ยอดขาย</td></tr>`);
-  b.push(row("CRM + แนะนำ", r.crmRef, 0));
-  if(p.sub690) b.push(row("หักออเดอร์ต่ำกว่า 690", p.sub690, -1));
-  b.push(row("ยอดสุทธิ", r.net, 0));
-  b.push(`<tr class="sect"><td colspan="2">Incentive</td></tr>`);
-  if(r.commission) b.push(row("ค่าคอมจากยอด", r.commission, 1));
-  b.push(row(`Ontime เบี้ยขยัน${(p.leave||p.late)?" (งดจ่าย — มีลา/สาย)":""}`, r.ontime, r.ontime?1:0));
-  b.push(row(`ค่าเดินทาง (ยอดถึง ${fmt(S.travelTh)})`, r.travel, r.travel?1:0));
-  if(p.qbonus) b.push(row("โบนัสไตรมาส", p.qbonus, 1));
-  if(p.tenure) b.push(row("Target อายุงาน", p.tenure, 1));
-  if(p.fgf)    b.push(row("ค่าแนะนำ FGF", p.fgf, 1));
-  if(r.returnDed) b.push(row(`หักตีกลับ ${p.ret} ครั้ง`, r.returnDed, -1));
-  if(p.kpi)    b.push(row("หัก KPI", p.kpi, -1));
-  b.push(row("รวม Incentive", r.incentive, r.incentive>=0?1:-1));
-  b.push(`<tr class="sect"><td colspan="2">เงินเดือน</td></tr>`);
-  b.push(row("เงินเดือนฐาน", p.salary, 0));
-  if(r.leaveDed) b.push(row(`หักลา ${p.leave} วัน (วันละ ${fmt(r.daily)})`, r.leaveDed, -1));
-  if(r.lateDed)  b.push(row(`หักสาย ${p.late} ครั้ง`, r.lateDed, -1));
-  b.push(row("เงินเดือนสุทธิ", r.salaryNet, 0));
-  b.push(`<tr class="total"><td>รวมรับทั้งสิ้น</td><td class="amt">${fmt(r.grand)}</td></tr>`);
-  $("slip-body").innerHTML = b.join("");
-  $("slip-table").hidden = false;
-  $("slip-note").hidden = false;
-});
-$("btn-clear").addEventListener("click",()=>{
-  document.querySelectorAll("#p-one input[type=number]").forEach(i=>i.value = i.id==="f-workdays"?26:0);
-  $("f-name").value = $("f-team").value = "";
-  $("slip-table").hidden = true; $("slip-note").hidden = true;
-  $("slip-who").textContent = "ยังไม่ได้คำนวณ — กรอกข้อมูลด้านซ้ายแล้วกด \u201cคำนวณ\u201d";
-});
-
-/* ---------------- team paste ---------------- */
-const HEADS = {
-  name:["ชื่อ","ชื่อ-นามสกุล","ชื่อเล่น","name"], team:["ทีม","team"],
-  crm:["crm","ยอดขาย crm","ยอดขายcrm"], ref:["แนะนำ","ยอดแนะนำ","ยอดเเนะนำ"],
-  sub690:["หัก690","หักยอดต่ำกว่า690","690"],
-  fb:["fb"], up:["upsell"], inb:["inbcall"], line:["line"],
-  leave:["ลา","ลา/วัน"], late:["สาย","สาย/ครั้ง"], ret:["ตีกลับ","หักตีกลับ"],
-  qbonus:["โบนัส","โบนัสไตรมาส"], tenure:["อายุงาน","target","targetอายุงาน"],
-  fgf:["fgf","friend"], kpi:["kpi","หักkpi"], salary:["เงินเดือน","salary"]
-};
-const ORDER = ["name","team","crm","ref","sub690","leave","late","ret","salary"];
-let lastRows = [];
-
-function parseTeam(){
-  const text = $("paste").value.trim();
-  if(!text){ alert("ยังไม่ได้วางข้อมูล"); return; }
-  const lines = text.split(/\r?\n/).filter(l=>l.trim());
-  const firstCells = lines[0].split(/\t|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c=>c.trim().toLowerCase());
-  let map = null;
-  const hasHeader = firstCells.some(c=>Object.values(HEADS).some(a=>a.some(k=>c.replace(/\s+/g,"").includes(k.replace(/\s+/g,"")))));
-  if(hasHeader){
-    map = {};
-    firstCells.forEach((c,i)=>{
-      const key = c.replace(/\s+/g,"");
-      for(const [field,aliases] of Object.entries(HEADS)){
-        if(map[field]===undefined && aliases.some(a=>key.includes(a.replace(/\s+/g,"")))){ map[field]=i; break; }
-      }
-    });
-    lines.shift();
-  }
-  lastRows = [];
-  for(const line of lines){
-    const cells = line.split(/\t|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c=>c.replace(/^"|"$/g,"").trim());
-    const g = (field, idx) => {
-      const i = map ? map[field] : idx;
-      return i===undefined ? "" : (cells[i] ?? "");
-    };
-    const p = {
-      name:g("name",0)||"—", team:g("team",1),
-      crm:num(g("crm",2)), ref:num(g("ref",3)), sub690:num(g("sub690",4)),
-      fb:num(g("fb")), up:num(g("up")), inb:num(g("inb")), line:num(g("line")),
-      leave:num(g("leave",5)), late:num(g("late",6)), ret:num(g("ret",7)),
-      qbonus:num(g("qbonus")), tenure:num(g("tenure")), fgf:num(g("fgf")), kpi:num(g("kpi")),
-      salary:num(g("salary",8)), workdays:26
-    };
-    if(p.name==="—" && !p.crm && !p.salary) continue;
-    lastRows.push({p, r:calc(p)});
-  }
-  renderTeam();
+function rowData(code){
+  return M[code] || (M[code] = {crm:0,ref:0,sub690:0,leave:0,late:0,ret:0,bonus:0,kpi:0});
 }
-function renderTeam(){
-  const tb = $("teambody"); tb.innerHTML = "";
-  const sum = {crmRef:0,sub690:0,net:0,commission:0,ontime:0,travel:0,other:0,returnDed:0,kpi:0,incentive:0,salaryNet:0,grand:0};
-  for(const {p,r} of lastRows){
-    const other = p.qbonus+p.tenure+p.fgf;
-    sum.crmRef+=r.crmRef; sum.sub690+=p.sub690; sum.net+=r.net; sum.commission+=r.commission;
-    sum.ontime+=r.ontime; sum.travel+=r.travel; sum.other+=other; sum.returnDed+=r.returnDed;
-    sum.kpi+=p.kpi; sum.incentive+=r.incentive; sum.salaryNet+=r.salaryNet; sum.grand+=r.grand;
+const C_FIELDS = ["crm","ref","sub690","leave","late","ret","bonus","kpi"];
+function renderComm(){
+  const q = ($("c-q").value||"").trim().toLowerCase();
+  const br = $("c-branch").value;
+  const tb = $("commbody"); tb.innerHTML = "";
+  const sum = {net:0,commission:0,ontime:0,travel:0,incentive:0,salaryNet:0,grand:0};
+  let n = 0;
+  for(const e of DB.emp){
+    if(!isWorking(e)) continue;
+    if(br && e.branch!==br) continue;
+    if(q && !(e.code.includes(q) || e.nick.toLowerCase().includes(q) || e.name.toLowerCase().includes(q))) continue;
+    n++;
+    const d = rowData(e.code);
+    const r = calc({...d, salary:e.salary||0});
+    sum.net+=r.net; sum.commission+=r.commission; sum.ontime+=r.ontime; sum.travel+=r.travel;
+    sum.incentive+=r.incentive; sum.salaryNet+=r.salaryNet; sum.grand+=r.grand;
+    const inp = (f,narrow)=>`<td><input type="number" min="0" class="${narrow?'narrow':''}" data-code="${esc(e.code)}" data-f="${f}" value="${d[f]||0}"></td>`;
     tb.insertAdjacentHTML("beforeend",
-      `<tr><td>${p.name}</td><td>${p.team||""}</td>
-       <td>${fmt(r.crmRef)}</td><td class="${p.sub690?'neg':''}">${p.sub690?'−'+fmt(p.sub690):'0'}</td><td>${fmt(r.net)}</td>
-       <td class="${r.commission?'pos':''}">${fmt(r.commission)}</td>
+      `<tr><td class="l"><strong>${esc(e.nick||e.name)}</strong> <span style="color:var(--muted);font-size:.75rem">${esc(e.code)}</span></td>
+       <td class="l">${esc(e.branch)}</td>
+       ${inp("crm")}${inp("ref")}${inp("sub690")}${inp("leave",1)}${inp("late",1)}${inp("ret",1)}${inp("bonus")}${inp("kpi")}
+       <td>${fmt(r.net)}</td>
+       <td class="${r.commission?'pos':''}">${r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct}%)</span>`:"0"}</td>
        <td class="${r.ontime?'pos':''}">${fmt(r.ontime)}</td>
        <td class="${r.travel?'pos':''}">${fmt(r.travel)}</td>
-       <td class="${other?'pos':''}">${fmt(other)}</td>
-       <td class="${r.returnDed?'neg':''}">${r.returnDed?'−'+fmt(r.returnDed):'0'}</td>
-       <td class="${p.kpi?'neg':''}">${p.kpi?'−'+fmt(p.kpi):'0'}</td>
        <td class="${r.incentive>=0?'pos':'neg'}">${fmt(r.incentive)}</td>
-       <td>${fmt(r.salaryNet)}</td><td class="pos">${fmt(r.grand)}</td></tr>`);
+       <td>${fmt(r.salaryNet)}</td>
+       <td class="pos"><strong>${fmt(r.grand)}</strong></td></tr>`);
   }
-  $("teamfoot").innerHTML =
-    `<td colspan="2">รวม ${lastRows.length} คน</td>
-     <td>${fmt(sum.crmRef)}</td><td>−${fmt(sum.sub690)}</td><td>${fmt(sum.net)}</td>
-     <td>${fmt(sum.commission)}</td><td>${fmt(sum.ontime)}</td><td>${fmt(sum.travel)}</td><td>${fmt(sum.other)}</td>
-     <td>−${fmt(sum.returnDed)}</td><td>−${fmt(sum.kpi)}</td><td>${fmt(sum.incentive)}</td>
-     <td>${fmt(sum.salaryNet)}</td><td>${fmt(sum.grand)}</td>`;
-  $("teamwrap").hidden = false;
-  $("btn-export").hidden = false;
+  $("commfoot").innerHTML =
+    `<td class="l" colspan="2">รวม ${n} คน</td><td colspan="8"></td>
+     <td>${fmt(sum.net)}</td><td>${fmt(sum.commission)}</td><td>${fmt(sum.ontime)}</td><td>${fmt(sum.travel)}</td>
+     <td>${fmt(sum.incentive)}</td><td>${fmt(sum.salaryNet)}</td><td>${fmt(sum.grand)}</td>`;
 }
-$("btn-parse").addEventListener("click", parseTeam);
-$("btn-example").addEventListener("click",()=>{
-  $("paste").value =
-`ชื่อ	ทีม	CRM	แนะนำ	หัก690	ลา	สาย	ตีกลับ	เงินเดือน
-มีน	tang	642535	10130	3150	0	0	2	12000
-มิ้งค์	tang	385915	5080	3540	0	0	4	12000
-ยุ้ย	tang	304665	3580	5910	0	0	1	12000
-แบงค์	tang	256465	0	2070	0	0	0	12000
-มะเหมี่ยว	mic	305670	1790	0	0	0	1	12000`;
+$("commbody").addEventListener("input",e=>{
+  const t = e.target;
+  if(!t.dataset || !t.dataset.code) return;
+  rowData(t.dataset.code)[t.dataset.f] = num(t.value);
+  saveMonth();
+  refreshCommComputed();
 });
-$("btn-export").addEventListener("click",()=>{
-  const head = ["ชื่อ","ทีม","CRM+แนะนำ","หัก690","ยอดสุทธิ","ค่าคอม","Ontime","ค่าเดินทาง","โบนัส/อื่นๆ","หักตีกลับ","หักKPI","รวมIncentive","เงินเดือนสุทธิ","รวมรับ"];
-  const rows = lastRows.map(({p,r})=>[
-    p.name,p.team,r.crmRef,p.sub690,r.net,
-    r.commission.toFixed(2),r.ontime,r.travel,p.qbonus+p.tenure+p.fgf,
-    r.returnDed,p.kpi,r.incentive.toFixed(2),r.salaryNet.toFixed(2),r.grand.toFixed(2)
-  ]);
-  const csv = "\uFEFF" + [head, ...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+function refreshCommComputed(){ // อัปเดตเฉพาะช่องผลลัพธ์ โดยไม่รีเซ็ตช่องที่กำลังพิมพ์
+  const rows = $("commbody").querySelectorAll("tr");
+  const sum = {net:0,commission:0,ontime:0,travel:0,incentive:0,salaryNet:0,grand:0};
+  let n = 0;
+  rows.forEach(tr=>{
+    const firstInput = tr.querySelector("input");
+    if(!firstInput) return;
+    n++;
+    const code = firstInput.dataset.code;
+    const e = DB.emp.find(x=>x.code===code); if(!e) return;
+    const r = calc({...rowData(code), salary:e.salary||0});
+    const tds = tr.querySelectorAll("td");
+    const base = 10; // index ของ "ยอดสุทธิ"
+    tds[base].textContent = fmt(r.net);
+    tds[base+1].innerHTML = r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct}%)</span>`:"0";
+    tds[base+1].className = r.commission?'pos':'';
+    tds[base+2].textContent = fmt(r.ontime); tds[base+2].className = r.ontime?'pos':'';
+    tds[base+3].textContent = fmt(r.travel); tds[base+3].className = r.travel?'pos':'';
+    tds[base+4].textContent = fmt(r.incentive); tds[base+4].className = r.incentive>=0?'pos':'neg';
+    tds[base+5].textContent = fmt(r.salaryNet);
+    tds[base+6].innerHTML = `<strong>${fmt(r.grand)}</strong>`;
+    sum.net+=r.net; sum.commission+=r.commission; sum.ontime+=r.ontime; sum.travel+=r.travel;
+    sum.incentive+=r.incentive; sum.salaryNet+=r.salaryNet; sum.grand+=r.grand;
+  });
+  $("commfoot").innerHTML =
+    `<td class="l" colspan="2">รวม ${n} คน</td><td colspan="8"></td>
+     <td>${fmt(sum.net)}</td><td>${fmt(sum.commission)}</td><td>${fmt(sum.ontime)}</td><td>${fmt(sum.travel)}</td>
+     <td>${fmt(sum.incentive)}</td><td>${fmt(sum.salaryNet)}</td><td>${fmt(sum.grand)}</td>`;
+}
+["c-q","c-branch"].forEach(id=>$(id).addEventListener("input", renderComm));
+$("c-import").addEventListener("click",()=>{
+  const lines = ($("c-paste").value||"").split(/\r?\n/).filter(l=>l.trim());
+  let ok=0, miss=[];
+  for(const line of lines){
+    const c = line.split(/\t|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(x=>x.replace(/^"|"$/g,"").trim());
+    if(!c[0]) continue;
+    const key = c[0].toLowerCase();
+    const e = DB.emp.find(x=>isWorking(x) && (x.nick.toLowerCase()===key || x.code===c[0] || x.name.toLowerCase().includes(key)));
+    if(!e){ miss.push(c[0]); continue; }
+    const d = rowData(e.code);
+    d.crm=num(c[1]); d.ref=num(c[2]); d.sub690=num(c[3]); d.leave=num(c[4]); d.late=num(c[5]); d.ret=num(c[6]);
+    ok++;
+  }
+  saveMonth(); renderComm();
+  $("c-import-msg").textContent = `นำเข้า ${ok} คน` + (miss.length?` · หาไม่เจอ: ${miss.slice(0,6).join(", ")}${miss.length>6?"…":""}`:"");
+});
+$("c-export").addEventListener("click",()=>{
+  const head = ["รหัส","ชื่อเล่น","ชื่อ","สาขา","CRM","แนะนำ","หัก690","ลา","สาย","ตีกลับ","โบนัส","หักKPI","ยอดสุทธิ","ค่าคอม","Ontime","เดินทาง","Incentive","เงินเดือนสุทธิ","รวมรับ"];
+  const rows = [];
+  for(const e of DB.emp){
+    if(!isWorking(e)) continue;
+    const d = rowData(e.code), r = calc({...d, salary:e.salary||0});
+    rows.push([e.code,e.nick,e.name,e.branch,d.crm,d.ref,d.sub690,d.leave,d.late,d.ret,d.bonus,d.kpi,
+      r.net,r.commission.toFixed(2),r.ontime,r.travel,r.incentive.toFixed(2),r.salaryNet.toFixed(2),r.grand.toFixed(2)]);
+  }
+  const csv = "\uFEFF"+[head,...rows].map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
   a.download = `incentive-${$("month").value||"export"}.csv`;
   a.click(); URL.revokeObjectURL(a.href);
 });
+$("c-clear").addEventListener("click",()=>{
+  if(!confirm("ล้างยอดทุกคนของเดือนนี้?")) return;
+  M = {}; saveMonth(); renderComm();
+});
 
-/* ---------------- settings UI ---------------- */
+/* ================= พนักงาน: ตาราง + ฟอร์ม + ประวัติ ================= */
+const EMP_FIELDS = [
+  ["code","รหัสพนักงาน"],["name","ชื่อ-นามสกุล"],["nick","ชื่อเล่น"],["dept","แผนก"],["pos","ตำแหน่ง"],
+  ["branch","สาขา"],["sup","หัวหน้า"],["status","สถานะ"],["start","วันเริ่มงาน"],["pass","วันผ่านงาน"],
+  ["resign","วันที่ลาออก"],["salary","ฐานเงินเดือน"]
+];
+let editingCode = null;
+
+function uniq(field){ return [...new Set(DB.emp.map(e=>e[field]).filter(Boolean))].sort(); }
+function fillFilters(){
+  const set = (sel, items, keep)=>{ const cur = $(sel).value;
+    $(sel).innerHTML = keep + items.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
+    if([...$(sel).options].some(o=>o.value===cur)) $(sel).value = cur; };
+  set("emp-branch", uniq("branch"), `<option value="">ทุกสาขา</option>`);
+  set("emp-dept", uniq("dept"), `<option value="">ทุกแผนก</option>`);
+  set("emp-sup", uniq("sup"), `<option value="">ทุกคน</option>`);
+  set("c-branch", uniq("branch"), `<option value="">ทุกสาขา</option>`);
+  const dls = {"dept-list":uniq("dept"),"pos-list":uniq("pos"),"branch-list":uniq("branch"),
+    "sup-list":[...new Set(DB.emp.filter(isWorking).map(e=>e.nick).filter(Boolean))].sort()};
+  for(const [id,items] of Object.entries(dls))
+    $(id).innerHTML = items.map(v=>`<option value="${esc(v)}">`).join("");
+}
+function statusBadge(st){
+  const cls = st==="ลาออก"?"off":st==="ทดลองงาน"?"trial":"on";
+  return `<span class="badge ${cls}">${esc(st)}</span>`;
+}
+function renderEmp(){
+  const q = ($("emp-q").value||"").trim().toLowerCase();
+  const br=$("emp-branch").value, dp=$("emp-dept").value, sp=$("emp-sup").value, st=$("emp-status").value;
+  const asOf = asOfDate();
+  const tb = $("empbody"); tb.innerHTML = "";
+  let n = 0;
+  for(const e of DB.emp){
+    if(br && e.branch!==br) continue;
+    if(dp && e.dept!==dp) continue;
+    if(sp && e.sup!==sp) continue;
+    if(st==="ปัจจุบัน+ทดลองงาน"){ if(!isWorking(e)) continue; }
+    else if(st && e.status!==st) continue;
+    if(q && !(e.code.includes(q)||e.name.toLowerCase().includes(q)||e.nick.toLowerCase().includes(q))) continue;
+    n++;
+    tb.insertAdjacentHTML("beforeend",
+      `<tr class="rowhl" data-code="${esc(e.code)}">
+        <td class="l">${esc(e.code)}</td><td class="l"><strong>${esc(e.nick)}</strong></td><td class="l">${esc(e.name)}</td>
+        <td class="l">${esc(e.dept)}</td><td class="l">${esc(e.pos)}</td><td class="l">${esc(e.branch)}</td><td class="l">${esc(e.sup)||"—"}</td>
+        <td>${esc(e.start)||"—"}</td><td>${esc(e.pass)||"—"}</td><td>${tenureText(e.start, asOf)}</td>
+        <td>${e.salary?fmt(e.salary):"—"}</td><td class="l">${statusBadge(e.status)}</td></tr>`);
+  }
+  $("emp-count").textContent = `แสดง ${n} จาก ${DB.emp.length} คน`;
+}
+["emp-q","emp-branch","emp-dept","emp-sup","emp-status"].forEach(id=>$(id).addEventListener("input", renderEmp));
+$("empbody").addEventListener("click",e=>{
+  const tr = e.target.closest("tr[data-code]");
+  if(tr) openForm(tr.dataset.code);
+});
+function openForm(code){
+  editingCode = code;
+  const e = code ? DB.emp.find(x=>x.code===code) : null;
+  $("empform-title").textContent = e ? `แก้ไข: ${e.nick||e.name} (${e.code})` : "เพิ่มพนักงานใหม่";
+  $("e-code").value=e?e.code:""; $("e-code").disabled = !!e;
+  $("e-name").value=e?e.name:""; $("e-nick").value=e?e.nick:"";
+  $("e-dept").value=e?e.dept:""; $("e-pos").value=e?e.pos:"เจ้าหน้าที่"; $("e-branch").value=e?e.branch:"";
+  $("e-sup").value=e?e.sup:""; $("e-status").value=e?e.status:"ทดลองงาน";
+  $("e-start").value=e?e.start:""; $("e-pass").value=e?e.pass:""; $("e-resign").value=e?e.resign:"";
+  $("e-salary").value=e?(e.salary||0):0;
+  $("empform-card").hidden = false;
+  $("empform-card").scrollIntoView({block:"nearest"});
+}
+$("btn-addemp").addEventListener("click",()=>openForm(null));
+$("e-cancel").addEventListener("click",()=>{ $("empform-card").hidden = true; editingCode = null; });
+$("e-save").addEventListener("click",()=>{
+  const v = {
+    code:$("e-code").value.trim(), name:$("e-name").value.trim(), nick:$("e-nick").value.trim(),
+    dept:$("e-dept").value.trim(), pos:$("e-pos").value.trim(), branch:$("e-branch").value.trim(),
+    sup:$("e-sup").value.trim(), status:$("e-status").value, start:$("e-start").value.trim(),
+    pass:$("e-pass").value.trim(), resign:$("e-resign").value.trim(), salary:num($("e-salary").value)
+  };
+  if(!v.code || !v.name){ alert("กรอกรหัสพนักงานและชื่อก่อน"); return; }
+  if(editingCode){
+    const e = DB.emp.find(x=>x.code===editingCode);
+    const changes = [];
+    for(const [f,label] of EMP_FIELDS){
+      if(f==="code") continue;
+      const from = e[f], to = v[f];
+      if(String(from??"") !== String(to??"")) changes.push({f,label,from,to});
+    }
+    if(changes.length){
+      Object.assign(e, v, {code:e.code});
+      DB.hist.unshift({ts:nowTH(), code:e.code, nick:e.nick||e.name, action:"แก้ไขข้อมูล", changes});
+    }
+  }else{
+    if(DB.emp.some(x=>x.code===v.code)){ alert("รหัสพนักงานนี้มีอยู่แล้ว"); return; }
+    DB.emp.unshift(v);
+    DB.hist.unshift({ts:nowTH(), code:v.code, nick:v.nick||v.name, action:"เพิ่มพนักงานใหม่",
+      changes:[{f:"salary",label:"ฐานเงินเดือน",from:"",to:v.salary},{f:"status",label:"สถานะ",from:"",to:v.status}]});
+  }
+  saveDB();
+  $("empform-card").hidden = true; editingCode = null;
+  fillFilters(); renderEmp(); renderComm(); renderHist(); fillEmpPicker();
+  const f=$("e-flash"); f.classList.add("show"); setTimeout(()=>f.classList.remove("show"),1500);
+});
+
+/* สำรอง / กู้คืน */
+$("btn-backup").addEventListener("click",()=>{
+  const data = {db:DB, settings:S, months:{}};
+  for(let i=0;i<200;i++){ let k; try{ k=localStorage.key(i); }catch(e){ break; }
+    if(!k) break; if(k.startsWith("uo-comm-")) data.months[k]=lsGet(k); }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/json"}));
+  a.download = `uo-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+});
+$("btn-restore").addEventListener("click",()=>$("restore-file").click());
+$("restore-file").addEventListener("change",e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const fr = new FileReader();
+  fr.onload = ()=>{ try{
+      const data = JSON.parse(fr.result);
+      if(data.db && Array.isArray(data.db.emp)){ DB = data.db; saveDB(); }
+      if(data.settings){ S = Object.assign({}, DEFAULTS, data.settings); persistS(); }
+      if(data.months) for(const [k,v] of Object.entries(data.months)) if(v) lsSet(k, v);
+      loadMonth(); fillFilters(); fillSettings(); renderEmp(); renderComm(); renderHist(); fillEmpPicker();
+      alert("กู้คืนข้อมูลเรียบร้อย");
+    }catch(err){ alert("ไฟล์ไม่ถูกต้อง"); } };
+  fr.readAsText(file);
+  e.target.value = "";
+});
+
+/* ประวัติ */
+function renderHist(){
+  const q = ($("h-q").value||"").trim().toLowerCase();
+  const ul = $("histlist"); ul.innerHTML = "";
+  const items = DB.hist.filter(h=>!q || h.code.includes(q) || (h.nick||"").toLowerCase().includes(q));
+  $("hist-empty").hidden = items.length>0;
+  for(const h of items.slice(0,300)){
+    const lines = (h.changes||[]).map(c=>{
+      if(c.f==="salary"){
+        const a=num(c.from), b=num(c.to), diff=b-a;
+        const cls = diff>0?"up":diff<0?"down":"";
+        const arrow = diff>0?`▲ +${fmt(diff)}`:diff<0?`▼ −${fmt(Math.abs(diff))}`:"";
+        return `ปรับเงินเดือน ${fmt(a)} → ${fmt(b)} <span class="${cls}">${arrow}</span>`;
+      }
+      if(c.f==="status") return `สถานะ: ${esc(c.from)||"—"} → <strong>${esc(c.to)}</strong>`;
+      return `${esc(c.label)}: ${esc(c.from)||"—"} → ${esc(c.to)||"—"}`;
+    }).join("<br>");
+    ul.insertAdjacentHTML("beforeend",
+      `<li><span class="t">${esc(h.ts)}</span> · <strong>${esc(h.nick)}</strong> (${esc(h.code)}) — ${esc(h.action)}<br>${lines}</li>`);
+  }
+}
+$("h-q").addEventListener("input", renderHist);
+
+/* ================= รายคน ================= */
+function fillEmpPicker(){
+  const dl = $("emp-list"); dl.innerHTML = "";
+  for(const e of DB.emp){
+    if(!isWorking(e)) continue;
+    dl.insertAdjacentHTML("beforeend",`<option value="${esc(e.nick||e.name)} · ${esc(e.code)}">${esc(e.name)} — ${esc(e.dept)}</option>`);
+  }
+}
+let pickedEmp = null;
+$("f-emp").addEventListener("change",()=>{
+  const v = $("f-emp").value;
+  const m = v.match(/·\s*(\S+)\s*$/);
+  const code = m ? m[1] : null;
+  pickedEmp = code ? DB.emp.find(x=>x.code===code) : DB.emp.find(x=>isWorking(x)&&x.nick===v.trim());
+  if(pickedEmp) $("f-salary").value = pickedEmp.salary||0;
+});
+function slipRow(label, amt, sign){
+  const cls = sign>0?"pos":sign<0?"neg":"";
+  const prefix = sign<0&&amt!==0?"−":"";
+  return `<tr><td>${label}</td><td class="amt ${cls}">${prefix}${fmt(Math.abs(amt))}</td></tr>`;
+}
+$("btn-calc").addEventListener("click",()=>{
+  const p = {crm:num($("f-crm").value),ref:num($("f-ref").value),sub690:num($("f-sub690").value),
+    leave:num($("f-leave").value),late:num($("f-late").value),ret:num($("f-return").value),
+    bonus:num($("f-bonus").value),kpi:num($("f-kpi").value),salary:num($("f-salary").value)};
+  const r = calc(p);
+  const who = pickedEmp ? `${pickedEmp.nick||pickedEmp.name} · ${pickedEmp.branch} · ${pickedEmp.pos}` : ($("f-emp").value||"—");
+  const mo = $("month").value ? new Date($("month").value+"-01").toLocaleDateString("th-TH",{month:"long",year:"numeric"}) : "";
+  $("slip-who").textContent = `${who}${mo?" · งวด "+mo:""}`;
+  const b = [];
+  b.push(`<tr class="sect"><td colspan="2">ยอดขาย</td></tr>`);
+  b.push(slipRow("CRM + แนะนำ", p.crm+p.ref, 0));
+  if(p.sub690) b.push(slipRow("หักออเดอร์ต่ำกว่า 690", p.sub690, -1));
+  b.push(slipRow("ยอดสุทธิ", r.net, 0));
+  b.push(`<tr class="sect"><td colspan="2">Incentive</td></tr>`);
+  b.push(slipRow(`ค่าคอม ${r.pct}% ของยอดสุทธิ`, r.commission, r.commission?1:0));
+  b.push(slipRow(`Ontime เบี้ยขยัน${(p.leave||p.late)?" (งดจ่าย — มีลา/สาย)":""}`, r.ontime, r.ontime?1:0));
+  b.push(slipRow(`ค่าเดินทาง (ยอดถึง ${fmt(S.travelTh)})`, r.travel, r.travel?1:0));
+  if(p.bonus) b.push(slipRow("โบนัส/อื่น ๆ", p.bonus, 1));
+  if(r.returnDed) b.push(slipRow(`หักตีกลับ ${p.ret} ครั้ง`, r.returnDed, -1));
+  if(p.kpi) b.push(slipRow("หัก KPI", p.kpi, -1));
+  b.push(slipRow("รวม Incentive", r.incentive, r.incentive>=0?1:-1));
+  b.push(`<tr class="sect"><td colspan="2">เงินเดือน</td></tr>`);
+  b.push(slipRow("เงินเดือนฐาน", p.salary, 0));
+  if(r.leaveDed) b.push(slipRow(`หักลา ${p.leave} วัน (วันละ ${fmt(r.daily)})`, r.leaveDed, -1));
+  if(r.lateDed) b.push(slipRow(`หักสาย ${p.late} ครั้ง`, r.lateDed, -1));
+  b.push(slipRow("เงินเดือนสุทธิ", r.salaryNet, 0));
+  b.push(`<tr class="total"><td>รวมรับทั้งสิ้น</td><td class="amt">${fmt(r.grand)}</td></tr>`);
+  $("slip-body").innerHTML = b.join("");
+  $("slip-table").hidden = false;
+});
+$("btn-clear").addEventListener("click",()=>{
+  document.querySelectorAll("#p-one input[type=number]").forEach(i=>i.value=0);
+  $("f-emp").value=""; pickedEmp=null;
+  $("slip-table").hidden=true;
+  $("slip-who").textContent="เลือกพนักงานแล้วกด \u201cคำนวณ\u201d";
+});
+
+/* ================= ตั้งค่า ================= */
+function tierRow(tb, a, b, clsA, clsB){
+  $(tb).insertAdjacentHTML("beforeend",
+    `<tr><td><input type="number" step="any" class="${clsA}" value="${a}"></td>
+         <td><input type="number" step="any" class="${clsB}" value="${b}"></td>
+         <td><button type="button" class="t-del" aria-label="ลบ">✕</button></td></tr>`);
+}
 function fillSettings(){
-  $("s-pct-net").value=S.pctNet; $("s-pct-fb").value=S.pctFb; $("s-pct-up").value=S.pctUp;
-  $("s-pct-inb").value=S.pctInb; $("s-pct-line").value=S.pctLine;
+  $("ctierbody").innerHTML=""; $("tierbody").innerHTML="";
+  [...S.commTiers].sort((a,b)=>a.min-b.min).forEach(t=>tierRow("ctierbody", t.min, t.pct, "ct-min","ct-pct"));
+  [...S.tiers].sort((a,b)=>b.min-a.min).forEach(t=>tierRow("tierbody", t.min, t.pay, "t-min","t-pay"));
   $("s-travel-th").value=S.travelTh; $("s-travel-amt").value=S.travelAmt;
   $("s-return").value=S.returnFee; $("s-late").value=S.lateFee;
-  $("s-leave-deduct").value=String(S.leaveDeduct);
-  const tb=$("tierbody"); tb.innerHTML="";
-  [...S.tiers].sort((a,b)=>b.min-a.min).forEach((t,i)=>{
-    tb.insertAdjacentHTML("beforeend",
-      `<tr><td><input type="number" class="t-min" value="${t.min}"></td>
-           <td><input type="number" class="t-pay" value="${t.pay}"></td>
-           <td><button type="button" class="t-del" aria-label="ลบขั้นนี้">✕</button></td></tr>`);
-  });
+  $("s-workdays").value=S.workdays; $("s-leave-deduct").value=String(S.leaveDeduct);
 }
-$("tierbody").addEventListener("click",e=>{
-  if(e.target.classList.contains("t-del")) e.target.closest("tr").remove();
+document.addEventListener("click",e=>{
+  if(e.target.classList && e.target.classList.contains("t-del")) e.target.closest("tr").remove();
 });
-$("btn-addtier").addEventListener("click",()=>{
-  $("tierbody").insertAdjacentHTML("beforeend",
-    `<tr><td><input type="number" class="t-min" value="0"></td>
-         <td><input type="number" class="t-pay" value="0"></td>
-         <td><button type="button" class="t-del" aria-label="ลบขั้นนี้">✕</button></td></tr>`);
-});
+$("btn-addctier").addEventListener("click",()=>tierRow("ctierbody",0,0,"ct-min","ct-pct"));
+$("btn-addtier").addEventListener("click",()=>tierRow("tierbody",0,0,"t-min","t-pay"));
 $("btn-save").addEventListener("click",()=>{
-  S.pctNet=num($("s-pct-net").value); S.pctFb=num($("s-pct-fb").value); S.pctUp=num($("s-pct-up").value);
-  S.pctInb=num($("s-pct-inb").value); S.pctLine=num($("s-pct-line").value);
+  S.commTiers=[...document.querySelectorAll("#ctierbody tr")].map(tr=>({
+    min:num(tr.querySelector(".ct-min").value), pct:num(tr.querySelector(".ct-pct").value)}));
+  S.tiers=[...document.querySelectorAll("#tierbody tr")].map(tr=>({
+    min:num(tr.querySelector(".t-min").value), pay:num(tr.querySelector(".t-pay").value)})).filter(t=>t.pay>0||t.min>0);
   S.travelTh=num($("s-travel-th").value); S.travelAmt=num($("s-travel-amt").value);
   S.returnFee=num($("s-return").value); S.lateFee=num($("s-late").value);
-  S.leaveDeduct=Number($("s-leave-deduct").value);
-  S.tiers=[...document.querySelectorAll("#tierbody tr")].map(tr=>({
-    min:num(tr.querySelector(".t-min").value), pay:num(tr.querySelector(".t-pay").value)
-  })).filter(t=>t.pay>0||t.min>0);
-  persist();
+  S.workdays=num($("s-workdays").value)||26; S.leaveDeduct=Number($("s-leave-deduct").value);
+  persistS();
+  renderComm();
   const f=$("savedflash"); f.classList.add("show"); setTimeout(()=>f.classList.remove("show"),1600);
 });
 
-/* ---------------- init ---------------- */
+/* ================= init ================= */
 (function(){
   const d = new Date();
   $("month").value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
-  fillSettings();
+  lsSet("uo-probe","1");
+  $("storagewarn").hidden = CAN_STORE;
+  saveDB();
+  loadMonth();
+  fillFilters(); fillSettings(); fillEmpPicker();
+  renderEmp(); renderComm(); renderHist();
+  $("month").addEventListener("input",()=>{ loadMonth(); renderEmp(); renderComm(); });
 })();
 </script>
 </body>
