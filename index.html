@@ -93,6 +93,10 @@ table.team tr.rowhl:hover td{background:#F7FAF6;cursor:pointer}
 .badge.off{background:var(--deduct-soft);color:var(--deduct)}
 .badge.trial{background:#FFF3DC;color:#8A6100}
 
+/* ซ่อนคอลัมน์เงินเดือนจากผู้ใช้ที่ไม่ใช่แอดมิน */
+#commtable.noadmin th:nth-last-child(-n+2),#commtable.noadmin td:nth-last-child(-n+2){display:none}
+#emptable.noadmin th:nth-last-child(2),#emptable.noadmin td:nth-last-child(2){display:none}
+
 table.tiers{border-collapse:collapse;width:100%;max-width:460px;font-size:.9rem;margin-bottom:.6rem}
 table.tiers th,table.tiers td{padding:.3rem .4rem;border-bottom:1px solid #EEF2EC;text-align:left}
 table.tiers input{max-width:140px}
@@ -164,9 +168,11 @@ details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--
 <section class="panel active" id="p-comm">
   <div class="card" style="margin-bottom:1rem">
     <h2>คำนวณค่าคอมประจำเดือน <small>พนักงานปัจจุบันขึ้นให้อัตโนมัติ · กรอกยอดแล้วระบบคิดและซิงก์ให้ทันที (แยกเก็บรายเดือน)</small></h2>
-    <div class="frow" style="max-width:560px">
+    <div class="frow" style="max-width:960px">
       <label class="f"><span>ค้นหา</span><input type="text" id="c-q" placeholder="ชื่อเล่น / รหัส"></label>
       <label class="f"><span>สาขา</span><select id="c-branch"><option value="">ทุกสาขา</option></select></label>
+      <label class="f"><span>แผนก</span><select id="c-dept"><option value="">ทุกแผนก</option></select></label>
+      <label class="f"><span>ตำแหน่ง</span><select id="c-pos"><option value="">ทุกตำแหน่ง</option></select></label>
     </div>
     <details class="imp">
       <summary>นำเข้ายอดจากชีท (วางข้อมูล)</summary>
@@ -182,10 +188,10 @@ details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--
   </div>
 
   <div class="tablewrap">
-    <table class="team" id="commtable" style="min-width:1340px">
+    <table class="team" id="commtable" style="min-width:1500px">
       <thead><tr>
-        <th class="l">ชื่อเล่น</th><th class="l">สาขา</th>
-        <th>CRM</th><th>แนะนำ</th><th>หัก690</th><th>ลา</th><th>สาย</th><th>ตีกลับ</th><th>โบนัส/อื่น</th><th>หักKPI</th>
+        <th class="l">ชื่อเล่น</th><th class="l">รหัส</th><th class="l">สาขา</th>
+        <th>CRM</th><th>แนะนำ</th><th>หัก690</th><th>ลา</th><th>สาย</th><th>ตีกลับ</th><th>โบนัส/อื่น</th><th>KPI</th><th>Incentive/เดือน</th>
         <th>ยอดสุทธิ</th><th>ค่าคอม %</th><th>Ontime</th><th>เดินทาง</th><th>Incentive</th><th>เงินเดือน</th><th>รวมรับ</th>
       </tr></thead>
       <tbody id="commbody"></tbody>
@@ -224,12 +230,21 @@ details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--
           <label class="f"><span>สาย (ครั้ง)</span><input type="number" id="f-late" value="0" min="0"></label>
           <label class="f"><span>ตีกลับ (ครั้ง)</span><input type="number" id="f-return" value="0" min="0"></label>
           <label class="f"><span>โบนัส/อื่น ๆ</span><input type="number" id="f-bonus" value="0" min="0"></label>
-          <label class="f"><span>หัก KPI</span><input type="number" id="f-kpi" value="0" min="0"></label>
-          <label class="f"><span>เงินเดือนฐาน</span><input type="number" id="f-salary" value="0" min="0"></label>
+          <label class="f"><span>KPI</span><input type="number" id="f-kpi" value="0" min="0"></label>
+          <label class="f"><span>Incentive ประจำเดือน</span><input type="number" id="f-minc" value="0" min="0"></label>
+          <label class="f" id="fsal-label"><span>เงินเดือนฐาน</span><input type="number" id="f-salary" value="0" min="0"></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>เอกสาร / ส่งอีเมล</legend>
+        <div class="frow">
+          <label class="f"><span>ชื่อ HR ผู้ออกเอกสาร</span><input type="text" id="f-hr" placeholder="เช่น มิ้นท์ (HR)"></label>
+          <label class="f"><span>อีเมลพนักงาน</span><input type="email" id="f-email" placeholder="เช่น meen@ggl.com"></label>
         </div>
       </fieldset>
       <div class="btnrow">
         <button class="primary" id="btn-calc">คำนวณ</button>
+        <button class="ghost" id="btn-email">ส่งสลิปทางอีเมล</button>
         <button class="ghost" id="btn-clear">ล้างฟอร์ม</button>
       </div>
     </div>
@@ -255,13 +270,14 @@ details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--
       <label class="f"><span>ตำแหน่ง</span><input type="text" id="e-pos" list="pos-list"><datalist id="pos-list"></datalist></label>
       <label class="f"><span>สาขา</span><input type="text" id="e-branch" list="branch-list"><datalist id="branch-list"></datalist></label>
       <label class="f"><span>หัวหน้า</span><input type="text" id="e-sup" list="sup-list"><datalist id="sup-list"></datalist></label>
+      <label class="f"><span>อีเมลพนักงาน</span><input type="email" id="e-email" placeholder="สำหรับส่งสลิป"></label>
       <label class="f"><span>สถานะ</span>
         <select id="e-status"><option>ทดลองงาน</option><option>ปัจจุบัน</option><option>ลาออก</option></select>
       </label>
       <label class="f"><span>วันเริ่มงาน (ว/ด/ปปปป พ.ศ.)</span><input type="text" id="e-start" placeholder="เช่น 15/6/2569"></label>
       <label class="f"><span>วันผ่านงาน (ว/ด/ปปปป พ.ศ.)</span><input type="text" id="e-pass" placeholder="เว้นว่างถ้ายังไม่ผ่าน"></label>
       <label class="f"><span>วันที่ลาออก (ว/ด/ปปปป พ.ศ.)</span><input type="text" id="e-resign"></label>
-      <label class="f"><span>ฐานเงินเดือน (บาท)</span><input type="number" id="e-salary" min="0"></label>
+      <label class="f" id="sal-label"><span>ฐานเงินเดือน (บาท)</span><input type="number" id="e-salary" min="0"></label>
     </div>
     <div class="btnrow">
       <button class="primary" id="e-save">บันทึก</button>
@@ -335,6 +351,21 @@ details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--
     <div class="btnrow"><button class="ghost" id="btn-addtier">เพิ่มขั้น</button></div>
   </div>
 
+  <div class="card" style="margin-bottom:1rem">
+    <h2>ขั้นโบนัสไตรมาส <small>จ่ายตามยอดสุทธิของเดือน · ใช้ขั้นสูงสุดที่ยอดถึง</small></h2>
+    <table class="tiers">
+      <thead><tr><th>ยอดสุทธิตั้งแต่ (บาท)</th><th>จ่าย (บาท)</th><th></th></tr></thead>
+      <tbody id="qtierbody"></tbody>
+    </table>
+    <div class="btnrow">
+      <button class="ghost" id="btn-addqtier">เพิ่มขั้น</button>
+      <label class="f" style="min-width:220px"><span>จ่ายเดือนไหน</span>
+        <select id="s-qpay"><option value="quarter">เฉพาะสิ้นไตรมาส (มี.ค. มิ.ย. ก.ย. ธ.ค.)</option><option value="all">ทุกเดือน</option></select>
+      </label>
+    </div>
+    <p class="hint">ไม่ใส่ขั้น = ไม่จ่ายอัตโนมัติ (กรอกเองในช่อง "โบนัส/อื่น" ได้เหมือนเดิม)</p>
+  </div>
+
   <div class="grid cols-2">
     <div class="card">
       <h2>ค่าเดินทาง · ตีกลับ · สาย · ลา</h2>
@@ -406,89 +437,89 @@ const SEED = [
 ["00001","วรวุฒิ วรศิริกมล","เจี๋ย","ผู้บริหาร","สำนักงานใหญ่",1,"","ผู้บริหาร"],
 ["00002","พรีม วรศิริกมล","ต้น","ผู้บริหาร","สำนักงานใหญ่",1,"","ผู้บริหาร"],
 ["00003","วดีย์ วารีวนิช","อาแหมะ","ผู้บริหาร","สำนักงานใหญ่",1,"","ผู้บริหาร"],
-["00004","สิทธิกร วงศ์วานิชกิจ","ก๊อป","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"2/21/2565",""],
-["00005","กมลรัตน์ ศิริสำราญ","มีน","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"11/1/2565",""],
-["00006","มินตรา แจ่มขุนทด","มิ้งค์","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"5/20/2566",""],
-["00007","ปรเมธ เพชรรัตน์","แบงค์","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"12/8/2568",""],
-["00008","ธิดาวดี บุญมี","ครีม","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"1/17/2569",""],
-["00009","สุนิสา สุทธิโชติ","แอน","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"3/25/2569",""],
-["00010","อำภา ปิ่นวงษ์งาม","ตังค์","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"12/6/2565",""],
-["00011","ฉวีวรรณ ศิริศรี","ยุ้ย","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",1,"5/27/2568",""],
+["00004","สิทธิกร วงศ์วานิชกิจ","ก๊อป","ลูกค้าสัมพันธ์","สำนักงานใหญ่",1,"2/21/2565",""],
+["00005","กมลรัตน์ ศิริสำราญ","มีน","ลูกค้าสัมพันธ์","สำนักงานใหญ่",1,"11/1/2565",""],
+["00006","มินตรา แจ่มขุนทด","มิ้งค์","ลูกค้าสัมพันธ์","สำนักงานใหญ่",1,"5/20/2566",""],
+["00007","ปรเมธ เพชรรัตน์","แบงค์","ลูกค้าสัมพันธ์","สำนักงานใหญ่",1,"12/8/2568",""],
+["00008","ธิดาวดี บุญมี","ครีม","ลูกค้าสัมพันธ์","สำนักงานใหญ่",1,"1/17/2569",""],
+["00009","สุนิสา สุทธิโชติ","แอน","ลูกค้าสัมพันธ์","สำนักงานใหญ่",1,"3/25/2569",""],
+["00010","อำภา ปิ่นวงษ์งาม","ตังค์","ลูกค้าสัมพันธ์","สำนักงานใหญ่",1,"12/6/2565",""],
+["00011","ฉวีวรรณ ศิริศรี","ยุ้ย","ลูกค้าสัมพันธ์","สำนักงานใหญ่",1,"5/27/2568",""],
 ["00012","ธันย์นิชา ภูวเลิศหิรัญวดี","ขวัญ","บริหารทรัพยากรบุคคล","สำนักงานใหญ่",1,"15/6/2569",""],
-["000128","กัญญารัตน์ เจริญมาตร","ปอ","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"12/1/2564","หัวหน้างาน"],
+["000128","กัญญารัตน์ เจริญมาตร","ปอ","ลูกค้าสัมพันธ์","ขอนแก่น",1,"12/1/2564","หัวหน้างาน"],
 ["000129","ณัฐพงศ์ ปาลี","เจมส์","บริหารทรัพยากรบุคคล","ขอนแก่น",0,"7/4/2569",""],
-["00013","จตุรภัทร เจริญสุดใจ","วี","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",0,"2/6/2569",""],
-["000130","นทีธาร คุณตะโก","ทิว","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"1/26/2566",""],
-["000131","ชัชรีญา เพียยุระ","อีฟ","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"3/2/2569",""],
-["000132","สุนิสา เพียยุระ","ออย","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"3/2/2569",""],
-["000133","อิสรีย์ สุดเฉลียวรสา","กุ้ง","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"3/2/2569",""],
-["000134","วันชัย บัวหลวง","เอส","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"3/2/2569",""],
-["000135","มธุรี คำมงคุณ","แป๊ป","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"7/4/2569",""],
-["000136","วรัชพร กรรณลา","ปุ๋ย","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"7/4/2569",""],
-["000137","พรสุดา ธนาคุณ","ฝน","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"7/4/2569",""],
-["000138","กนกพร วงษ์วิลัย","เจนนี่","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"8/5/2569",""],
-["000139","นพรัตน์ ทอดสนิท","แบม","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"21/5/2569",""],
-["00014","อภิริยา สิริชาติธาดา","ปลา","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",0,"8/6/2569",""],
+["00013","จตุรภัทร เจริญสุดใจ","วี","ลูกค้าสัมพันธ์","สำนักงานใหญ่",0,"2/6/2569",""],
+["000130","นทีธาร คุณตะโก","ทิว","ลูกค้าสัมพันธ์","ขอนแก่น",1,"1/26/2566",""],
+["000131","ชัชรีญา เพียยุระ","อีฟ","ลูกค้าสัมพันธ์","ขอนแก่น",1,"3/2/2569",""],
+["000132","สุนิสา เพียยุระ","ออย","ลูกค้าสัมพันธ์","ขอนแก่น",1,"3/2/2569",""],
+["000133","อิสรีย์ สุดเฉลียวรสา","กุ้ง","ลูกค้าสัมพันธ์","ขอนแก่น",1,"3/2/2569",""],
+["000134","วันชัย บัวหลวง","เอส","ลูกค้าสัมพันธ์","ขอนแก่น",0,"3/2/2569",""],
+["000135","มธุรี คำมงคุณ","แป๊ป","ลูกค้าสัมพันธ์","ขอนแก่น",1,"7/4/2569",""],
+["000136","วรัชพร กรรณลา","ปุ๋ย","ลูกค้าสัมพันธ์","ขอนแก่น",1,"7/4/2569",""],
+["000137","พรสุดา ธนาคุณ","ฝน","ลูกค้าสัมพันธ์","ขอนแก่น",1,"7/4/2569",""],
+["000138","กนกพร วงษ์วิลัย","เจนนี่","ลูกค้าสัมพันธ์","ขอนแก่น",1,"8/5/2569",""],
+["000139","นพรัตน์ ทอดสนิท","แบม","ลูกค้าสัมพันธ์","ขอนแก่น",1,"21/5/2569",""],
+["00014","อภิริยา สิริชาติธาดา","ปลา","ลูกค้าสัมพันธ์","สำนักงานใหญ่",0,"8/6/2569",""],
 ["000140","ชลธิชา พุ่มขจร","บีม","บริหารทรัพยากรบุคคล","ขอนแก่น",1,"15/6/2569",""],
-["000141","สิรินารา ภูทองชนะ","แนน","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"15/6/2569",""],
-["000142","พรพรรณ ยูระทัย","มิว","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"15/6/2569",""],
-["000143","นวภัทร พลประเสริฐ","จอย","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"2/6/2569",""],
-["000144","พัทธนันท์ กิจจรัส","แพม","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"8/5/2569",""],
-["000145","ธนวรรธน์ โพธิศรี","โตชิ","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"8/6/2569",""],
-["000146","ตะวัน แสนสงค์","พีช","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"8/6/2569",""],
-["000147","ละอองดาว พิเศก","ดาว","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"9/5/2569",""],
-["000148","นภัค จันทเรือง","แก้วใจ","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"8/5/2569",""],
-["000149","นันทิชา งอสอน","กิ๊ฟ","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"23/4/2569",""],
-["00015","ศศิณา เหลืองพานิช","บี","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",0,"8/6/2569",""],
-["000150","ธมลวรรณ อินบำรุง","ธมล","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"8/5/2569",""],
-["000151","พรพณา สุวรรณวงค์","ใบเตย","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"27/4/2569",""],
-["000152","ธันยธรณ์ ภาษา","เนย","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"17/4/2569",""],
-["000153","เบญจรัตน์ ปรีเปรม","น้ำเงิน","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"23/4/2569",""],
-["00175","จันทิรา สอนเตจา","กวาง","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"1/7/2569",""],
-["00179","ยุภาวรุณ โคตะโน","เปิ้ล","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",1,"7/7/2569","หัวหน้างาน"],
-["00176","ชลธิชา สุวรรณเพชร","นุ้ย","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"1/7/2569",""],
-["000154","ดาวสุดา ล้นทม","ดาว","ลูกค้าสัมพันธ์(ขอนแก่น)","ขอนแก่น",0,"17/4/2569",""],
-["000155","สุพิชญา เจนคุณพัฒศ์","บี","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",1,"11/1/2564","Freelance"],
+["000141","สิรินารา ภูทองชนะ","แนน","ลูกค้าสัมพันธ์","ขอนแก่น",1,"15/6/2569",""],
+["000142","พรพรรณ ยูระทัย","มิว","ลูกค้าสัมพันธ์","ขอนแก่น",0,"15/6/2569",""],
+["000143","นวภัทร พลประเสริฐ","จอย","ลูกค้าสัมพันธ์","ขอนแก่น",0,"2/6/2569",""],
+["000144","พัทธนันท์ กิจจรัส","แพม","ลูกค้าสัมพันธ์","ขอนแก่น",0,"8/5/2569",""],
+["000145","ธนวรรธน์ โพธิศรี","โตชิ","ลูกค้าสัมพันธ์","ขอนแก่น",0,"8/6/2569",""],
+["000146","ตะวัน แสนสงค์","พีช","ลูกค้าสัมพันธ์","ขอนแก่น",0,"8/6/2569",""],
+["000147","ละอองดาว พิเศก","ดาว","ลูกค้าสัมพันธ์","ขอนแก่น",0,"9/5/2569",""],
+["000148","นภัค จันทเรือง","แก้วใจ","ลูกค้าสัมพันธ์","ขอนแก่น",0,"8/5/2569",""],
+["000149","นันทิชา งอสอน","กิ๊ฟ","ลูกค้าสัมพันธ์","ขอนแก่น",0,"23/4/2569",""],
+["00015","ศศิณา เหลืองพานิช","บี","ลูกค้าสัมพันธ์","สำนักงานใหญ่",0,"8/6/2569",""],
+["000150","ธมลวรรณ อินบำรุง","ธมล","ลูกค้าสัมพันธ์","ขอนแก่น",0,"8/5/2569",""],
+["000151","พรพณา สุวรรณวงค์","ใบเตย","ลูกค้าสัมพันธ์","ขอนแก่น",0,"27/4/2569",""],
+["000152","ธันยธรณ์ ภาษา","เนย","ลูกค้าสัมพันธ์","ขอนแก่น",0,"17/4/2569",""],
+["000153","เบญจรัตน์ ปรีเปรม","น้ำเงิน","ลูกค้าสัมพันธ์","ขอนแก่น",0,"23/4/2569",""],
+["00175","จันทิรา สอนเตจา","กวาง","ลูกค้าสัมพันธ์","ขอนแก่น",0,"1/7/2569",""],
+["00179","ยุภาวรุณ โคตะโน","เปิ้ล","ลูกค้าสัมพันธ์","ขอนแก่น",1,"7/7/2569","หัวหน้างาน"],
+["00176","ชลธิชา สุวรรณเพชร","นุ้ย","ลูกค้าสัมพันธ์","ขอนแก่น",0,"1/7/2569",""],
+["000154","ดาวสุดา ล้นทม","ดาว","ลูกค้าสัมพันธ์","ขอนแก่น",0,"17/4/2569",""],
+["000155","สุพิชญา เจนคุณพัฒศ์","บี","Sales Admin","ปราจีนบุรี",1,"11/1/2564","Freelance"],
 ["000156","ธเนษฐ สิทธิการกูล","มังกร","Sales Admin Freelance","Freelance",1,"6/8/2564","Freelance"],
 ["000157","มัทนา มะแอ","กุ๊กกิ๊ก","Sales Admin Freelance","Freelance",1,"3/1/2567","Freelance"],
-["000158","สุภาทิพย์ กำเนิดสาม","โม","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",1,"1/3/2568",""],
-["000159","ภูริส พูลเชื้อ","เนเน่","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",0,"5/5/2569",""],
-["00016","สุดารัช ชิดเอื้อ","นะนา","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",0,"2/18/2569",""],
-["000160","จิตติมา บุญยงค์","โบว์","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",0,"3/9/2569",""],
-["000161","นิรุชา อินนาค","กาย","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",0,"2/4/2569",""],
-["000162","พรรณธิภา แสงทอง","มุกดา","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",0,"2/20/2569",""],
-["000163","นันท์ชญาน์ บุญญาภิสิทธิ์โสภา","วิว","Sales Admin (ปราจีนบุรี)","ปราจีนบุรี",1,"7/7/2569",""],
-["00017","วารี เกตนันท์","แพรวา","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",0,"13/5/2569",""],
-["00018","นาฏอนงค์ วังยายฉิม","นิ้ง","ลูกค้าสัมพันธ์(อ่อนนุช)","สำนักงานใหญ่",0,"6/4/2569",""],
+["000158","สุภาทิพย์ กำเนิดสาม","โม","Sales Admin","ปราจีนบุรี",1,"1/3/2568",""],
+["000159","ภูริส พูลเชื้อ","เนเน่","Sales Admin","ปราจีนบุรี",0,"5/5/2569",""],
+["00016","สุดารัช ชิดเอื้อ","นะนา","ลูกค้าสัมพันธ์","สำนักงานใหญ่",0,"2/18/2569",""],
+["000160","จิตติมา บุญยงค์","โบว์","Sales Admin","ปราจีนบุรี",0,"3/9/2569",""],
+["000161","นิรุชา อินนาค","กาย","Sales Admin","ปราจีนบุรี",0,"2/4/2569",""],
+["000162","พรรณธิภา แสงทอง","มุกดา","Sales Admin","ปราจีนบุรี",0,"2/20/2569",""],
+["000163","นันท์ชญาน์ บุญญาภิสิทธิ์โสภา","วิว","Sales Admin","ปราจีนบุรี",1,"7/7/2569",""],
+["00017","วารี เกตนันท์","แพรวา","ลูกค้าสัมพันธ์","สำนักงานใหญ่",0,"13/5/2569",""],
+["00018","นาฏอนงค์ วังยายฉิม","นิ้ง","ลูกค้าสัมพันธ์","สำนักงานใหญ่",0,"6/4/2569",""],
 ["00019","นันทิตา ศรีจันทร์","ต้องตา","บริหารทรัพยากรบุคคล","สำนักงานใหญ่",0,"2/18/2569",""],
 ["00020","กมลชนก จินดา","สมายด์","ผู้จัดการทั่วไป","ปราจีนบุรี",1,"9/1/2564","ผู้จัดการ"],
-["00021","ปทิตตา ทุมพล","ทิตา","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"3/1/2565",""],
-["00022","เหมือนฝัน ราสีประโคน","มะปราง","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"11/1/2565",""],
-["00023","ธิดารัตน์ เจริญรุ่งเรือง","เอเอ้","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"3/1/2565",""],
-["00024","สิราวรรณ อู่รัก","นิว","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"5/13/2566",""],
-["00025","จินดารัตน์ เจริญรุ่งเรือง","เอ๊ะ","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"5/13/2566",""],
-["00026","วิภาดา ขุนทอง","ป๊อป","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"8/21/2566",""],
-["00027","นิภา สงวนทรัพย์","ติ่ง","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"10/14/2566",""],
-["00028","จรินทร์ ถนอมจิตร์","ปุ๋ย","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"11/1/2566",""],
-["00029","ชญาณี พุ่มพฤกษา","ผึ้ง","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"11/1/2566",""],
-["00030","รัชนีกร สุขโข","แป้งโกะ","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"4/6/2567",""],
-["00031","ธันวา เจิมกระจีน","วา","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"9/21/2567",""],
+["00021","ปทิตตา ทุมพล","ทิตา","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"3/1/2565",""],
+["00022","เหมือนฝัน ราสีประโคน","มะปราง","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"11/1/2565",""],
+["00023","ธิดารัตน์ เจริญรุ่งเรือง","เอเอ้","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"3/1/2565",""],
+["00024","สิราวรรณ อู่รัก","นิว","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"5/13/2566",""],
+["00025","จินดารัตน์ เจริญรุ่งเรือง","เอ๊ะ","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"5/13/2566",""],
+["00026","วิภาดา ขุนทอง","ป๊อป","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"8/21/2566",""],
+["00027","นิภา สงวนทรัพย์","ติ่ง","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"10/14/2566",""],
+["00028","จรินทร์ ถนอมจิตร์","ปุ๋ย","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"11/1/2566",""],
+["00029","ชญาณี พุ่มพฤกษา","ผึ้ง","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"11/1/2566",""],
+["00030","รัชนีกร สุขโข","แป้งโกะ","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"4/6/2567",""],
+["00031","ธันวา เจิมกระจีน","วา","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"9/21/2567",""],
 ["00032","กรกช สุระขัน","โอริโอ้","Facebook Ads Specialist","ปราจีนบุรี",1,"11/4/2567",""],
-["00033","บังอร ภาเรือง","อร","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"12/6/2567",""],
-["00034","กนกวรรณ วรรณชาติ","ปีใหม่","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"2/17/2568",""],
-["00035","ณัฐวรรณ ภู่สอาด","ทรายทอง","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"3/17/2568",""],
-["00036","มนทกาญณ์ ห้อฤทธิ์","หมิว","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"5/13/2568",""],
-["00037","พัชณัท สระแก้ว","กิ๊บ","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"7/14/2568",""],
-["00038","พัชรา พิมมังกร","กิ๊ก","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"9/26/2568",""],
-["00039","กัญญาณัฐ บุญมี","แอมแปร์","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"1/12/2569",""],
-["00040","สรินทร ช่อชบา","ตั๊ก","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"2/4/2569",""],
-["00041","กุลรภัส ขันตี","เมเปิ้ล","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"2/4/2569",""],
-["00042","จิระเดช เจือจีน","ปอ","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",0,"2/6/2569",""],
-["00043","อัจฉรา เกตุมณี","น้อยหน่า","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"2/6/2569",""],
-["00044","พรรณภัทร ศรีวงษ์","ลูกน้ำ","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"2/6/2569",""],
-["00045","สุชาวดี ผิวขาว","มายด์","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",0,"2/6/2569",""],
-["00046","สุรีรัตน์ ฉานวัฒนะ","แน๊ต","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",0,"11/6/2569",""],
-["00047","หรรษา พันตาเอก","อู๋","ลูกค้าสัมพันธ์(ปราจีนบุรี)","ปราจีนบุรี",1,"11/6/2569",""],
+["00033","บังอร ภาเรือง","อร","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"12/6/2567",""],
+["00034","กนกวรรณ วรรณชาติ","ปีใหม่","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"2/17/2568",""],
+["00035","ณัฐวรรณ ภู่สอาด","ทรายทอง","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"3/17/2568",""],
+["00036","มนทกาญณ์ ห้อฤทธิ์","หมิว","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"5/13/2568",""],
+["00037","พัชณัท สระแก้ว","กิ๊บ","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"7/14/2568",""],
+["00038","พัชรา พิมมังกร","กิ๊ก","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"9/26/2568",""],
+["00039","กัญญาณัฐ บุญมี","แอมแปร์","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"1/12/2569",""],
+["00040","สรินทร ช่อชบา","ตั๊ก","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"2/4/2569",""],
+["00041","กุลรภัส ขันตี","เมเปิ้ล","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"2/4/2569",""],
+["00042","จิระเดช เจือจีน","ปอ","ลูกค้าสัมพันธ์","ปราจีนบุรี",0,"2/6/2569",""],
+["00043","อัจฉรา เกตุมณี","น้อยหน่า","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"2/6/2569",""],
+["00044","พรรณภัทร ศรีวงษ์","ลูกน้ำ","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"2/6/2569",""],
+["00045","สุชาวดี ผิวขาว","มายด์","ลูกค้าสัมพันธ์","ปราจีนบุรี",0,"2/6/2569",""],
+["00046","สุรีรัตน์ ฉานวัฒนะ","แน๊ต","ลูกค้าสัมพันธ์","ปราจีนบุรี",0,"11/6/2569",""],
+["00047","หรรษา พันตาเอก","อู๋","ลูกค้าสัมพันธ์","ปราจีนบุรี",1,"11/6/2569",""],
 ["00048","กัญญารัตน์ ศรีภิญโญ","น้ำ","Video Editor","ปราจีนบุรี",1,"1/3/2568",""],
 ["00049","นภัสชิชญาฌ์ อุดม","นิดา","Video Editor","ปราจีนบุรี",1,"11/14/2568",""],
 ["00050","ภูมิพัฒน์ ระยับ","บิ๊ก","Video Editor","ปราจีนบุรี",1,"1/2/2569",""],
@@ -524,11 +555,41 @@ function saveDB(){
   }
 }
 const isWorking = e => e.status !== "ลาออก";
+/* แยกแผนกกับสาขา: ตัดชื่อสาขาในวงเล็บท้ายชื่อแผนกออก เช่น "ลูกค้าสัมพันธ์(ปราจีนบุรี)" → "ลูกค้าสัมพันธ์" */
+function normalizeDepts(){
+  let changed = false;
+  for(const e of DB.emp){
+    const nd = String(e.dept||"").replace(/\s*\([^)]*\)\s*$/,"").trim();
+    if(nd !== e.dept){ e.dept = nd; changed = true; }
+  }
+  return changed;
+}
+
+/* ---------- เงินเดือน (แยกเก็บ เข้าถึงได้เฉพาะแอดมินตาม Firestore Rules) ---------- */
+let IS_ADMIN = false;
+let SAL = {};      // {code: เงินเดือน}
+let SALHIST = [];  // ประวัติปรับเงินเดือน (เฉพาะแอดมิน)
+const getSalary = code => num(SAL[code]);
+function saveSAL(){
+  if(CLOUD && AUTHED) DOC("salaries").set(SAL).catch(cloudErr);
+  else lsSet("uo-sal-v1", JSON.stringify(SAL));
+}
+function saveSalHist(){
+  if(CLOUD && AUTHED) DOC("salhist").set({list: SALHIST.slice(0,300)}).catch(cloudErr);
+  else lsSet("uo-salhist-v1", JSON.stringify(SALHIST));
+}
+function applyAdminUI(){
+  $("commtable").classList.toggle("noadmin", !IS_ADMIN);
+  $("emptable").classList.toggle("noadmin", !IS_ADMIN);
+  $("sal-label").hidden = !IS_ADMIN;
+  $("fsal-label").hidden = !IS_ADMIN;
+}
 
 /* ---------- settings ---------- */
 const DEFAULTS = {
   commTiers:[{min:0,pct:0},{min:100000,pct:0},{min:300000,pct:0}],
   tiers:[{min:600000,pay:4500},{min:350000,pay:4000},{min:300000,pay:3500},{min:250000,pay:2500},{min:130000,pay:1500},{min:100000,pay:1000}],
+  qtiers:[], qPay:"quarter",
   travelTh:250000, travelAmt:1500, returnFee:20, lateFee:0, leaveDeduct:1, workdays:26
 };
 let S = (()=>{ const raw = lsGet("comweb-settings-v2");
@@ -573,22 +634,33 @@ function commPct(net){
   for(const t of [...S.commTiers].sort((x,y)=>y.min-x.min)){ if(net >= t.min){ pct = t.pct; break; } }
   return pct;
 }
+function qbonusFor(net){
+  if(!S.qtiers || !S.qtiers.length) return 0;
+  if(S.qPay !== "all"){
+    const mm = Number(String($("month").value||"").slice(5,7));
+    if(![3,6,9,12].includes(mm)) return 0;
+  }
+  let pay = 0;
+  for(const t of [...S.qtiers].sort((a,b)=>b.min-a.min)){ if(net >= t.min){ pay = t.pay; break; } }
+  return pay;
+}
 function calc(p){
-  const net = Math.max(0, p.crm + p.ref - p.sub690);
+  const net = Math.max(0, num(p.crm) + num(p.ref) - num(p.sub690));
   const pct = commPct(net);
   const commission = net * pct / 100;
   let ontime = 0;
-  if(p.leave===0 && p.late===0){
+  if(num(p.leave)===0 && num(p.late)===0){
     for(const t of [...S.tiers].sort((x,y)=>y.min-x.min)){ if(net >= t.min){ ontime = t.pay; break; } }
   }
   const travel = net >= S.travelTh ? S.travelAmt : 0;
-  const returnDed = p.ret * S.returnFee;
-  const incentive = commission + ontime + travel + p.bonus - returnDed - p.kpi;
-  const daily = S.workdays > 0 ? p.salary / S.workdays : 0;
-  const leaveDed = S.leaveDeduct ? p.leave * daily : 0;
-  const lateDed = p.late * S.lateFee;
-  const salaryNet = Math.max(0, p.salary - leaveDed - lateDed);
-  return {net, pct, commission, ontime, travel, returnDed, incentive, daily, leaveDed, lateDed, salaryNet, grand:salaryNet+incentive};
+  const qbonus = qbonusFor(net);
+  const returnDed = num(p.ret) * S.returnFee;
+  const incentive = commission + ontime + travel + qbonus + num(p.bonus) + num(p.kpi) + num(p.minc) - returnDed;
+  const daily = S.workdays > 0 ? num(p.salary) / S.workdays : 0;
+  const leaveDed = S.leaveDeduct ? num(p.leave) * daily : 0;
+  const lateDed = num(p.late) * S.lateFee;
+  const salaryNet = Math.max(0, num(p.salary) - leaveDed - lateDed);
+  return {net, pct, commission, ontime, travel, qbonus, returnDed, incentive, daily, leaveDed, lateDed, salaryNet, grand:salaryNet+incentive};
 }
 
 /* ---------- tabs ---------- */
@@ -658,28 +730,36 @@ function writeWholeMonth(){
   if(CLOUD && AUTHED) MONTHDOC(ym()).set(M).catch(cloudErr);
   else lsSet(localMonthKey(), JSON.stringify(M));
 }
-function rowData(code){ return M[code] || (M[code] = {crm:0,ref:0,sub690:0,leave:0,late:0,ret:0,bonus:0,kpi:0}); }
+function rowData(code){
+  const base = {crm:0,ref:0,sub690:0,leave:0,late:0,ret:0,bonus:0,kpi:0,minc:0};
+  M[code] = Object.assign(base, M[code]||{});
+  for(const k in base){ M[code][k] = num(M[code][k]); }
+  return M[code];
+}
 
 function renderComm(){
   const q = ($("c-q").value||"").trim().toLowerCase();
-  const br = $("c-branch").value;
+  const br = $("c-branch").value, cdp = $("c-dept").value, cps = $("c-pos").value;
   const tb = $("commbody"); tb.innerHTML = "";
   const sum = {net:0,commission:0,ontime:0,travel:0,incentive:0,salaryNet:0,grand:0};
   let n = 0;
   for(const e of DB.emp){
     if(!isWorking(e)) continue;
     if(br && e.branch!==br) continue;
+    if(cdp && e.dept!==cdp) continue;
+    if(cps && e.pos!==cps) continue;
     if(q && !(e.code.includes(q) || e.nick.toLowerCase().includes(q) || e.name.toLowerCase().includes(q))) continue;
     n++;
     const d = rowData(e.code);
-    const r = calc({...d, salary:e.salary||0});
+    const r = calc({...d, salary:getSalary(e.code)});
     sum.net+=r.net; sum.commission+=r.commission; sum.ontime+=r.ontime; sum.travel+=r.travel;
     sum.incentive+=r.incentive; sum.salaryNet+=r.salaryNet; sum.grand+=r.grand;
     const inp = (f,narrow)=>`<td><input type="number" min="0" class="${narrow?'narrow':''}" data-code="${esc(e.code)}" data-f="${f}" value="${d[f]||0}"></td>`;
     tb.insertAdjacentHTML("beforeend",
-      `<tr><td class="l"><strong>${esc(e.nick||e.name)}</strong> <span style="color:var(--muted);font-size:.75rem">${esc(e.code)}</span></td>
+      `<tr><td class="l"><strong>${esc(e.nick||e.name)}</strong></td>
+       <td class="l">${esc(e.code)}</td>
        <td class="l">${esc(e.branch)}</td>
-       ${inp("crm")}${inp("ref")}${inp("sub690")}${inp("leave",1)}${inp("late",1)}${inp("ret",1)}${inp("bonus")}${inp("kpi")}
+       ${inp("crm")}${inp("ref")}${inp("sub690")}${inp("leave",1)}${inp("late",1)}${inp("ret",1)}${inp("bonus")}${inp("kpi")}${inp("minc")}
        <td>${fmt(r.net)}</td>
        <td class="${r.commission?'pos':''}">${r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct}%)</span>`:"0"}</td>
        <td class="${r.ontime?'pos':''}">${fmt(r.ontime)}</td>
@@ -692,7 +772,7 @@ function renderComm(){
 }
 function commFoot(sum, n){
   $("commfoot").innerHTML =
-    `<td class="l" colspan="2">รวม ${n} คน</td><td colspan="8"></td>
+    `<td class="l" colspan="3">รวม ${n} คน</td><td colspan="9"></td>
      <td>${fmt(sum.net)}</td><td>${fmt(sum.commission)}</td><td>${fmt(sum.ontime)}</td><td>${fmt(sum.travel)}</td>
      <td>${fmt(sum.incentive)}</td><td>${fmt(sum.salaryNet)}</td><td>${fmt(sum.grand)}</td>`;
 }
@@ -706,9 +786,9 @@ function refreshCommComputed(){
     n++;
     const code = firstInput.dataset.code;
     const e = DB.emp.find(x=>x.code===code); if(!e) return;
-    const r = calc({...rowData(code), salary:e.salary||0});
+    const r = calc({...rowData(code), salary:getSalary(code)});
     const tds = tr.querySelectorAll("td");
-    const base = 10;
+    const base = 12; // ชื่อ+รหัส+สาขา 3 ช่อง + ช่องกรอก 9 ช่อง
     tds[base].textContent = fmt(r.net);
     tds[base+1].innerHTML = r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct}%)</span>`:"0";
     tds[base+1].className = r.commission?'pos':'';
@@ -730,7 +810,7 @@ $("commbody").addEventListener("input",e=>{
   queueWrite(t.dataset.code, t.dataset.f, v);
   refreshCommComputed();
 });
-["c-q","c-branch"].forEach(id=>$(id).addEventListener("input", renderComm));
+["c-q","c-branch","c-dept","c-pos"].forEach(id=>$(id).addEventListener("input", renderComm));
 $("c-import").addEventListener("click",()=>{
   const lines = ($("c-paste").value||"").split(/\r?\n/).filter(l=>l.trim());
   let ok=0, miss=[];
@@ -748,13 +828,16 @@ $("c-import").addEventListener("click",()=>{
   $("c-import-msg").textContent = `นำเข้า ${ok} คน` + (miss.length?` · หาไม่เจอ: ${miss.slice(0,6).join(", ")}${miss.length>6?"…":""}`:"");
 });
 $("c-export").addEventListener("click",()=>{
-  const head = ["รหัส","ชื่อเล่น","ชื่อ","สาขา","CRM","แนะนำ","หัก690","ลา","สาย","ตีกลับ","โบนัส","หักKPI","ยอดสุทธิ","ค่าคอม","Ontime","เดินทาง","Incentive","เงินเดือนสุทธิ","รวมรับ"];
+  const head = ["รหัส","ชื่อเล่น","ชื่อ","สาขา","CRM","แนะนำ","หัก690","ลา","สาย","ตีกลับ","โบนัส/อื่น","KPI","Incentive/เดือน","ยอดสุทธิ","ค่าคอม","โบนัสไตรมาส","Ontime","เดินทาง","รวมIncentive"];
+  if(IS_ADMIN) head.push("เงินเดือนสุทธิ","รวมรับ");
   const rows = [];
   for(const e of DB.emp){
     if(!isWorking(e)) continue;
-    const d = rowData(e.code), r = calc({...d, salary:e.salary||0});
-    rows.push([e.code,e.nick,e.name,e.branch,d.crm,d.ref,d.sub690,d.leave,d.late,d.ret,d.bonus,d.kpi,
-      r.net,r.commission.toFixed(2),r.ontime,r.travel,r.incentive.toFixed(2),r.salaryNet.toFixed(2),r.grand.toFixed(2)]);
+    const d = rowData(e.code), r = calc({...d, salary:getSalary(e.code)});
+    const row = [e.code,e.nick,e.name,e.branch,d.crm,d.ref,d.sub690,d.leave,d.late,d.ret,d.bonus,d.kpi,d.minc,
+      r.net,r.commission.toFixed(2),r.qbonus,r.ontime,r.travel,r.incentive.toFixed(2)];
+    if(IS_ADMIN) row.push(r.salaryNet.toFixed(2), r.grand.toFixed(2));
+    rows.push(row);
   }
   const csv = "\uFEFF"+[head,...rows].map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
   const a = document.createElement("a");
@@ -770,20 +853,24 @@ $("c-clear").addEventListener("click",()=>{
 /* ================= พนักงาน ================= */
 const EMP_FIELDS = [
   ["code","รหัสพนักงาน"],["name","ชื่อ-นามสกุล"],["nick","ชื่อเล่น"],["dept","แผนก"],["pos","ตำแหน่ง"],
-  ["branch","สาขา"],["sup","หัวหน้า"],["status","สถานะ"],["start","วันเริ่มงาน"],["pass","วันผ่านงาน"],
-  ["resign","วันที่ลาออก"],["salary","ฐานเงินเดือน"]
+  ["branch","สาขา"],["sup","หัวหน้า"],["email","อีเมล"],["status","สถานะ"],["start","วันเริ่มงาน"],["pass","วันผ่านงาน"],
+  ["resign","วันที่ลาออก"]
 ];
 let editingCode = null;
 function uniq(field){ return [...new Set(DB.emp.map(e=>e[field]).filter(Boolean))].sort(); }
+const BASE_BRANCHES = ["สำนักงานใหญ่","ขอนแก่น","ปราจีนบุรี","ปราจีนบุรี 304","Freelance"];
+function uniqBranch(){ return [...new Set([...BASE_BRANCHES, ...uniq("branch")])]; }
 function fillFilters(){
   const set = (sel, items, keep)=>{ const cur = $(sel).value;
     $(sel).innerHTML = keep + items.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");
     if([...$(sel).options].some(o=>o.value===cur)) $(sel).value = cur; };
-  set("emp-branch", uniq("branch"), `<option value="">ทุกสาขา</option>`);
+  set("emp-branch", uniqBranch(), `<option value="">ทุกสาขา</option>`);
   set("emp-dept", uniq("dept"), `<option value="">ทุกแผนก</option>`);
   set("emp-sup", uniq("sup"), `<option value="">ทุกคน</option>`);
-  set("c-branch", uniq("branch"), `<option value="">ทุกสาขา</option>`);
-  const dls = {"dept-list":uniq("dept"),"pos-list":uniq("pos"),"branch-list":uniq("branch"),
+  set("c-branch", uniqBranch(), `<option value="">ทุกสาขา</option>`);
+  set("c-dept", uniq("dept"), `<option value="">ทุกแผนก</option>`);
+  set("c-pos", uniq("pos"), `<option value="">ทุกตำแหน่ง</option>`);
+  const dls = {"dept-list":uniq("dept"),"pos-list":uniq("pos"),"branch-list":uniqBranch(),
     "sup-list":[...new Set(DB.emp.filter(isWorking).map(e=>e.nick).filter(Boolean))].sort()};
   for(const [id,items] of Object.entries(dls))
     $(id).innerHTML = items.map(v=>`<option value="${esc(v)}">`).join("");
@@ -811,7 +898,7 @@ function renderEmp(){
         <td class="l">${esc(e.code)}</td><td class="l"><strong>${esc(e.nick)}</strong></td><td class="l">${esc(e.name)}</td>
         <td class="l">${esc(e.dept)}</td><td class="l">${esc(e.pos)}</td><td class="l">${esc(e.branch)}</td><td class="l">${esc(e.sup)||"—"}</td>
         <td>${esc(e.start)||"—"}</td><td>${esc(e.pass)||"—"}</td><td>${tenureText(e.start, asOf)}</td>
-        <td>${e.salary?fmt(e.salary):"—"}</td><td class="l">${statusBadge(e.status)}</td></tr>`);
+        <td>${getSalary(e.code)?fmt(getSalary(e.code)):"—"}</td><td class="l">${statusBadge(e.status)}</td></tr>`);
   }
   $("emp-count").textContent = `แสดง ${n} จาก ${DB.emp.length} คน`;
 }
@@ -827,9 +914,9 @@ function openForm(code){
   $("e-code").value=e?e.code:""; $("e-code").disabled = !!e;
   $("e-name").value=e?e.name:""; $("e-nick").value=e?e.nick:"";
   $("e-dept").value=e?e.dept:""; $("e-pos").value=e?e.pos:"เจ้าหน้าที่"; $("e-branch").value=e?e.branch:"";
-  $("e-sup").value=e?e.sup:""; $("e-status").value=e?e.status:"ทดลองงาน";
+  $("e-sup").value=e?e.sup:""; $("e-email").value=e?(e.email||""):""; $("e-status").value=e?e.status:"ทดลองงาน";
   $("e-start").value=e?e.start:""; $("e-pass").value=e?e.pass:""; $("e-resign").value=e?e.resign:"";
-  $("e-salary").value=e?(e.salary||0):0;
+  $("e-salary").value = e ? getSalary(e.code) : 0;
   $("empform-card").hidden = false;
   $("empform-card").scrollIntoView({block:"nearest"});
 }
@@ -839,11 +926,13 @@ $("e-save").addEventListener("click",()=>{
   const v = {
     code:$("e-code").value.trim(), name:$("e-name").value.trim(), nick:$("e-nick").value.trim(),
     dept:$("e-dept").value.trim(), pos:$("e-pos").value.trim(), branch:$("e-branch").value.trim(),
-    sup:$("e-sup").value.trim(), status:$("e-status").value, start:$("e-start").value.trim(),
-    pass:$("e-pass").value.trim(), resign:$("e-resign").value.trim(), salary:num($("e-salary").value)
+    sup:$("e-sup").value.trim(), email:$("e-email").value.trim(), status:$("e-status").value, start:$("e-start").value.trim(),
+    pass:$("e-pass").value.trim(), resign:$("e-resign").value.trim()
   };
   if(!v.code || !v.name){ alert("กรอกรหัสพนักงานและชื่อก่อน"); return; }
+  let codeKey;
   if(editingCode){
+    codeKey = editingCode;
     const e = DB.emp.find(x=>x.code===editingCode);
     const changes = [];
     for(const [f,label] of EMP_FIELDS){
@@ -853,15 +942,26 @@ $("e-save").addEventListener("click",()=>{
     }
     if(changes.length){
       Object.assign(e, v, {code:e.code});
-      DB.hist.unshift({ts:nowTH(), code:e.code, nick:e.nick||e.name, action:"แก้ไขข้อมูล", changes});
+      DB.hist.unshift({ts:nowTH(), ts2:Date.now(), code:e.code, nick:e.nick||e.name, action:"แก้ไขข้อมูล", changes});
+      saveDB();
     }
   }else{
     if(DB.emp.some(x=>x.code===v.code)){ alert("รหัสพนักงานนี้มีอยู่แล้ว"); return; }
+    codeKey = v.code;
     DB.emp.unshift(v);
-    DB.hist.unshift({ts:nowTH(), code:v.code, nick:v.nick||v.name, action:"เพิ่มพนักงานใหม่",
-      changes:[{f:"salary",label:"ฐานเงินเดือน",from:"",to:String(v.salary)},{f:"status",label:"สถานะ",from:"",to:v.status}]});
+    DB.hist.unshift({ts:nowTH(), ts2:Date.now(), code:v.code, nick:v.nick||v.name, action:"เพิ่มพนักงานใหม่",
+      changes:[{f:"status",label:"สถานะ",from:"",to:v.status}]});
+    saveDB();
   }
-  saveDB();
+  if(IS_ADMIN){
+    const sNew = num($("e-salary").value), sOld = getSalary(codeKey);
+    if(sNew !== sOld){
+      SAL[codeKey] = sNew;
+      SALHIST.unshift({ts:nowTH(), ts2:Date.now(), code:codeKey, nick:v.nick||v.name,
+        action:"ปรับเงินเดือน", changes:[{f:"salary",label:"ฐานเงินเดือน",from:String(sOld),to:String(sNew)}]});
+      saveSAL(); saveSalHist();
+    }
+  }
   $("empform-card").hidden = true; editingCode = null;
   fillFilters(); renderEmp(); renderComm(); renderHist(); fillEmpPicker();
   const f=$("e-flash"); f.classList.add("show"); setTimeout(()=>f.classList.remove("show"),1500);
@@ -870,6 +970,7 @@ $("e-save").addEventListener("click",()=>{
 /* สำรอง / กู้คืน */
 $("btn-backup").addEventListener("click",()=>{
   const data = {db:DB, settings:S, months:{}};
+  if(IS_ADMIN){ data.sal = SAL; data.salhist = SALHIST; }
   data.months["uo-comm-"+ym()] = JSON.stringify(M);
   if(!CLOUD){
     for(let i=0;i<300;i++){ let k; try{ k=localStorage.key(i); }catch(e){ break; }
@@ -888,6 +989,8 @@ $("restore-file").addEventListener("change",e=>{
       const data = JSON.parse(fr.result);
       if(data.db && Array.isArray(data.db.emp)){ DB = data.db; saveDB(); }
       if(data.settings){ S = Object.assign({}, DEFAULTS, data.settings); persistS(); }
+      if(IS_ADMIN && data.sal){ SAL = data.sal; saveSAL(); }
+      if(IS_ADMIN && data.salhist){ SALHIST = data.salhist; saveSalHist(); }
       if(data.months){
         for(const [k,v] of Object.entries(data.months)){
           if(!v) continue;
@@ -907,11 +1010,14 @@ $("restore-file").addEventListener("change",e=>{
 function renderHist(){
   const q = ($("h-q").value||"").trim().toLowerCase();
   const ul = $("histlist"); ul.innerHTML = "";
-  const items = (DB.hist||[]).filter(h=>!q || h.code.includes(q) || (h.nick||"").toLowerCase().includes(q));
+  const all = [...(DB.hist||[]), ...(IS_ADMIN ? SALHIST : [])]
+    .sort((a,b)=>(b.ts2||0)-(a.ts2||0));
+  const items = all.filter(h=>!q || h.code.includes(q) || (h.nick||"").toLowerCase().includes(q));
   $("hist-empty").hidden = items.length>0;
   for(const h of items.slice(0,300)){
     const lines = (h.changes||[]).map(c=>{
       if(c.f==="salary"){
+        if(!IS_ADMIN) return `ปรับเงินเดือน (แสดงเฉพาะแอดมิน)`;
         const a=num(c.from), b=num(c.to), diff=b-a;
         const cls = diff>0?"up":diff<0?"down":"";
         const arrow = diff>0?`▲ +${fmt(diff)}`:diff<0?`▼ −${fmt(Math.abs(diff))}`:"";
@@ -940,46 +1046,83 @@ $("f-emp").addEventListener("change",()=>{
   const m = v.match(/·\s*(\S+)\s*$/);
   const code = m ? m[1] : null;
   pickedEmp = code ? DB.emp.find(x=>x.code===code) : DB.emp.find(x=>isWorking(x)&&x.nick===v.trim());
-  if(pickedEmp) $("f-salary").value = pickedEmp.salary||0;
+  if(!pickedEmp) return;
+  // ดึงยอดของเดือนนี้จากหน้า "คำนวณค่าคอม" มาใส่ให้อัตโนมัติ
+  const d = rowData(pickedEmp.code);
+  $("f-crm").value=d.crm; $("f-ref").value=d.ref; $("f-sub690").value=d.sub690;
+  $("f-leave").value=d.leave; $("f-late").value=d.late; $("f-return").value=d.ret;
+  $("f-bonus").value=d.bonus; $("f-kpi").value=d.kpi; $("f-minc").value=d.minc;
+  $("f-salary").value = getSalary(pickedEmp.code);
+  $("f-email").value = pickedEmp.email || "";
+  makeSlip(); // ออกสลิปให้เลย
 });
 function slipRow(label, amt, sign){
   const cls = sign>0?"pos":sign<0?"neg":"";
   const prefix = sign<0&&amt!==0?"−":"";
   return `<tr><td>${label}</td><td class="amt ${cls}">${prefix}${fmt(Math.abs(amt))}</td></tr>`;
 }
-$("btn-calc").addEventListener("click",()=>{
+let lastSlip = null;
+function makeSlip(){
   const p = {crm:num($("f-crm").value),ref:num($("f-ref").value),sub690:num($("f-sub690").value),
     leave:num($("f-leave").value),late:num($("f-late").value),ret:num($("f-return").value),
-    bonus:num($("f-bonus").value),kpi:num($("f-kpi").value),salary:num($("f-salary").value)};
+    bonus:num($("f-bonus").value),kpi:num($("f-kpi").value),minc:num($("f-minc").value),
+    salary:num($("f-salary").value)};
   const r = calc(p);
+  const hr = ($("f-hr").value||"").trim();
+  lsSet("uo-hrname", hr);
   const who = pickedEmp ? `${pickedEmp.nick||pickedEmp.name} · ${pickedEmp.branch} · ${pickedEmp.pos}` : ($("f-emp").value||"—");
   const mo = $("month").value ? new Date($("month").value+"-01").toLocaleDateString("th-TH",{month:"long",year:"numeric"}) : "";
   $("slip-who").textContent = `${who}${mo?" · งวด "+mo:""}`;
-  const b = [];
-  b.push(`<tr class="sect"><td colspan="2">ยอดขาย</td></tr>`);
-  b.push(slipRow("CRM + แนะนำ", p.crm+p.ref, 0));
-  if(p.sub690) b.push(slipRow("หักออเดอร์ต่ำกว่า 690", p.sub690, -1));
-  b.push(slipRow("ยอดสุทธิ", r.net, 0));
-  b.push(`<tr class="sect"><td colspan="2">Incentive</td></tr>`);
-  b.push(slipRow(`ค่าคอม ${r.pct}% ของยอดสุทธิ`, r.commission, r.commission?1:0));
-  b.push(slipRow(`Ontime เบี้ยขยัน${(p.leave||p.late)?" (งดจ่าย — มีลา/สาย)":""}`, r.ontime, r.ontime?1:0));
-  b.push(slipRow(`ค่าเดินทาง (ยอดถึง ${fmt(S.travelTh)})`, r.travel, r.travel?1:0));
-  if(p.bonus) b.push(slipRow("โบนัส/อื่น ๆ", p.bonus, 1));
-  if(r.returnDed) b.push(slipRow(`หักตีกลับ ${p.ret} ครั้ง`, r.returnDed, -1));
-  if(p.kpi) b.push(slipRow("หัก KPI", p.kpi, -1));
-  b.push(slipRow("รวม Incentive", r.incentive, r.incentive>=0?1:-1));
-  b.push(`<tr class="sect"><td colspan="2">เงินเดือน</td></tr>`);
-  b.push(slipRow("เงินเดือนฐาน", p.salary, 0));
-  if(r.leaveDed) b.push(slipRow(`หักลา ${p.leave} วัน (วันละ ${fmt(r.daily)})`, r.leaveDed, -1));
-  if(r.lateDed) b.push(slipRow(`หักสาย ${p.late} ครั้ง`, r.lateDed, -1));
-  b.push(slipRow("เงินเดือนสุทธิ", r.salaryNet, 0));
-  b.push(`<tr class="total"><td>รวมรับทั้งสิ้น</td><td class="amt">${fmt(r.grand)}</td></tr>`);
+  const b = [], t = []; // t = ข้อความสำหรับอีเมล
+  const line = (label, amt, sign)=>{ b.push(slipRow(label, amt, sign));
+    t.push(`${sign<0&&amt!==0?"-":""}${label}: ${fmt(Math.abs(amt))} บาท`); };
+  b.push(`<tr class="sect"><td colspan="2">ยอดขาย</td></tr>`); t.push("— ยอดขาย —");
+  line("CRM + แนะนำ", p.crm+p.ref, 0);
+  if(p.sub690) line("หักออเดอร์ต่ำกว่า 690", p.sub690, -1);
+  line("ยอดสุทธิ", r.net, 0);
+  b.push(`<tr class="sect"><td colspan="2">Incentive</td></tr>`); t.push("— Incentive —");
+  line(`ค่าคอม ${r.pct}% ของยอดสุทธิ`, r.commission, r.commission?1:0);
+  line(`Ontime เบี้ยขยัน${(p.leave||p.late)?" (งดจ่าย — มีลา/สาย)":""}`, r.ontime, r.ontime?1:0);
+  line(`ค่าเดินทาง (ยอดถึง ${fmt(S.travelTh)})`, r.travel, r.travel?1:0);
+  if(r.qbonus) line("โบนัสไตรมาส", r.qbonus, 1);
+  if(p.bonus) line("โบนัส/อื่น ๆ", p.bonus, 1);
+  if(p.kpi) line("KPI", p.kpi, 1);
+  if(p.minc) line("Incentive ประจำเดือน", p.minc, 1);
+  if(r.returnDed) line(`หักตีกลับ ${p.ret} ครั้ง`, r.returnDed, -1);
+  line("รวม Incentive", r.incentive, r.incentive>=0?1:-1);
+  if(IS_ADMIN){
+    b.push(`<tr class="sect"><td colspan="2">เงินเดือน</td></tr>`); t.push("— เงินเดือน —");
+    line("เงินเดือนฐาน", p.salary, 0);
+    if(r.leaveDed) line(`หักลา ${p.leave} วัน (วันละ ${fmt(r.daily)})`, r.leaveDed, -1);
+    if(r.lateDed) line(`หักสาย ${p.late} ครั้ง`, r.lateDed, -1);
+    line("เงินเดือนสุทธิ", r.salaryNet, 0);
+    b.push(`<tr class="total"><td>รวมรับทั้งสิ้น</td><td class="amt">${fmt(r.grand)}</td></tr>`);
+    t.push(`รวมรับทั้งสิ้น: ${fmt(r.grand)} บาท`);
+  }else{
+    b.push(`<tr class="total"><td>รวม Incentive</td><td class="amt">${fmt(r.incentive)}</td></tr>`);
+  }
+  if(hr){
+    b.push(`<tr><td colspan="2" style="border:none;padding-top:.8rem;font-size:.75rem;color:var(--muted)">ออกเอกสารโดย: ${esc(hr)} · ${nowTH()}</td></tr>`);
+  }
   $("slip-body").innerHTML = b.join("");
   $("slip-table").hidden = false;
+  const subject = `สลิปค่าคอม/Incentive งวด${mo} — ${pickedEmp?(pickedEmp.nick||pickedEmp.name):""}`;
+  const body = `เรียน ${pickedEmp?(pickedEmp.nick||pickedEmp.name):"พนักงาน"}\n\nสรุปยอดงวด${mo}\n\n` +
+    t.join("\n") + `\n\n${hr?("ออกเอกสารโดย: "+hr+"\n"):""}เอกสารนี้สร้างจากระบบคำนวณค่าคอม UO`;
+  lastSlip = {subject, body};
+}
+$("btn-calc").addEventListener("click", makeSlip);
+$("btn-email").addEventListener("click",()=>{
+  if(!lastSlip){ alert("เลือกพนักงานหรือกด \u201cคำนวณ\u201d ก่อน"); return; }
+  const to = ($("f-email").value||"").trim();
+  if(!to){ alert("กรอกอีเมลพนักงานก่อน (เพิ่มถาวรได้ในแท็บพนักงาน)"); return; }
+  location.href = "mailto:" + encodeURIComponent(to) +
+    "?subject=" + encodeURIComponent(lastSlip.subject) +
+    "&body=" + encodeURIComponent(lastSlip.body);
 });
 $("btn-clear").addEventListener("click",()=>{
   document.querySelectorAll("#p-one input[type=number]").forEach(i=>i.value=0);
-  $("f-emp").value=""; pickedEmp=null;
+  $("f-emp").value=""; $("f-email").value=""; pickedEmp=null; lastSlip=null;
   $("slip-table").hidden=true;
   $("slip-who").textContent="เลือกพนักงานแล้วกด \u201cคำนวณ\u201d";
 });
@@ -992,9 +1135,11 @@ function tierRow(tb, a, b, clsA, clsB){
          <td><button type="button" class="t-del" aria-label="ลบ">✕</button></td></tr>`);
 }
 function fillSettings(){
-  $("ctierbody").innerHTML=""; $("tierbody").innerHTML="";
+  $("ctierbody").innerHTML=""; $("tierbody").innerHTML=""; $("qtierbody").innerHTML="";
   [...S.commTiers].sort((a,b)=>a.min-b.min).forEach(t=>tierRow("ctierbody", t.min, t.pct, "ct-min","ct-pct"));
   [...S.tiers].sort((a,b)=>b.min-a.min).forEach(t=>tierRow("tierbody", t.min, t.pay, "t-min","t-pay"));
+  [...(S.qtiers||[])].sort((a,b)=>b.min-a.min).forEach(t=>tierRow("qtierbody", t.min, t.pay, "q-min","q-pay"));
+  $("s-qpay").value = S.qPay || "quarter";
   $("s-travel-th").value=S.travelTh; $("s-travel-amt").value=S.travelAmt;
   $("s-return").value=S.returnFee; $("s-late").value=S.lateFee;
   $("s-workdays").value=S.workdays; $("s-leave-deduct").value=String(S.leaveDeduct);
@@ -1004,11 +1149,15 @@ document.addEventListener("click",e=>{
 });
 $("btn-addctier").addEventListener("click",()=>tierRow("ctierbody",0,0,"ct-min","ct-pct"));
 $("btn-addtier").addEventListener("click",()=>tierRow("tierbody",0,0,"t-min","t-pay"));
+$("btn-addqtier").addEventListener("click",()=>tierRow("qtierbody",0,0,"q-min","q-pay"));
 $("btn-save").addEventListener("click",()=>{
   S.commTiers=[...document.querySelectorAll("#ctierbody tr")].map(tr=>({
     min:num(tr.querySelector(".ct-min").value), pct:num(tr.querySelector(".ct-pct").value)}));
   S.tiers=[...document.querySelectorAll("#tierbody tr")].map(tr=>({
     min:num(tr.querySelector(".t-min").value), pay:num(tr.querySelector(".t-pay").value)})).filter(t=>t.pay>0||t.min>0);
+  S.qtiers=[...document.querySelectorAll("#qtierbody tr")].map(tr=>({
+    min:num(tr.querySelector(".q-min").value), pay:num(tr.querySelector(".q-pay").value)})).filter(t=>t.pay>0||t.min>0);
+  S.qPay=$("s-qpay").value;
   S.travelTh=num($("s-travel-th").value); S.travelAmt=num($("s-travel-amt").value);
   S.returnFee=num($("s-return").value); S.lateFee=num($("s-late").value);
   S.workdays=num($("s-workdays").value)||26; S.leaveDeduct=Number($("s-leave-deduct").value);
@@ -1045,6 +1194,7 @@ async function cloudStart(){
     const d = s.data();
     if(d && Array.isArray(d.list)){
       DB.emp = d.list;
+      if(normalizeDepts()) DOC("employees").set({list: DB.emp}).catch(cloudErr);
       fillFilters(); renderEmp(); renderComm(); fillEmpPicker();
     }
   }, cloudErr));
@@ -1063,6 +1213,39 @@ async function cloudStart(){
       renderComm();
     }
   }, cloudErr));
+  /* ตรวจสิทธิ์แอดมิน: อ่านเอกสารเงินเดือนได้ = แอดมิน (คุมด้วย Firestore Rules) */
+  try{
+    const salSnap = await DOC("salaries").get();
+    IS_ADMIN = true;
+    if(!salSnap.exists){
+      // ย้ายเงินเดือนที่เคยเก็บรวมกับข้อมูลพนักงาน ออกมาไว้ในเอกสารเฉพาะแอดมิน
+      const empDoc = await DOC("employees").get();
+      const list = (empDoc.exists && empDoc.data() && Array.isArray(empDoc.data().list)) ? empDoc.data().list : DB.emp;
+      const salObj = {};
+      list.forEach(e=>{ if(e.salary) salObj[e.code] = num(e.salary); });
+      await DOC("salaries").set(salObj);
+      await DOC("salhist").set({list: []});
+      SAL = salObj;
+      DB.emp = list.map(e=>{ const c = {...e}; delete c.salary; return c; });
+      await DOC("employees").set({list: DB.emp});
+    }else{
+      SAL = salSnap.data() || {};
+    }
+  }catch(e){ IS_ADMIN = false; SAL = {}; SALHIST = []; }
+  applyAdminUI();
+  if(IS_ADMIN){
+    unsubs.push(DOC("salaries").onSnapshot(s=>{
+      if(s.metadata.hasPendingWrites) return;
+      SAL = s.data() || {};
+      renderEmp(); renderComm();
+    }, cloudErr));
+    unsubs.push(DOC("salhist").onSnapshot(s=>{
+      if(s.metadata.hasPendingWrites) return;
+      const d = s.data();
+      SALHIST = (d && Array.isArray(d.list)) ? d.list : [];
+      renderHist();
+    }, cloudErr));
+  }
   subscribeMonth();
   setSync(true, "ซิงก์ทีมแบบเรียลไทม์");
 }
@@ -1104,10 +1287,19 @@ if(CLOUD){
 (function(){
   const d = new Date();
   $("month").value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+  $("f-hr").value = lsGet("uo-hrname") || "";
   $("setupwarn").hidden = CLOUD;
   if(!CLOUD){
     setSync(false, "โหมดเครื่องเดียว (ยังไม่ตั้งค่า Firebase)");
     loadMonthLocal();
+    if(normalizeDepts()) saveDB();
+    IS_ADMIN = true;
+    const rawSal = lsGet("uo-sal-v1");
+    if(rawSal){ try{ SAL = JSON.parse(rawSal)||{}; }catch(e){ SAL={}; } }
+    else { DB.emp.forEach(e=>{ if(e.salary) SAL[e.code]=num(e.salary); }); }
+    const rawSH = lsGet("uo-salhist-v1");
+    if(rawSH){ try{ SALHIST = JSON.parse(rawSH)||[]; }catch(e){ SALHIST=[]; } }
+    applyAdminUI();
   }
   fillFilters(); fillSettings(); fillEmpPicker();
   renderEmp(); renderComm(); renderHist();
