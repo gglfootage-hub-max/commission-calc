@@ -137,6 +137,66 @@ details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--
 #login-overlay[hidden]{display:none}
 #login-overlay .card{max-width:360px;width:100%}
 #login-err{color:var(--deduct);font-size:.82rem;margin-top:.4rem;min-height:1.2em}
+
+/* ================= Manday (ต้นแบบ) ================= */
+:root{--warn:#8A6100;--warn-soft:#FFF3DC}
+.proto{display:inline-block;font-size:.72rem;font-weight:700;background:var(--warn-soft);color:var(--warn);border-radius:999px;padding:.15rem .6rem;vertical-align:middle;margin-left:.4rem}
+.badge.g1{background:#FFF3DC;color:#8A6100}
+.badge.g2{background:var(--deduct-soft);color:var(--deduct)}
+.badge.g3{background:var(--money-soft);color:var(--money)}
+.flag{display:inline-block;font-size:.75rem;font-weight:600;border-radius:6px;padding:.15rem .5rem;margin:.1rem .2rem .1rem 0}
+.flag.y{background:var(--warn-soft);color:var(--warn)}
+.flag.r{background:var(--deduct-soft);color:var(--deduct)}
+.gridwrap{overflow:auto;max-height:66vh;border:1px solid var(--line);border-radius:var(--radius);background:var(--card)}
+table.ts{border-collapse:separate;border-spacing:0;font-size:.78rem;min-width:1900px}
+table.ts th,table.ts td{border-bottom:1px solid #EEF2EC;border-right:1px solid #F3F6F1;padding:.2rem .25rem;text-align:center;white-space:nowrap}
+table.ts thead th{position:sticky;top:0;background:#F0F4EE;z-index:3;font-size:.72rem;line-height:1.15;padding:.3rem .2rem}
+table.ts thead th.we{background:#E8EEE6}
+table.ts th.emp,table.ts td.emp{position:sticky;left:0;background:var(--card);z-index:2;text-align:left;min-width:150px;max-width:150px;padding:.25rem .5rem}
+table.ts thead th.emp{background:#F0F4EE;z-index:4}
+table.ts td.day{min-width:34px;cursor:pointer;height:34px}
+table.ts td.day:hover{outline:2px solid var(--money);outline-offset:-2px}
+table.ts td.we{background:#FAFBF8}
+table.ts td.out{background:repeating-linear-gradient(45deg,#F3F4F1,#F3F4F1 4px,#ECEEE9 4px,#ECEEE9 8px);cursor:not-allowed;color:#B9C2B8}
+table.ts td.res{text-align:right;font-weight:600;min-width:76px;padding:.2rem .5rem;background:#FBFDFA}
+table.ts td.res.pos{color:var(--money)}
+table.ts td.res.neg{color:var(--deduct)}
+table.ts td.res input{width:70px;text-align:right;padding:.15rem .3rem;font-size:.78rem}
+table.ts thead th.res{min-width:76px}
+.cc{display:inline-block;min-width:26px;border-radius:5px;font-weight:700;font-size:.72rem;padding:.1rem .2rem}
+.cc.OFF{background:#E5E7E4;color:#5A6157}.cc.S{background:#FFE3C8;color:#9A4E00}
+.cc.PL{background:#D8E6FA;color:#1D4F91}.cc.LP{background:#E8DCF5;color:#5B2E91}
+.cc.HF{background:#D2EEE9;color:#0B6355}.cc.AL{background:#DCF2D9;color:#1E6B2B}
+.cc.L{background:#FFF1B8;color:#7A5F00}.cc.HD{background:#FBDCE7;color:#A62B57}
+.cc.AA{background:#F7CFC8;color:#9A1F10}.cc.LO{background:#333F38;color:#fff}
+.cc.ML{background:#FCE0EE;color:#A0347B}
+.legend{display:flex;flex-wrap:wrap;gap:.4rem .6rem;font-size:.76rem;align-items:center}
+#pop{position:absolute;z-index:60;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(20,40,30,.18);padding:.8rem;width:300px}
+#pop h3{font-size:.85rem;margin-bottom:.5rem}
+#pop .codes{display:grid;grid-template-columns:repeat(4,1fr);gap:.3rem;margin-bottom:.5rem}
+#pop .codes button{font-family:inherit;font-size:.75rem;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:.3rem .1rem;cursor:pointer;background:#FCFDFB}
+#pop .codes button.on{outline:2px solid var(--money)}
+#pop textarea{width:100%;min-height:52px;font-size:.8rem;margin:.3rem 0}
+#pop .row{display:flex;gap:.4rem;margin:.25rem 0;align-items:center;font-size:.78rem;flex-wrap:wrap}
+#pop .row input,#pop .row select{font-size:.8rem;padding:.2rem .4rem}
+#pop .btns{display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem}
+#pop .btns button{min-height:34px;padding:.3rem .8rem;font-size:.85rem}
+.mdcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem;margin-bottom:1rem}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:.8rem 1rem}
+.stat .k{font-size:.75rem;color:var(--muted)}
+.stat .v{font-size:1.3rem;font-weight:700;color:var(--money)}
+.stat .v.red{color:var(--deduct)}
+.stat .d{font-size:.72rem;color:var(--muted)}
+ul.alerts{list-style:none}
+ul.alerts li{padding:.5rem .2rem;border-bottom:1px solid #EEF2EC;font-size:.85rem;cursor:pointer}
+ul.alerts li:hover{background:#F7FAF6}
+#md-lockbar{background:var(--money-soft);border:1px solid var(--money);color:var(--money);border-radius:10px;padding:.6rem 1rem;font-weight:700;margin-bottom:1rem;display:none}
+body.md-locked #md-lockbar{display:block}
+body.md-locked table.ts td.day{pointer-events:none;opacity:.85}
+table.sum{border-collapse:collapse;width:100%;font-size:.85rem}
+table.sum th,table.sum td{padding:.4rem .55rem;border-bottom:1px solid #EEF2EC;text-align:right;white-space:nowrap}
+table.sum th{background:#F0F4EE;font-size:.76rem}
+table.sum td.l,table.sum th.l{text-align:left}
 </style>
 </head>
 <body>
@@ -178,6 +238,7 @@ details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--
   <button role="tab" aria-selected="true"  data-panel="p-comm">คำนวณค่าคอม</button>
   <button role="tab" aria-selected="false" data-panel="p-one">สลิปเงินเดือน</button>
   <button role="tab" aria-selected="false" data-panel="p-lead">หัวหน้าทีม</button>
+  <button role="tab" aria-selected="false" data-panel="p-md">Manday</button>
   <button role="tab" aria-selected="false" data-panel="p-emp">พนักงาน</button>
   <button role="tab" aria-selected="false" data-panel="p-hist">ประวัติการแก้ไข</button>
   <button role="tab" aria-selected="false" data-panel="p-set">ตั้งค่าเรต</button>
@@ -387,6 +448,53 @@ details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--
     </div>
     <ul class="hist" id="histlist"></ul>
     <p class="hint" id="hist-empty" hidden>ยังไม่มีประวัติการแก้ไข</p>
+  </div>
+</section>
+
+<!-- ================= Manday (ต้นแบบ) ================= -->
+<section class="panel" id="p-md">
+  <div id="md-lockbar">🔒 รอบนี้อนุมัติแล้ว — ข้อมูลถูกล็อก แก้ไขไม่ได้</div>
+  <div class="card">
+    <h2>ค่าแรงรายรอบ (Manday)<span class="proto">ต้นแบบ · ข้อมูลตัวอย่าง</span>
+      <small>รอบ 26 ส.ค. – 25 ก.ย. 2569 · ตัวเลขทั้งหมดคำนวณโดยระบบ (ยกเว้น Incentive) · ยังไม่เชื่อมฐานข้อมูลจริง</small></h2>
+    <div class="frow" style="display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:flex-end">
+      <label class="f"><span>บริษัท</span><select id="md-company" style="width:auto"><option>UO</option><option>GGL</option></select></label>
+      <label class="f"><span>ตัวหารอัตราต่อวัน</span><input type="number" id="md-divisor" value="30" style="width:90px"></label>
+      <label class="f"><span>กลุ่มพนักงาน</span>
+        <select id="grp-filter" style="width:auto">
+          <option value="">ทุกกลุ่ม</option>
+          <option value="1">กลุ่ม 1: ทดลองงาน/รายวัน/ฝึกงาน</option>
+          <option value="2">กลุ่ม 2: ออกระหว่างรอบ</option>
+          <option value="3">กลุ่ม 3: ประจำ</option>
+        </select></label>
+      <button class="ghost" id="btn-newcycle">+ สร้างรอบใหม่</button>
+    </div>
+    <div class="legend" id="md-legend" style="margin-top:.6rem"></div>
+    <p class="hint" style="margin-bottom:0">คลิกช่องวันเพื่อลงรหัส + เหตุผล · วางเมาส์ค้างเพื่อดูเหตุผล · ช่องลายทาง = นอกช่วงการจ้าง</p>
+  </div>
+  <div class="gridwrap" style="margin-bottom:1rem"><table class="ts" id="tstable"><thead id="tshead"></thead><tbody id="tsbody"></tbody></table></div>
+
+  <h2 style="font-size:1.05rem;margin:.4rem 0 .8rem">สรุปเพื่ออนุมัติ</h2>
+  <div class="mdcards" id="apcards"></div>
+  <div class="card">
+    <h2>รายการที่ต้องตรวจก่อนอนุมัติ <small>คลิกเพื่อไปดูแถวของพนักงานคนนั้น</small></h2>
+    <ul class="alerts" id="md-alerts"></ul>
+    <p class="hint" id="md-noalert" hidden>ไม่พบความผิดปกติ ✓</p>
+  </div>
+  <div class="card">
+    <h2>สรุปรายคน</h2>
+    <div style="overflow:auto"><table class="sum" id="sumtable">
+      <thead><tr><th class="l">พนักงาน</th><th class="l">กลุ่ม</th><th class="l">ประเภท</th><th>วันทำงาน</th><th>รวมวันลา</th><th>เงินที่ได้</th><th>หักอบรม</th><th>หักเงินกู้</th><th>Incentive</th><th>คงเหลือสุทธิ</th><th class="l">ป้ายเตือน</th></tr></thead>
+      <tbody id="sumbody"></tbody>
+      <tfoot><tr id="sumfoot"></tr></tfoot>
+    </table></div>
+  </div>
+  <div class="card">
+    <div class="btnrow">
+      <button class="primary" id="btn-approve">✔ อนุมัติรอบนี้</button>
+      <button class="danger" id="btn-reject">↩ ส่งกลับให้แก้ไข</button>
+      <span class="hint" id="ap-status" style="margin:0"></span>
+    </div>
   </div>
 </section>
 
@@ -1597,6 +1705,238 @@ if(CLOUD){
   });
 }
 
+
+/* ================= Manday (ต้นแบบ · ข้อมูลตัวอย่าง) ================= */
+const MD_START=new Date(2026,7,26), MD_END=new Date(2026,8,25);
+const MD_DAYS=[];{let d=new Date(MD_START);while(d<=MD_END){MD_DAYS.push(new Date(d));d.setDate(d.getDate()+1);}}
+const MD_THD=["อา","จ","อ","พ","พฤ","ศ","ส"];
+const mdIso=d=>d.toISOString().slice(0,10);
+const mdBE=d=>`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`;
+const MD_CODES={OFF:"หยุดประจำสัปดาห์",S:"ลาป่วย",PL:"ลากิจ",LP:"ลากิจไม่รับเงิน",HF:"ลาครึ่งวัน",AL:"ลาพักร้อน",L:"มาสาย",HD:"นักขัตฤกษ์",AA:"ขาดงาน",LO:"ลาออก/ไม่ผ่าน",ML:"ลาคลอด"};
+const MD_EMPS=[
+ {code:"00005",nick:"มีน",name:"กมลรัตน์ ศิริสำราญ",status:"ประจำ",pay:"monthly",base:15000,start:"2022-11-01",bank:"KBANK ***-2-345**",group:3,prev:14750,sickYear:6,train:[{name:"อบรมมหิดล",per:2500,left:2}],loan:null},
+ {code:"00007",nick:"แบงค์",name:"ปรเมธ เพชรรัตน์",status:"ทดลองงาน",pay:"monthly",base:12000,start:"2026-09-01",bank:"SCB ***-4-110**",group:1,prev:0,sickYear:0,train:[],loan:null},
+ {code:"000158",nick:"โม",name:"สุภาทิพย์ กำเนิดสาม",status:"รายวัน",pay:"daily",rate:400,start:"2025-03-01",bank:"KTB ***-0-778**",group:1,prev:8800,sickYear:2,train:[],loan:null},
+ {code:"000133",nick:"กุ้ง",name:"อิสรีย์ สุดเฉลียวรสา",status:"ประจำ",pay:"monthly",base:13000,start:"2026-02-03",bank:"KBANK ***-7-521**",group:2,prev:13000,sickYear:4,resign:"2026-09-15",train:[],loan:null},
+ {code:"00029",nick:"ผึ้ง",name:"ชญาณี พุ่มพฤกษา",status:"ประจำ",pay:"monthly",base:14000,start:"2023-11-01",bank:"BBL ***-1-903**",group:3,prev:14000,sickYear:9,raise:{date:"2026-09-11",newBase:16000},train:[{name:"อบรมพี่แพท",per:400,left:1}],loan:null},
+ {code:"000141",nick:"แนน",name:"สิรินารา ภูทองชนะ",status:"ทดลองงาน",pay:"monthly",base:12000,start:"2026-06-15",bank:"SCB ***-9-004**",group:1,prev:12000,sickYear:7,train:[],loan:null},
+ {code:"00010",nick:"ตังค์",name:"อำภา ปิ่นวงษ์งาม",status:"ประจำ",pay:"monthly",base:15500,start:"2022-12-06",bank:"",group:3,prev:15500,sickYear:3,ml:{from:"2026-09-01",to:"2026-09-25",paidDays:15},train:[],loan:null},
+ {code:"00050",nick:"บิ๊ก",name:"ภูมิพัฒน์ ระยับ",status:"Freelance",pay:"daily",rate:450,start:"2026-01-02",bank:"KBANK ***-3-667**",group:1,prev:9900,sickYear:32,train:[],loan:{name:"เงินกู้สวัสดิการ",total:6000,per:1000,paid:2}},
+];
+const MD_GRID={};
+function mdSet(code,dstr,c,extra){ (MD_GRID[code]=MD_GRID[code]||{})[dstr]=Object.assign({c},extra||{}); }
+for(const e of MD_EMPS) for(const d of MD_DAYS) if(d.getDay()===0) mdSet(e.code,mdIso(d),"OFF");
+mdSet("00005","2026-09-02","S",{note:"ไข้หวัด มีใบรับรอง"});
+mdSet("00005","2026-09-10","L",{mins:25,note:"รถติดหนัก"});
+mdSet("000158","2026-09-05","PL",{note:"ธุระครอบครัว"});
+mdSet("000133","2026-09-15","LO",{note:"ลาออก มีผล 15 ก.ย."});
+mdSet("00029","2026-09-08","HF",{hfType:"PL",hfHalf:"บ่าย",note:"พาแม่หาหมอ"});
+["2026-09-07","2026-09-08","2026-09-09","2026-09-10"].forEach(d=>mdSet("000141",d,"S",{note:"ป่วย (ไม่มีใบรับรองแพทย์)"}));
+for(const d of MD_DAYS){const t=mdIso(d); if(t>="2026-09-01"&&t<="2026-09-25"&&d.getDay()!==0) mdSet("00010",t,"ML",{note:"ลาคลอด บริษัทจ่าย 15 วันแรก"});}
+mdSet("00050","2026-09-12","AA",{note:"ขาดงาน ไม่แจ้ง"});
+mdSet("00007","2026-09-19","LP",{note:"ลากิจไม่รับเงิน"});
+let MD_INC={}, MD_LOCKED=false;
+
+function mdInEmploy(e,d){
+  const t=mdIso(d);
+  if(e.start && t < e.start) return false;
+  if(e.resign && t > e.resign) return false;
+  return true;
+}
+function mdCalc(e){
+  const div=num($("md-divisor").value)||30;
+  let workDays=0, leaveDays=0, unpaid=0, lateMins=0, mlUsed=0;
+  let employDays=0, employBefore=0, employAfter=0;
+  const raiseDate=e.raise?e.raise.date:null;
+  for(const d of MD_DAYS){
+    if(!mdInEmploy(e,d)) continue;
+    employDays++;
+    if(raiseDate){ if(mdIso(d)<raiseDate) employBefore++; else employAfter++; }
+    const cell=(MD_GRID[e.code]||{})[mdIso(d)];
+    const c=cell?cell.c:"";
+    if(c==="LO") continue;
+    if(c===""||c==="L"||c==="HD"){ workDays++; if(c==="L") lateMins+=num(cell.mins); continue; }
+    if(c==="OFF") continue;
+    if(c==="HF"){ workDays+=.5; leaveDays+=.5; if(cell.hfType==="LP") unpaid+=.5; continue; }
+    if(c==="ML"){ leaveDays++; mlUsed++; if(mlUsed>((e.ml&&e.ml.paidDays)||0)) unpaid++; continue; }
+    leaveDays++;
+    if(c==="LP"||c==="AA") unpaid++;
+  }
+  let pay=0, rate1=0;
+  if(e.pay==="daily"){ rate1=e.rate; pay=e.rate*workDays; }
+  else{
+    rate1=e.base/div;
+    if(e.raise){ const r2=e.raise.newBase/div; pay = rate1*employBefore + r2*employAfter; }
+    else{ pay = (employDays >= MD_DAYS.length) ? e.base : rate1*employDays; }
+    pay -= unpaid*rate1;
+  }
+  pay=Math.max(0,pay);
+  const trainDed=(e.train||[]).reduce((a,t)=>a+(t.left>0?t.per:0),0);
+  const loanDed=e.loan && (e.loan.paid < e.loan.total/e.loan.per) ? e.loan.per : 0;
+  const inc=num(MD_INC[e.code]);
+  return {workDays,leaveDays,unpaid,lateMins,pay,trainDed,loanDed,inc,net:pay-trainDed-loanDed+inc,employDays,rate:rate1};
+}
+function mdFlags(e,r){
+  const f=[];
+  if(e.start > mdIso(MD_START) && e.pay==="monthly" && !e.raise && r.pay >= (e.base||0) && r.employDays < MD_DAYS.length)
+    f.push({t:"r",m:"เริ่มงานกลางรอบแต่ได้ค่าแรงเต็มรอบ"});
+  if(e.raise) f.push({t:"y",m:`ปรับเงินเดือนกลางรอบ (มีผล ${mdBE(new Date(e.raise.date))}) — ระบบคิดตามสัดส่วนวันแล้ว โปรดตรวจ`});
+  if(e.resign && r.workDays>0 && r.pay===0) f.push({t:"r",m:"ลาออกระหว่างรอบ มีวันทำงานแต่เงินเป็น 0"});
+  if(e.prev>0){ const diff=Math.abs(r.net-e.prev), pc=diff/e.prev*100;
+    if(pc>20 || diff>5000) f.push({t:"y",m:`ยอดต่างจากรอบก่อน ${pc.toFixed(0)}% (${fmt(diff)} บ.)`}); }
+  let run=0;
+  for(const d of MD_DAYS){ const cell=(MD_GRID[e.code]||{})[mdIso(d)];
+    if(cell&&cell.c==="S"){ run++;
+      const nt = cell.note||"";
+      const noCert = /ไม่มีใบรับรอง/.test(nt) || !/มีใบรับรอง/.test(nt);
+      if(run>3 && noCert){ f.push({t:"r",m:"ลาป่วยต่อเนื่องเกิน 3 วัน ไม่มีใบรับรองแพทย์"}); break; }
+    } else run=0; }
+  if((e.sickYear||0)>30) f.push({t:"y",m:`ลาป่วยสะสมทั้งปี ${e.sickYear} วัน (เกิน 30)`});
+  if(!e.bank) f.push({t:"r",m:"ไม่มีข้อมูลธนาคาร/เลขบัญชี"});
+  return f;
+}
+function mdHead(){
+  let h=`<tr><th class="emp">พนักงาน</th>`;
+  for(const d of MD_DAYS){ const we=d.getDay()===0||d.getDay()===6;
+    h+=`<th class="${we?'we':''}">${MD_THD[d.getDay()]}<br>${d.getDate()}<br><span style="color:var(--muted)">${d.getMonth()+1===8?"ส.ค.":"ก.ย."}</span></th>`; }
+  h+=`<th class="res">วันทำงาน</th><th class="res">รวมวันลา</th><th class="res">เงินที่ได้</th><th class="res">หักอบรม</th><th class="res">หักเงินกู้</th><th class="res">Incentive</th><th class="res">คงเหลือสุทธิ</th></tr>`;
+  $("tshead").innerHTML=h;
+}
+function renderTS(){
+  const gf=$("grp-filter").value;
+  const tb=$("tsbody"); tb.innerHTML="";
+  for(const e of MD_EMPS){
+    if(gf && String(e.group)!==gf) continue;
+    const r=mdCalc(e);
+    let row=`<tr id="mdrow-${e.code}"><td class="emp"><strong>${esc(e.nick)}</strong> <span class="badge g${e.group}">ก.${e.group}</span><br>
+      <span style="font-size:.7rem;color:var(--muted)">${esc(e.code)} · ${e.pay==="daily"?fmt(e.rate)+"/วัน":"เดือนละ "+fmt(e.base)}</span></td>`;
+    for(const d of MD_DAYS){
+      const t=mdIso(d), we=d.getDay()===0||d.getDay()===6;
+      if(!mdInEmploy(e,d)){ row+=`<td class="day out" title="นอกช่วงการจ้าง"></td>`; continue; }
+      const cell=(MD_GRID[e.code]||{})[t];
+      const tip=cell?`${MD_CODES[cell.c]||cell.c}${cell.mins?" "+cell.mins+" นาที":""}${cell.hfType?" ("+({S:"ป่วย",PL:"กิจ",LP:"ไม่รับเงิน"}[cell.hfType]||cell.hfType)+" "+(cell.hfHalf||"")+")":""}${cell.note?" — "+cell.note:""}`:"คลิกเพื่อลงรหัส";
+      row+=`<td class="day ${we?'we':''}" data-mdcode="${esc(e.code)}" data-d="${t}" title="${esc(tip)}">${cell?`<span class="cc ${cell.c}">${cell.c}${cell.c==="L"&&cell.mins?"·"+cell.mins:""}</span>`:""}</td>`;
+    }
+    row+=`<td class="res">${r.workDays}</td><td class="res">${r.leaveDays}</td>
+      <td class="res pos">${fmt(r.pay)}</td>
+      <td class="res ${r.trainDed?'neg':''}">${r.trainDed?"−"+fmt(r.trainDed):"0"}</td>
+      <td class="res ${r.loanDed?'neg':''}">${r.loanDed?"−"+fmt(r.loanDed):"0"}${e.loan?`<br><span style="font-size:.66rem;color:var(--muted)">เหลือ ${Math.max(0,e.loan.total/e.loan.per-e.loan.paid-1)} งวด</span>`:""}</td>
+      <td class="res"><input type="number" data-mdinc="${esc(e.code)}" value="${MD_INC[e.code]||0}" ${MD_LOCKED?"disabled":""}></td>
+      <td class="res pos"><strong>${fmt(r.net)}</strong></td></tr>`;
+    tb.insertAdjacentHTML("beforeend",row);
+  }
+}
+$("tsbody").addEventListener("input",e=>{
+  const t=e.target; if(!t.dataset.mdinc) return;
+  MD_INC[t.dataset.mdinc]=num(t.value);
+  renderTS(); renderAP();
+  const inp=document.querySelector(`input[data-mdinc="${t.dataset.mdinc}"]`); if(inp) inp.focus();
+});
+let mdPopCtx=null;
+$("tsbody").addEventListener("click",e=>{
+  if(MD_LOCKED) return;
+  const td=e.target.closest("td.day"); if(!td||td.classList.contains("out")||!td.dataset.mdcode) return;
+  mdPopCtx={code:td.dataset.mdcode,d:td.dataset.d};
+  const cell=(MD_GRID[mdPopCtx.code]||{})[mdPopCtx.d]||{};
+  const emp=MD_EMPS.find(x=>x.code===mdPopCtx.code);
+  const pp=$("pop");
+  pp.innerHTML=`<h3>${esc(emp.nick)} · ${mdBE(new Date(mdPopCtx.d))}</h3>
+    <div class="codes">${Object.keys(MD_CODES).map(c=>`<button type="button" data-c="${c}" class="${cell.c===c?'on':''}"><span class="cc ${c}">${c}</span></button>`).join("")}</div>
+    <div class="row" id="pop-l" ${cell.c==="L"?"":"hidden"}><span>สาย (นาที)</span><input type="number" id="pop-mins" value="${cell.mins||0}" style="width:80px"></div>
+    <div class="row" id="pop-hf" ${cell.c==="HF"?"":"hidden"}>
+      <select id="pop-hft"><option value="S">ลาป่วย</option><option value="PL">ลากิจ</option><option value="LP">ไม่รับเงิน</option></select>
+      <select id="pop-hfh"><option>เช้า</option><option>บ่าย</option></select>
+    </div>
+    <textarea id="pop-note" placeholder="เหตุผล / หมายเหตุ (แสดงเมื่อชี้เมาส์)">${esc(cell.note||"")}</textarea>
+    <div class="btns"><button class="danger" id="pop-clear">ล้างช่อง</button><button class="primary" id="pop-save">บันทึก</button></div>`;
+  if(cell.hfType) pp.querySelector("#pop-hft").value=cell.hfType;
+  if(cell.hfHalf) pp.querySelector("#pop-hfh").value=cell.hfHalf;
+  pp.hidden=false;
+  const rc=td.getBoundingClientRect();
+  pp.style.left=Math.min(window.scrollX+rc.left, window.scrollX+document.documentElement.clientWidth-320)+"px";
+  pp.style.top=(window.scrollY+rc.bottom+6)+"px";
+  let sel=cell.c||"";
+  pp.querySelectorAll(".codes button").forEach(b=>b.addEventListener("click",()=>{
+    sel=b.dataset.c;
+    pp.querySelectorAll(".codes button").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+    pp.querySelector("#pop-l").hidden = sel!=="L";
+    pp.querySelector("#pop-hf").hidden = sel!=="HF";
+  }));
+  pp.querySelector("#pop-save").addEventListener("click",()=>{
+    if(!sel){ pp.hidden=true; return; }
+    const extra={note:pp.querySelector("#pop-note").value.trim()};
+    if(sel==="L") extra.mins=num(pp.querySelector("#pop-mins").value);
+    if(sel==="HF"){ extra.hfType=pp.querySelector("#pop-hft").value; extra.hfHalf=pp.querySelector("#pop-hfh").value; }
+    if(sel==="LO"){ const e2=MD_EMPS.find(x=>x.code===mdPopCtx.code); e2.resign=mdPopCtx.d; e2.group=2; }
+    mdSet(mdPopCtx.code,mdPopCtx.d,sel,extra);
+    pp.hidden=true; renderTS(); renderAP();
+  });
+  pp.querySelector("#pop-clear").addEventListener("click",()=>{
+    if(MD_GRID[mdPopCtx.code]) delete MD_GRID[mdPopCtx.code][mdPopCtx.d];
+    pp.hidden=true; renderTS(); renderAP();
+  });
+});
+document.addEventListener("click",e=>{ if(!e.target.closest("#pop")&&!e.target.closest("td.day")) $("pop").hidden=true; });
+function renderAP(){
+  const rows=MD_EMPS.map(e=>({e,r:mdCalc(e)})).map(x=>(x.f=mdFlags(x.e,x.r),x));
+  const total=rows.reduce((a,x)=>a+x.r.net,0);
+  const ded=rows.reduce((a,x)=>a+x.r.trainDed+x.r.loanDed,0);
+  const gsum=n=>rows.filter(x=>x.e.group===n).reduce((a,x)=>a+x.r.net,0);
+  const prevTotal=rows.reduce((a,x)=>a+(x.e.prev||0),0);
+  const diff=total-prevTotal;
+  $("apcards").innerHTML=`
+    <div class="stat"><div class="k">ยอดจ่ายรวมรอบนี้</div><div class="v">${fmt(total)} ฿</div>
+      <div class="d">เทียบรอบก่อน ${diff>=0?"▲ +":"▼ −"}${fmt(Math.abs(diff))} ฿</div></div>
+    <div class="stat"><div class="k">จำนวนพนักงาน</div><div class="v">${rows.length} คน</div><div class="d">กลุ่ม 1/2/3: ${rows.filter(x=>x.e.group===1).length}/${rows.filter(x=>x.e.group===2).length}/${rows.filter(x=>x.e.group===3).length}</div></div>
+    <div class="stat"><div class="k">กลุ่ม 1 ทดลอง/รายวัน</div><div class="v">${fmt(gsum(1))} ฿</div></div>
+    <div class="stat"><div class="k">กลุ่ม 2 ออกระหว่างรอบ</div><div class="v red">${fmt(gsum(2))} ฿</div></div>
+    <div class="stat"><div class="k">กลุ่ม 3 ประจำ</div><div class="v">${fmt(gsum(3))} ฿</div></div>
+    <div class="stat"><div class="k">ยอดหักรวม (อบรม+เงินกู้)</div><div class="v red">−${fmt(ded)} ฿</div></div>`;
+  const ul=$("md-alerts"); ul.innerHTML="";
+  let n=0;
+  for(const x of rows) for(const f of x.f){ n++;
+    ul.insertAdjacentHTML("beforeend",
+      `<li data-mdcode="${esc(x.e.code)}"><span class="flag ${f.t}">${f.t==="r"?"แดง":"เหลือง"}</span> <strong>${esc(x.e.nick)}</strong> — ${esc(f.m)}</li>`); }
+  $("md-noalert").hidden=n>0;
+  const tb=$("sumbody"); tb.innerHTML="";
+  const t2={w:0,l:0,p:0,t:0,lo:0,i:0,n:0};
+  for(const x of rows){
+    t2.w+=x.r.workDays; t2.l+=x.r.leaveDays; t2.p+=x.r.pay; t2.t+=x.r.trainDed; t2.lo+=x.r.loanDed; t2.i+=x.r.inc; t2.n+=x.r.net;
+    tb.insertAdjacentHTML("beforeend",
+      `<tr><td class="l"><strong>${esc(x.e.nick)}</strong> ${esc(x.e.code)}</td>
+       <td class="l"><span class="badge g${x.e.group}">กลุ่ม ${x.e.group}</span></td>
+       <td class="l">${x.e.pay==="daily"?"รายวัน":"รายเดือน"}</td>
+       <td>${x.r.workDays}</td><td>${x.r.leaveDays}</td><td>${fmt(x.r.pay)}</td>
+       <td>${x.r.trainDed?"−"+fmt(x.r.trainDed):"0"}</td><td>${x.r.loanDed?"−"+fmt(x.r.loanDed):"0"}</td>
+       <td>${fmt(x.r.inc)}</td><td><strong>${fmt(x.r.net)}</strong></td>
+       <td class="l">${x.f.map(f=>`<span class="flag ${f.t}">${esc(f.m)}</span>`).join("")||"—"}</td></tr>`);
+  }
+  $("sumfoot").innerHTML=`<td class="l" colspan="3">รวม</td><td>${t2.w}</td><td>${t2.l}</td><td>${fmt(t2.p)}</td><td>−${fmt(t2.t)}</td><td>−${fmt(t2.lo)}</td><td>${fmt(t2.i)}</td><td><strong>${fmt(t2.n)}</strong></td><td></td>`;
+}
+$("md-alerts").addEventListener("click",e=>{
+  const li=e.target.closest("li[data-mdcode]"); if(!li) return;
+  const row=$("mdrow-"+li.dataset.mdcode);
+  if(row){ row.scrollIntoView({block:"center"}); row.style.outline="3px solid var(--money)"; setTimeout(()=>row.style.outline="",1800); }
+});
+$("btn-approve").addEventListener("click",()=>{
+  if(MD_LOCKED) return;
+  if(!confirm("อนุมัติรอบ 26 ส.ค. – 25 ก.ย. 2569? หลังอนุมัติจะแก้ไขไม่ได้")) return;
+  MD_LOCKED=true; document.body.classList.add("md-locked");
+  $("ap-status").textContent="✅ อนุมัติแล้วเมื่อ "+new Date().toLocaleString("th-TH",{dateStyle:"medium",timeStyle:"short"})+" — รอบถูกล็อก";
+  renderTS();
+});
+$("btn-reject").addEventListener("click",()=>{
+  if(MD_LOCKED) return alert("รอบนี้อนุมัติแล้ว");
+  const reason=prompt("เหตุผลที่ส่งกลับให้แก้ไข (จำเป็น):");
+  if(!reason||!reason.trim()) return;
+  $("ap-status").textContent="↩ ส่งกลับให้ HR แก้ไข — เหตุผล: "+reason.trim();
+});
+$("btn-newcycle").addEventListener("click",()=>alert("ต้นแบบ: ปุ่มนี้จะดึงพนักงานที่ยังทำงานอยู่มาสร้างรอบ 26/9 – 25/10/2569 อัตโนมัติ (เชื่อมจริงในเฟสถัดไป)"));
+$("md-legend").innerHTML="รหัส: "+Object.entries(MD_CODES).map(([c,t])=>`<span class="cc ${c}" title="${esc(t)}">${c}</span> ${t}`).join(" · ");
+$("grp-filter").addEventListener("input",renderTS);
+$("md-divisor").addEventListener("input",()=>{renderTS();renderAP();});
+mdHead(); renderTS(); renderAP();
+
 /* ================= init ================= */
 (function(){
   const d = new Date();
@@ -1633,5 +1973,6 @@ if(CLOUD){
   });
 })();
 </script>
+<div id="pop" hidden></div>
 </body>
 </html>
