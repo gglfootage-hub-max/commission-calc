@@ -201,6 +201,9 @@ table.ts thead th.res{min-width:76px}
 .cc.L{background:#FFF1B8;color:#7A5F00}.cc.HD{background:#FBDCE7;color:#A62B57}
 .cc.AA{background:#F7CFC8;color:#9A1F10}.cc.LO{background:#333F38;color:#fff}
 .cc.ML{background:#FCE0EE;color:#A0347B}
+.cc.WFH{background:#CFF0F5;color:#0A6273}
+.cc.W{background:#FFFFFF;color:#226B2F;border:1px dashed #7FA886}
+.cc.auto{opacity:.55}
 .legend{display:flex;flex-wrap:wrap;gap:.4rem .6rem;font-size:.76rem;align-items:center}
 #pop{position:absolute;z-index:60;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(20,40,30,.18);padding:.8rem;width:300px}
 #pop h3{font-size:.85rem;margin-bottom:.5rem}
@@ -390,6 +393,12 @@ table.sum td.l,table.sum th.l{text-align:left}
 <!-- ================= หัวหน้าทีม ================= -->
 <section class="panel" id="p-lead">
   <p class="hint">ตั้งเรทค่าคอมหัวหน้าได้ที่แท็บ <strong>ตั้งค่าเรต</strong> (หัวข้อ "เรทค่าคอมหัวหน้าทีม")</p>
+  <div class="card" style="margin-bottom:1rem">
+    <div class="frow">
+      <label class="f"><span>แผนก</span><select id="lead-dept" style="width:auto"><option value="">ทุกแผนก</option></select></label>
+      <label class="f"><span>ค้นหาหัวหน้า</span><input type="text" id="lead-q" placeholder="ชื่อหัวหน้า" style="width:160px"></label>
+    </div>
+  </div>
 
   <div class="tablewrap">
     <table class="team" id="leadtable" style="min-width:1560px">
@@ -473,14 +482,14 @@ table.sum td.l,table.sum th.l{text-align:left}
       <label class="f"><span>บริษัท</span><select id="e-company"><option>UO</option><option>GGL</option></select></label>
       <label class="f"><span>ประเภทการจ่าย</span><select id="e-paytype"><option value="monthly">รายเดือน</option><option value="daily">รายวัน</option></select></label>
       <label class="f"><span>อัตราต่อวัน (เฉพาะรายวัน)</span><input type="number" id="e-dayrate" min="0"></label>
-      <label class="f"><span>ธนาคาร</span><input type="text" id="e-bank" list="bank-list" placeholder="เช่น กสิกรไทย"><datalist id="bank-list">
+      <label class="f" id="bank-label"><span>ธนาคาร — เฉพาะแอดมิน</span><input type="text" id="e-bank" list="bank-list" placeholder="เช่น กสิกรไทย"><datalist id="bank-list">
         <option>กสิกรไทย</option><option>ไทยพาณิชย์</option><option>กรุงเทพ</option><option>กรุงไทย</option><option>กรุงศรีอยุธยา</option><option>ทหารไทยธนชาต (ttb)</option><option>ออมสิน</option><option>ธ.ก.ส.</option><option>เกียรตินาคินภัทร</option><option>CIMB Thai</option><option>UOB</option><option>LH Bank</option><option>พร้อมเพย์</option>
       </datalist></label>
-      <label class="f"><span>เลขบัญชีโอนเงิน</span><input type="text" id="e-acct" placeholder="xxx-x-xxxxx-x"></label>
+      <label class="f" id="acct-label"><span>เลขบัญชีโอนเงิน — เฉพาะแอดมิน</span><input type="text" id="e-acct" placeholder="xxx-x-xxxxx-x"></label>
       <label class="f" style="grid-column:1/-1"><span>เข้าร่วม (ติ๊กได้หลายรายการ — ตั้งรายการได้ในแท็บตั้งค่าเรต)</span>
         <span id="e-progs" style="display:flex;flex-wrap:wrap;gap:.4rem 1rem;padding:.3rem 0"></span>
       </label>
-      <label class="f" style="grid-column:1/-1"><span>ใบสมัครงาน (แนบไฟล์ PDF/รูป ไม่เกิน 700KB — ไฟล์ใหญ่กว่านั้นให้วางลิงก์ Google Drive)</span>
+      <label class="f" id="app-label" style="grid-column:1/-1"><span>ใบสมัครงาน — เฉพาะแอดมิน (แนบไฟล์ PDF/รูป ไม่เกิน 700KB — ไฟล์ใหญ่กว่านั้นให้วางลิงก์ Google Drive)</span>
         <span style="display:flex;flex-wrap:wrap;gap:.5rem;align-items:center">
           <input type="file" id="e-appfile" accept="application/pdf,image/*" style="max-width:280px">
           <span class="filechip" id="e-app-chip" hidden>📎 <span id="e-app-name"></span>
@@ -638,6 +647,16 @@ table.sum td.l,table.sum th.l{text-align:left}
     </table>
     <div class="btnrow"><button class="ghost" id="btn-addprog">เพิ่มรายการ</button></div>
     <p class="hint">เช่น ประกันสังคม · กองทุนสำรองเลี้ยงชีพ · ประกันกลุ่ม · ชมรมกีฬา — กด "บันทึกการตั้งค่า" ด้านล่างเพื่อซิงก์</p>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem">
+    <h2>วันหยุดพิเศษของบริษัท (Manday) <small>วันที่ตั้งไว้จะขึ้น OFF อัตโนมัติทั้งบริษัทในตารางลงเวลา · วันอาทิตย์เป็น OFF อัตโนมัติอยู่แล้ว</small></h2>
+    <table class="tiers" style="max-width:560px">
+      <thead><tr><th class="l">วันที่</th><th class="l">ชื่อวันหยุด</th><th></th></tr></thead>
+      <tbody id="holbody"></tbody>
+    </table>
+    <div class="btnrow"><button class="ghost" id="btn-addhol">เพิ่มวันหยุด</button></div>
+    <p class="hint">เช่น 23 ต.ค. วันปิยมหาราช · 5 ธ.ค. วันพ่อ — ถ้าใครมาทำงานวันนั้นจริง คลิกช่องแล้วเลือกรหัส W</p>
   </div>
 
   <div class="card" style="margin-bottom:1rem">
@@ -901,6 +920,9 @@ function applyAdminUI(){
   $("leadtable").classList.toggle("noadmin", !IS_ADMIN);
   $("md-approval").classList.toggle("noadmin", !IS_ADMIN);
   $("mdpay-noaccess").hidden = IS_ADMIN;
+  $("bank-label").hidden = !IS_ADMIN;
+  $("acct-label").hidden = !IS_ADMIN;
+  $("app-label").hidden = !IS_ADMIN;
   $("emptable").classList.toggle("noadmin", !IS_ADMIN);
   $("sal-label").hidden = !IS_ADMIN;
   $("fsal-label").hidden = !IS_ADMIN;
@@ -915,6 +937,7 @@ const DEFAULTS = {
   qtiers:[], qPay:"quarter", pin:"1234", mdDivisor:30,
   kpi:{call:120, talk:60, tt:150, sales:100000, retMax:5, avgOrder:690, kd1min:150000, kd1:2000, kd2min:175000, kd2:4000},
   programs:["ประกันสังคม","กองทุนสำรองเลี้ยงชีพ"],
+  mdHolidays:[],
   travelTh:250000, travelAmt:1500, returnFee:20, lateFee:0, leaveDeduct:1, workdays:26
 };
 let S = (()=>{ const raw = lsGet("comweb-settings-v2");
@@ -944,6 +967,12 @@ function savePhoto(code, b64){
 }
 const progsOf = e => Array.isArray(e&&e.programs) ? e.programs
   : String((e&&e.programs)||"").split(",").map(x=>x.trim()).filter(Boolean);
+function holRow(d,n){
+  $("holbody").insertAdjacentHTML("beforeend",
+    `<tr><td><input type="date" class="hol-d" value="${esc(d||"")}"></td>
+     <td><input type="text" class="hol-n" value="${esc(n||"")}" placeholder="ชื่อวันหยุด"></td>
+     <td><button type="button" class="t-del" title="ลบ">✕</button></td></tr>`);
+}
 function progRow(name){
   $("progbody").insertAdjacentHTML("beforeend",
     `<tr><td><input type="text" class="pg-name" value="${esc(name||"")}" placeholder="ชื่อรายการ"></td>
@@ -1181,7 +1210,14 @@ function leadRowCalc(name){
 }
 function renderLead(){
   const tb = $("leadbody"); tb.innerHTML = "";
-  const names = [...new Set(DB.emp.filter(e=>isWorking(e)&&e.sup).map(e=>e.sup))].sort();
+  const dp = $("lead-dept").value, lq = ($("lead-q").value||"").trim().toLowerCase();
+  let names = [...new Set(DB.emp.filter(e=>isWorking(e)&&e.sup).map(e=>e.sup))].sort();
+  if(dp) names = names.filter(name=>{
+    const le = DB.emp.find(x=>isWorking(x)&&x.nick===name);
+    if(le && le.dept===dp) return true;
+    return DB.emp.some(x=>isWorking(x)&&x.sup===name&&x.dept===dp);
+  });
+  if(lq) names = names.filter(name=>name.toLowerCase().includes(lq));
   const sum = {net:0, com:0, inc:0, take:0};
   for(const name of names){
     const r = leadRowCalc(name);
@@ -1283,9 +1319,10 @@ function kpiWorkOf(code){
   for(const d of days){
     if(stD && d<stD) continue;
     if(rs && d>rs) continue;
-    const cell=g[mdIso(d)]; const c=cell?cell.c:"";
+    let cell=g[mdIso(d)]; let c=cell?cell.c:"";
+    if(!c && mdAutoOff(d)) c="OFF";
     if(c==="LO") continue;
-    if(c===""||c==="L"||c==="HD"){ work++; continue; }
+    if(c===""||c==="L"||c==="HD"||c==="WFH"||c==="W"){ work++; continue; }
     if(c==="OFF") continue;
     if(c==="HF"){ work+=.5; leave+=.5; continue; }
     leave++;
@@ -1613,6 +1650,7 @@ function fillFilters(){
   set("c-sup", uniq("sup"), `<option value="">ทุกคน</option>`);
   set("kpi-branch", uniqBranch(), `<option value="">ทุกสาขา</option>`);
   set("kpi-sup", uniq("sup"), `<option value="">ทุกคน</option>`);
+  set("lead-dept", uniq("dept"), `<option value="">ทุกแผนก</option>`);
   const dls = {"dept-list":uniq("dept"),"pos-list":uniq("pos"),"branch-list":uniqBranch(),
     "sup-list":[...new Set(DB.emp.filter(isWorking).map(e=>e.nick).filter(Boolean))].sort()};
   for(const [id,items] of Object.entries(dls))
@@ -1718,8 +1756,11 @@ $("e-save").addEventListener("click",()=>{
   };
   if(!v.code || !v.name){ alert("กรอกรหัสพนักงานและชื่อก่อน"); return; }
   {
-    const prevFile = editingCode ? ((DB.emp.find(x=>x.code===editingCode)||{}).appfile||"") : "";
-    v.appfile = pendingAppFile===null ? "" : (pendingAppFile ? pendingAppFile.name : prevFile);
+    const prev = editingCode ? (DB.emp.find(x=>x.code===editingCode)||{}) : {};
+    v.appfile = pendingAppFile===null ? "" : (pendingAppFile ? pendingAppFile.name : (prev.appfile||""));
+    if(!IS_ADMIN){ // ช่องที่ถูกซ่อน ห้ามถูกล้างค่า
+      v.bank = prev.bank||""; v.acct = prev.acct||""; v.applink = prev.applink||""; v.appfile = prev.appfile||"";
+    }
   }
   let codeKey;
   if(editingCode){
@@ -2016,6 +2057,8 @@ function fillSettings(){
   $("s-pin").value = S.pin || "1234";
   $("progbody").innerHTML="";
   (S.programs||[]).forEach(pn=>progRow(pn));
+  $("holbody").innerHTML="";
+  [...(S.mdHolidays||[])].sort((a,b)=>String(a.d).localeCompare(String(b.d))).forEach(h=>holRow(h.d,h.n));
   $("s-travel-th").value=S.travelTh; $("s-travel-amt").value=S.travelAmt;
   $("s-return").value=S.returnFee; $("s-late").value=S.lateFee;
   $("s-workdays").value=S.workdays; $("s-leave-deduct").value=String(S.leaveDeduct);
@@ -2027,6 +2070,7 @@ $("btn-addctier").addEventListener("click",()=>tierRow("ctierbody",0,0,"ct-min",
 $("btn-addtier").addEventListener("click",()=>tierRow("tierbody",0,0,"t-min","t-pay"));
 $("btn-addqtier").addEventListener("click",()=>tierRow("qtierbody",0,0,"q-min","q-pay"));
 $("btn-addprog").addEventListener("click",()=>progRow(""));
+$("btn-addhol").addEventListener("click",()=>holRow("",""));
 $("btn-addsatier").addEventListener("click",()=>tierRow("satierbody",0,0,"sa-min","sa-pct"));
 $("btn-addleadtier").addEventListener("click",()=>tierRow("leadachbody",0,0,"la-ach","la-pct"));
 $("btn-leadsave").addEventListener("click",()=>{
@@ -2047,11 +2091,13 @@ $("btn-save").addEventListener("click",()=>{
   S.qPay=$("s-qpay").value;
   S.pin=String($("s-pin").value||"1234").trim() || "1234";
   S.programs=[...document.querySelectorAll("#progbody .pg-name")].map(i=>i.value.trim()).filter(Boolean);
+  S.mdHolidays=[...document.querySelectorAll("#holbody tr")].map(tr=>({
+    d:tr.querySelector(".hol-d").value, n:tr.querySelector(".hol-n").value.trim()})).filter(h=>h.d);
   S.travelTh=num($("s-travel-th").value); S.travelAmt=num($("s-travel-amt").value);
   S.returnFee=num($("s-return").value); S.lateFee=num($("s-late").value);
   S.workdays=num($("s-workdays").value)||26; S.leaveDeduct=Number($("s-leave-deduct").value);
   persistS();
-  renderComm(); renderLead();
+  renderComm(); renderLead(); renderMD();
   const f=$("savedflash"); f.classList.add("show"); setTimeout(()=>f.classList.remove("show"),1600);
 });
 
@@ -2185,10 +2231,16 @@ if(CLOUD){
 /* ================= Manday (เชื่อมข้อมูลจริง) ================= */
 const MD_THD=["อา","จ","อ","พ","พฤ","ศ","ส"];
 const MD_MONTH_TH=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-const MD_CODES={OFF:"หยุดประจำสัปดาห์",S:"ลาป่วย",PL:"ลากิจ",LP:"ลากิจไม่รับเงิน",HF:"ลาครึ่งวัน",AL:"ลาพักร้อน",L:"มาสาย",HD:"นักขัตฤกษ์",AA:"ขาดงาน",LO:"ลาออก/ไม่ผ่าน",ML:"ลาคลอด"};
+const MD_CODES={OFF:"หยุดประจำสัปดาห์",W:"มาทำงาน (ทับ OFF อัตโนมัติ)",WFH:"ทำงานที่บ้าน",S:"ลาป่วย",PL:"ลากิจ",LP:"ลากิจไม่รับเงิน",HF:"ลาครึ่งวัน",AL:"ลาพักร้อน",L:"มาสาย",HD:"นักขัตฤกษ์",AA:"ขาดงาน",LO:"ลาออก/ไม่ผ่าน",ML:"ลาคลอด"};
 const mdIso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 const mdBE=d=>`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`;
 function mdYm(){ return $("md-month").value || $("month").value; }
+function holNameOf(d){
+  const iso=mdIso(d);
+  const h=(S.mdHolidays||[]).find(x=>x.d===iso);
+  return h ? (h.n||"วันหยุดพิเศษ") : "";
+}
+function mdAutoOff(d){ return d.getDay()===0 || !!holNameOf(d); }
 function mdDays(){ // รอบ = 26 เดือนก่อน ถึง 25 เดือนที่เลือก
   const ymv=mdYm(); const y=Number(ymv.slice(0,4)), mo=Number(ymv.slice(5,7));
   const start=new Date(y, mo-2, 26), end=new Date(y, mo-1, 25);
@@ -2288,9 +2340,10 @@ function mdCalc(x){
     if(x.st && d < x.st) continue;
     if(x.rs && d > x.rs) continue;
     employDays++;
-    const cell=g[mdIso(d)]; const c=cell?cell.c:"";
+    let cell=g[mdIso(d)]; let c=cell?cell.c:"";
+    if(!c && mdAutoOff(d)) c="OFF";
     if(c==="LO") continue;
-    if(c===""||c==="L"||c==="HD"){ workDays++; if(c==="L") lateMins+=num(cell.mins); continue; }
+    if(c===""||c==="L"||c==="HD"||c==="WFH"||c==="W"){ workDays++; if(c==="L") lateMins+=num(cell&&cell.mins); continue; }
     if(c==="OFF") continue;
     if(c==="HF"){ workDays+=.5; leaveDays+=.5; if(cell.hfType==="LP") unpaid+=.5; continue; }
     if(c==="ML"){ leaveDays++; mlUsed++; if(mlUsed>mlPaid) unpaid++; continue; }
@@ -2340,8 +2393,8 @@ function mdFlags(x,r){
 function mdHead(){
   const days=mdDays();
   let h=`<tr><th class="emp">พนักงาน</th>`;
-  for(const d of days){ const we=d.getDay()===0||d.getDay()===6;
-    h+=`<th class="${we?'we':''}">${MD_THD[d.getDay()]}<br>${d.getDate()}<br><span style="color:var(--muted)">${MD_MONTH_TH[d.getMonth()]}</span></th>`; }
+  for(const d of days){ const we=d.getDay()===0||d.getDay()===6||!!holNameOf(d);
+    h+=`<th class="${we?'we':''}" ${holNameOf(d)?`title="${esc(holNameOf(d))}"`:""}>${MD_THD[d.getDay()]}<br>${d.getDate()}<br><span style="color:var(--muted)">${MD_MONTH_TH[d.getMonth()]}</span></th>`; }
   h+=`<th class="res">วันทำงาน</th><th class="res">รวมวันลา</th></tr>`;
   $("tshead").innerHTML=h;
 }
@@ -2364,8 +2417,11 @@ function renderMD(){
       const t=mdIso(d), we=d.getDay()===0||d.getDay()===6;
       if((x.st&&d<x.st)||(x.rs&&d>x.rs)){ row+=`<td class="day out" title="นอกช่วงการจ้าง"></td>`; continue; }
       const cell=(MD_ST.grid[e.code]||{})[t];
-      const tip=cell?`${MD_CODES[cell.c]||cell.c}${cell.mins?" "+cell.mins+" นาที":""}${cell.hfType?" ("+({S:"ป่วย",PL:"กิจ",LP:"ไม่รับเงิน"}[cell.hfType]||cell.hfType)+" "+(cell.hfHalf||"")+")":""}${cell.note?" — "+cell.note:""}`:"คลิกเพื่อลงรหัส";
-      row+=`<td class="day ${we?'we':''}" data-mdcode="${esc(e.code)}" data-d="${t}" title="${esc(tip)}">${cell?`<span class="cc ${cell.c}">${cell.c}${cell.c==="L"&&cell.mins?"·"+cell.mins:""}</span>`:""}</td>`;
+      const auto=!cell && mdAutoOff(d);
+      const tip=cell?`${MD_CODES[cell.c]||cell.c}${cell.mins?" "+cell.mins+" นาที":""}${cell.hfType?" ("+({S:"ป่วย",PL:"กิจ",LP:"ไม่รับเงิน"}[cell.hfType]||cell.hfType)+" "+(cell.hfHalf||"")+")":""}${cell.note?" — "+cell.note:""}`
+        : auto ? `หยุดอัตโนมัติ: ${d.getDay()===0?"วันอาทิตย์":holNameOf(d)} — ถ้ามาทำงานให้คลิกแล้วเลือก W`
+        : "คลิกเพื่อลงรหัส";
+      row+=`<td class="day ${we||auto?'we':''}" data-mdcode="${esc(e.code)}" data-d="${t}" title="${esc(tip)}">${cell?`<span class="cc ${cell.c}">${cell.c}${cell.c==="L"&&cell.mins?"·"+cell.mins:""}</span>`:(auto?`<span class="cc OFF auto">OFF</span>`:"")}</td>`;
     }
     row+=`<td class="res">${r.workDays}</td><td class="res">${r.leaveDays}</td></tr>`;
     tb.insertAdjacentHTML("beforeend",row);
@@ -2505,6 +2561,7 @@ $("btn-reject").addEventListener("click",()=>{
 });
 $("md-legend").innerHTML="รหัส: "+Object.entries(MD_CODES).map(([c,t])=>`<span class="cc ${c}" title="${esc(t)}">${c}</span> ${t}`).join(" · ");
 ["grp-filter","md-company","md-q"].forEach(id=>$(id).addEventListener("input",renderMD));
+["lead-dept","lead-q"].forEach(id=>$(id).addEventListener("input",renderLead));
 $("md-divisor").addEventListener("change",()=>{ S.mdDivisor=num($("md-divisor").value)||30; persistS(); renderMD(); });
 $("md-month").addEventListener("input",()=>subscribeMD());
 
