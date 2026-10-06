@@ -263,7 +263,7 @@ table.sum td.l,table.sum th.l{text-align:left}
         </div>
       </div>
       <span class="sync off" id="syncchip"><span class="dot"></span><span id="synctext">โหมดเครื่องเดียว</span></span>
-      <div class="month-pick"><label for="month">งวดเดือน</label><input type="month" id="month"></div>
+      <input type="month" id="month" hidden>
       <button class="linkish" id="btn-logout" hidden>ออกจากระบบ</button>
     </div>
   </div>
@@ -299,6 +299,7 @@ table.sum td.l,table.sum th.l{text-align:left}
   <div class="card" style="margin-bottom:1rem">
     <h2>คำนวณค่าคอมประจำเดือน <small>พนักงานปัจจุบันขึ้นให้อัตโนมัติ · กรอกยอดแล้วระบบคิดและซิงก์ให้ทันที (แยกเก็บรายเดือน)</small></h2>
     <div class="frow" style="max-width:960px">
+      <label class="f"><span>งวดเดือน</span><input type="month" id="c-month" class="month-mirror"></label>
       <label class="f"><span>ค้นหา</span><input type="text" id="c-q" placeholder="ชื่อเล่น / รหัส"></label>
       <label class="f"><span>สาขา</span><select id="c-branch"><option value="">ทุกสาขา</option></select></label>
       <label class="f"><span>แผนก</span><select id="c-dept"><option value="">ทุกแผนก</option></select></label>
@@ -395,6 +396,7 @@ table.sum td.l,table.sum th.l{text-align:left}
   <p class="hint">ตั้งเรทค่าคอมหัวหน้าได้ที่แท็บ <strong>ตั้งค่าเรต</strong> (หัวข้อ "เรทค่าคอมหัวหน้าทีม")</p>
   <div class="card" style="margin-bottom:1rem">
     <div class="frow">
+      <label class="f"><span>งวดเดือน</span><input type="month" id="lead-month" class="month-mirror"></label>
       <label class="f"><span>แผนก</span><select id="lead-dept" style="width:auto"><option value="">ทุกแผนก</option></select></label>
       <label class="f"><span>ค้นหาหัวหน้า</span><input type="text" id="lead-q" placeholder="ชื่อหัวหน้า" style="width:160px"></label>
     </div>
@@ -419,6 +421,7 @@ table.sum td.l,table.sum th.l{text-align:left}
   <div class="card" style="margin-bottom:1rem">
     <h2>KPI / ใบเตือน ประจำเดือน <small>กรอกยอดโทร-ได้คุย-Talk time · ยอดขายดึงจากหน้าคำนวณค่าคอมอัตโนมัติ · ระบบออกสถานะให้เองตามเกณฑ์ · แยกเก็บรายเดือน ซิงก์ทุกเครื่อง</small></h2>
     <div class="frow" style="display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:flex-end">
+      <label class="f"><span>งวดเดือน</span><input type="month" id="kpi-month" class="month-mirror"></label>
       <label class="f"><span>ค้นหา</span><input type="text" id="kpi-q" placeholder="ชื่อเล่น / รหัส" style="width:150px"></label>
       <label class="f"><span>สาขา</span><select id="kpi-branch" style="width:auto"><option value="">ทุกสาขา</option></select></label>
       <label class="f"><span>หัวหน้า</span><select id="kpi-sup" style="width:auto"><option value="">ทุกคน</option></select></label>
@@ -560,7 +563,7 @@ table.sum td.l,table.sum th.l{text-align:left}
 
 <!-- ================= Manday: ลงเวลา ================= -->
 <section class="panel" id="p-md">
-  <div id="md-lockbar">🔒 รอบนี้อนุมัติแล้ว — ข้อมูลถูกล็อก แก้ไขไม่ได้</div>
+  <div id="md-lockbar">🔒 รอบนี้อนุมัติแล้ว — ข้อมูลถูกล็อก · ต้องแก้ไขย้อนหลัง? ปลดล็อกได้ที่เมนู ✅ อนุมัติเงินเดือน (ใส่ PIN)</div>
   <div class="card">
     <h2>ลงเวลา (Manday) <small id="md-cyclelabel"></small></h2>
     <div class="frow" style="display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:flex-end">
@@ -589,7 +592,10 @@ table.sum td.l,table.sum th.l{text-align:left}
   <div id="md-approval">
   <div class="card" style="margin-bottom:1rem">
     <h2>อนุมัติเงินเดือน <small id="mdpay-cyclelabel"></small></h2>
-    <p class="hint" style="margin-bottom:0">ตัวเลขคำนวณจากตารางลงเวลาอัตโนมัติ · เปลี่ยนรอบเดือน/บริษัท/กลุ่ม ได้ที่เมนู 🗓️ ลงเวลา (Manday) · กรอกได้เฉพาะ หักอบรม หักเงินกู้ Incentive</p>
+    <div class="frow" style="margin-bottom:.4rem">
+      <label class="f"><span>รอบเดือน (26 เดือนก่อน – 25 เดือนนี้)</span><input type="month" id="mdpay-month"></label>
+    </div>
+    <p class="hint" style="margin-bottom:0">ตัวเลขคำนวณจากตารางลงเวลาอัตโนมัติ · ฟิลเตอร์บริษัท/กลุ่ม ตามหน้า 🗓️ ลงเวลา (Manday) · กรอกได้เฉพาะ หักอบรม หักเงินกู้ Incentive</p>
   </div>
   <div class="mdcards" id="apcards"></div>
   <div class="card">
@@ -612,6 +618,7 @@ table.sum td.l,table.sum th.l{text-align:left}
     <div class="btnrow">
       <button class="primary" id="btn-approve">✔ อนุมัติรอบนี้ (ใส่ PIN)</button>
       <button class="danger" id="btn-reject">↩ ส่งกลับให้แก้ไข</button>
+      <button class="ghost" id="btn-unlock" hidden>🔓 ปลดล็อกรอบนี้ (ใส่ PIN)</button>
       <span class="hint" id="ap-status" style="margin:0"></span>
     </div>
   </div>
@@ -2401,9 +2408,11 @@ function mdHead(){
 function renderMD(){
   $("md-cyclelabel").textContent = mdCycleLabel()+" · ซิงก์ทุกเครื่อง แยกเก็บรายรอบ";
   $("mdpay-cyclelabel").textContent = mdCycleLabel();
-  $("md-lockbar2").innerHTML = MD_ST.locked ? '<div id="md-lockbar" style="display:block">🔒 รอบนี้อนุมัติแล้ว — ข้อมูลถูกล็อก แก้ไขไม่ได้</div>' : "";
+  if($("mdpay-month").value !== mdYm()) $("mdpay-month").value = mdYm();
+  $("md-lockbar2").innerHTML = MD_ST.locked ? '<div id="md-lockbar" style="display:block">🔒 รอบนี้อนุมัติแล้ว — ข้อมูลถูกล็อก · ต้องแก้ไขย้อนหลัง? ปลดล็อกได้ที่เมนู ✅ อนุมัติเงินเดือน (ใส่ PIN)</div>' : "";
   document.body.classList.toggle("md-locked", !!MD_ST.locked);
   $("ap-status").textContent = MD_ST.locked ? ("✅ อนุมัติแล้ว "+(MD_ST.approvedAt||"")) : (MD_ST.rejectNote?("↩ ส่งกลับให้แก้ไข — "+MD_ST.rejectNote):"");
+  $("btn-unlock").hidden = !MD_ST.locked;
   mdHead();
   const days=mdDays(), gf=$("grp-filter").value;
   const tb=$("tsbody"); tb.innerHTML="";
@@ -2559,6 +2568,12 @@ $("btn-reject").addEventListener("click",()=>{
   MD_ST.rejectNote=reason.trim();
   mdSave(true); renderMD();
 });
+$("btn-unlock").addEventListener("click",()=>{
+  if(!MD_ST.locked) return;
+  if(!askPin("ปลดล็อก"+mdCycleLabel()+" เพื่อแก้ไขย้อนหลัง (สถานะอนุมัติจะถูกยกเลิก ต้องอนุมัติใหม่เมื่อแก้เสร็จ)")) return;
+  MD_ST.locked=false; MD_ST.approvedAt=""; MD_ST.rejectNote="";
+  mdSave(true); renderMD();
+});
 $("md-legend").innerHTML="รหัส: "+Object.entries(MD_CODES).map(([c,t])=>`<span class="cc ${c}" title="${esc(t)}">${c}</span> ${t}`).join(" · ");
 ["grp-filter","md-company","md-q"].forEach(id=>$(id).addEventListener("input",renderMD));
 ["lead-dept","lead-q"].forEach(id=>$(id).addEventListener("input",renderLead));
@@ -2644,6 +2659,7 @@ setInterval(renderBell, 60*60*1000); // อัปเดตทุกชั่ว�
   $("month").value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
   $("f-month").value = $("month").value;
   $("md-month").value = $("month").value;
+  if(window.syncMonthMirrors) window.syncMonthMirrors();
   $("md-divisor").value = S.mdDivisor || 30;
   $("f-hr").value = lsGet("uo-hrname") || "";
   if(!CLOUD){
@@ -2672,11 +2688,29 @@ setInterval(renderBell, 60*60*1000); // อัปเดตทุกชั่ว�
   fillKpiCriteria();
   renderEmp(); renderComm(); renderHist(); renderLead(); renderKPI();
   renderBell();
-  $("month").addEventListener("input",()=>{
+  function onMonthChange(){
+    syncMonthMirrors();
     if(CLOUD && AUTHED) subscribeMonth();
     else { loadMonthLocal(); renderComm(); renderKPI(); }
     renderEmp();
+  }
+  function syncMonthMirrors(){
+    const v=$("month").value;
+    ["c-month","lead-month","kpi-month"].forEach(id=>{ if($(id).value!==v) $(id).value=v; });
+  }
+  window.syncMonthMirrors = syncMonthMirrors;
+  $("month").addEventListener("input", onMonthChange);
+  ["c-month","lead-month","kpi-month"].forEach(id=>$(id).addEventListener("input",()=>{
+    if(!$(id).value) return;
+    $("month").value=$(id).value;
+    onMonthChange();
+  }));
+  $("mdpay-month").addEventListener("input",()=>{
+    if(!$("mdpay-month").value) return;
+    $("md-month").value=$("mdpay-month").value;
+    subscribeMD();
   });
+  syncMonthMirrors();
 })();
 </script>
 <div id="pop" hidden></div>
