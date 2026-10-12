@@ -141,7 +141,6 @@ table.team tr.rowhl:hover td{background:#F7FAF6;cursor:pointer}
 #commtable tbody tr:nth-child(even) td:nth-child(-n+4){background:#FAFCF9}
 #commtable tbody tr:hover td:nth-child(-n+4){background:#F1F7F1}
 #commtable tfoot td:first-child{background:#F7FAF6}
-.pill{display:inline-block;font-size:.74rem;font-weight:700;border-radius:999px;padding:.14rem .62rem;white-space:nowrap;max-width:88px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
 
 /* ซ่อนคอลัมน์เงินเดือนจากผู้ใช้ที่ไม่ใช่แอดมิน */
 #commtable.noadmin th:nth-last-child(-n+2),#commtable.noadmin tbody tr:not(.teamhdr) td:nth-last-child(-n+2),#commtable.noadmin tfoot td:nth-last-child(-n+2){display:none}
@@ -1205,15 +1204,6 @@ function asOfDate(){
 function nowTH(){ return new Date().toLocaleString("th-TH",{dateStyle:"medium",timeStyle:"short"}); }
 
 /* ---------- core calc ---------- */
-const PILL_COLORS=[["#E9DFF8","#5B2E91"],["#DBEAFE","#1D4F91"],["#DCF2D9","#1E6B2B"],["#FFE3C8","#9A4E00"],["#FBDCE7","#A62B57"],["#D2EEE9","#0B6355"],["#FFF1B8","#7A5F00"],["#FFE0DC","#9A1F10"],["#E5E7E4","#454C43"]];
-function pillOf(text, shift){
-  const t=String(text||"").trim();
-  if(!t) return "—";
-  let h=shift||0;
-  for(const ch of t) h=(h*31+ch.codePointAt(0))%9973;
-  const c=PILL_COLORS[h%PILL_COLORS.length];
-  return `<span class="pill" style="background:${c[0]};color:${c[1]}" title="${esc(t)}">${esc(t)}</span>`;
-}
 const grpOf = e => /sales\s*admin/i.test(String((e&&e.dept)||"") + " " + String((e&&e.pos)||"")) ? "sa" : "crm";
 function commPct(net, grp){
   const tiers = grp==="sa" ? (S.commTiersSA||[]) : S.commTiers;
@@ -1682,6 +1672,47 @@ function fillKpiCriteria(){
 }
 ["kpi-q","kpi-branch","kpi-sup","kpi-st"].forEach(id=>$(id).addEventListener("input",renderKPI));
 
+/* รวบรวมแถวตามฟิลเตอร์ + เรียงตามทีม (ใช้ร่วมกันทั้งตารางบนจอและไฟล์ CSV) */
+function commRows(){
+  const q = ($("c-q").value||"").trim().toLowerCase();
+  const br = $("c-branch").value, cdp = $("c-dept").value, cps = $("c-pos").value, csup = $("c-sup").value;
+  const sum = {net:0,commission:0,ontime:0,travel:0,incentive:0,salaryNet:0,grand:0};
+  let n = 0;
+  const byTeam = new Map();
+  for(const e of DB.emp){
+    if(!isWorking(e)) continue;
+    if(br && e.branch!==br) continue;
+    if(cdp && e.dept!==cdp) continue;
+    if(cps && e.pos!==cps) continue;
+    if(csup && e.sup!==csup) continue;
+    if(q && !((e.code||"").includes(q) || (e.nick||"").toLowerCase().includes(q) || (e.name||"").toLowerCase().includes(q))) continue;
+    n++;
+    const d = rowData(e.code);
+    const att = attOf(e.code), kd = kpiDedOf(e.code);
+    const r = calc({...d, leave:att.leave, late:att.late, kpi:kd.ded, salary:getSalary(e.code), grp:grpOf(e)});
+    sum.net+=r.net; sum.commission+=r.commission; sum.ontime+=r.ontime; sum.travel+=r.travel;
+    sum.incentive+=r.incentive; sum.salaryNet+=r.salaryNet; sum.grand+=r.grand;
+    const key = e.sup || "~ไม่ระบุทีม";
+    if(!byTeam.has(key)) byTeam.set(key, []);
+    byTeam.get(key).push({e, d, att, kd, r});
+  }
+  const teams = [...byTeam.keys()].sort((a,b)=>{
+    const ax = a==="~ไม่ระบุทีม"?1:0, bx = b==="~ไม่ระบุทีม"?1:0;
+    return (ax-bx) || a.localeCompare(b,"th");
+  });
+  const rows = []; let seq = 0;
+  for(const t of teams){
+    const tName = t === "~ไม่ระบุทีม" ? "" : t;
+    for(const o of byTeam.get(t)){ seq++; rows.push({...o, seq, team:tName}); }
+  }
+  return {rows, sum, n};
+}
+/* หัวคอลัมน์ของตารางค่าคอม (ใช้ทั้งหัวตารางและ CSV) */
+function commColLabels(){
+  return ["ลำดับ","ทีม","ตำแหน่ง","ชื่อ-นามสกุล","รหัส","สาขา","CRM","แนะนำ",...CHANNELS().map(c=>c.name),
+    "หัก690","ลา","สาย","ตีกลับ","โบนัส/อื่น","หัก KPI","Incentive/เดือน",
+    "ยอดสุทธิ","ค่าคอม %","Ontime","เดินทาง","Incentive","เงินเดือน","รวมรับ"];
+}
 function renderComm(){
   buildCommHead();
   const a0 = (M.__approve||{});
@@ -1690,49 +1721,17 @@ function renderComm(){
   $("comm-lockbar").innerHTML = a0.locked
     ? "🔒 ค่าคอมงวดนี้อนุมัติครั้งสุดท้ายแล้ว — ข้อมูลถูกล็อก · ปลดล็อกได้ที่เมนู ✅ อนุมัติเงินเดือน & ค่าคอม (เฉพาะแอดมิน)"
     : (a0.reviewed ? "🔒 แอดมินตรวจสอบเรียบร้อยแล้ว — ล็อกกันแก้ไข รออนุมัติครั้งสุดท้ายที่เมนู ✅ อนุมัติเงินเดือน & ค่าคอม" : "");
-  const q = ($("c-q").value||"").trim().toLowerCase();
-  const br = $("c-branch").value, cdp = $("c-dept").value, cps = $("c-pos").value, csup = $("c-sup").value;
   const tb = $("commbody"); tb.innerHTML = "";
-  const sum = {net:0,commission:0,ontime:0,travel:0,incentive:0,salaryNet:0,grand:0};
-  let n = 0;
-  // รวบรวมแถวก่อน แล้วจัดกลุ่มตามทีมหัวหน้า
-  const byTeam = new Map();
-  for(const e of DB.emp){
-    if(!isWorking(e)) continue;
-    if(br && e.branch!==br) continue;
-    if(cdp && e.dept!==cdp) continue;
-    if(cps && e.pos!==cps) continue;
-    if(csup && e.sup!==csup) continue;
-    if(q && !(e.code.includes(q) || e.nick.toLowerCase().includes(q) || e.name.toLowerCase().includes(q))) continue;
-    n++;
-    const d = rowData(e.code);
-    const att = attOf(e.code), kd = kpiDedOf(e.code);
-    const r = calc({...d, leave:att.leave, late:att.late, kpi:kd.ded, salary:getSalary(e.code), grp:grpOf(e)});
-    sum.net+=r.net; sum.commission+=r.commission; sum.ontime+=r.ontime; sum.travel+=r.travel;
-    sum.incentive+=r.incentive; sum.salaryNet+=r.salaryNet; sum.grand+=r.grand;
-    const key = e.sup || "~ไม่ระบุทีม";
-    if(!byTeam.has(key)) byTeam.set(key, {list:[], net:0, inc:0});
-    const g = byTeam.get(key);
-    g.net += r.net; g.inc += r.incentive;
-    g.list.push({e, d, att, kd, r});
-  }
-  const teams = [...byTeam.keys()].sort((a,b)=>{
-    const ax = a==="~ไม่ระบุทีม"?1:0, bx = b==="~ไม่ระบุทีม"?1:0;
-    return (ax-bx) || a.localeCompare(b,"th");
-  });
-  let seq = 0;
-  for(const t of teams){
-    const g = byTeam.get(t);
-    const tName = t === "~ไม่ระบุทีม" ? "" : t;
-    for(const o of g.list){
-      const e=o.e, d=o.d, att=o.att, kd=o.kd, r=o.r;
-      seq++;
+  const {rows, sum, n} = commRows();
+  {
+    for(const o of rows){
+      const e=o.e, d=o.d, att=o.att, kd=o.kd, r=o.r, seq=o.seq, tName=o.team;
       const inp = (f)=>`<td class="in"><input type="number" min="0" data-code="${esc(e.code)}" data-f="${f}" value="${d[f]||0}" ${CA_LOCK?'disabled':''}></td>`;
       const chInp = CHANNELS().map(c=>`<td class="in"><input type="number" min="0" data-code="${esc(e.code)}" data-f="ch" data-chn="${esc(c.name)}" value="${num((d.ch||{})[c.name])||0}" ${CA_LOCK?'disabled':''}></td>`).join("");
       tb.insertAdjacentHTML("beforeend",
         `<tr><td style="color:var(--muted)">${seq}</td>
-         <td>${pillOf(tName||e.sup, 0)}</td>
-         <td>${pillOf(e.pos, 7)}</td>
+         <td class="l">${esc(tName||"—")}</td>
+         <td class="l">${esc(e.pos||"—")}</td>
          <td class="l"><span class="mainname" title="${esc(e.name||e.nick)}">${esc(e.name||e.nick)}</span><span class="subname">${esc(e.nick||"")}</span></td>
          <td class="l">${esc(e.code)}</td>
          <td class="l">${esc(e.branch)}</td>
@@ -1902,22 +1901,31 @@ $("c-import").addEventListener("click",()=>{
   $("c-import-msg").textContent = `✅ นำเข้า ${ok} คน เข้างวด${mo}` + (map?" (อ่านหัวตารางอัตโนมัติ)":" (รูปแบบไม่มีหัวตาราง)") + (miss.length?` · หาไม่เจอ: ${miss.slice(0,6).join(", ")}${miss.length>6?"…":""}`:"");
 });
 $("c-export").addEventListener("click",()=>{
-  const head = ["รหัส","ชื่อเล่น","ชื่อ","สาขา","CRM","แนะนำ",...CHANNELS().map(c=>c.name),"หัก690","ลา","สาย","ตีกลับ","โบนัส/อื่น","หักKPI","Incentive/เดือน","ยอดสุทธิ","ค่าคอม","โบนัสไตรมาส","Ontime","เดินทาง","รวมIncentive"];
-  if(IS_ADMIN) head.push("เงินเดือนสุทธิ","รวมรับ");
-  const rows = [];
-  for(const e of DB.emp){
-    if(!isWorking(e)) continue;
-    const att = attOf(e.code), kd = kpiDedOf(e.code);
-    const d = rowData(e.code), r = calc({...d, leave:att.leave, late:att.late, kpi:kd.ded, salary:getSalary(e.code), grp:grpOf(e)});
-    const row = [e.code,e.nick,e.name,e.branch,d.crm,d.ref,...CHANNELS().map(c=>num((d.ch||{})[c.name])||0),d.sub690,att.leave,att.late,d.ret,d.bonus,kd.ded,d.minc,
-      r.net,r.commission.toFixed(2),r.qbonus,r.ontime,r.travel,r.incentive.toFixed(2)];
+  // ส่งออกให้ตรงกับตารางบนจอ 100%: ฟิลเตอร์เดียวกัน เรียงตามทีมเหมือนกัน ลำดับเดียวกัน
+  const {rows, sum, n} = commRows();
+  if(!rows.length) return alert("ไม่มีข้อมูลตามฟิลเตอร์ที่เลือก");
+  let head = commColLabels();
+  if(!IS_ADMIN) head = head.filter(h=>h!=="เงินเดือน" && h!=="รวมรับ");
+  const out = [];
+  for(const o of rows){
+    const e=o.e, d=o.d, att=o.att, kd=o.kd, r=o.r;
+    const row = [o.seq, o.team||"", e.pos||"", (e.name||"")+(e.nick?` (${e.nick})`:""), e.code, e.branch||"",
+      num(d.crm)||0, num(d.ref)||0, ...CHANNELS().map(c=>num((d.ch||{})[c.name])||0),
+      num(d.sub690)||0, att.leave, att.late, num(d.ret)||0, num(d.bonus)||0, kd.ded?-kd.ded:0, num(d.minc)||0,
+      r.net, r.commission.toFixed(2)+(r.pct?` (${r.pct}%)`:""), r.ontime, r.travel, r.incentive.toFixed(2)];
     if(IS_ADMIN) row.push(r.salaryNet.toFixed(2), r.grand.toFixed(2));
-    rows.push(row);
+    out.push(row);
   }
-  const csv = "\uFEFF"+[head,...rows].map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+  // แถวรวมท้ายตาราง (เหมือนบนจอ)
+  const nCh = CHANNELS().length;
+  const tot = ["รวม "+n+" คน","","","","","", ...Array(2+nCh+7).fill(""),
+    sum.net, sum.commission.toFixed(2), sum.ontime, sum.travel, sum.incentive.toFixed(2)];
+  if(IS_ADMIN) tot.push(sum.salaryNet.toFixed(2), sum.grand.toFixed(2));
+  out.push(tot);
+  const csv = "\uFEFF"+[head,...out].map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
-  a.download = `incentive-${ym()}.csv`;
+  a.download = `commission-${ym()}.csv`;
   a.click(); URL.revokeObjectURL(a.href);
 });
 $("c-clear").addEventListener("click",()=>{
