@@ -132,17 +132,36 @@ table.team tr.rowhl:hover td{background:#F7FAF6;cursor:pointer}
 .badge.off{background:var(--deduct-soft);color:var(--deduct)}
 .badge.trial{background:#FFF3DC;color:#8A6100}
 
-/* ตรึง ชื่อเล่น + รหัส + สาขา ในตารางคำนวณค่าคอม */
-#commtable th:nth-child(1),#commtable td:nth-child(1){min-width:158px;max-width:158px;left:0}
-#commtable th:nth-child(2),#commtable td:nth-child(2){position:sticky;left:158px;min-width:74px;z-index:2;background:var(--card)}
-#commtable th:nth-child(3),#commtable td:nth-child(3){position:sticky;left:232px;min-width:104px;z-index:2;background:var(--card)}
-#commtable thead th:nth-child(-n+3){z-index:5;background:#F0F4EE}
-#commtable tbody tr:nth-child(even) td:nth-child(-n+3){background:#FAFCF9}
-#commtable tbody tr:hover td:nth-child(-n+3){background:#F1F7F1}
+/* ตรึง ลำดับ + ทีม + ตำแหน่ง + ชื่อ ในตารางคำนวณค่าคอม */
+#commtable th:nth-child(1),#commtable td:nth-child(1){min-width:44px;max-width:44px;left:0}
+#commtable th:nth-child(2),#commtable td:nth-child(2){position:sticky;left:44px;min-width:94px;max-width:94px;z-index:2;background:var(--card);text-align:center}
+#commtable th:nth-child(3),#commtable td:nth-child(3){position:sticky;left:138px;min-width:94px;max-width:94px;z-index:2;background:var(--card);text-align:center}
+#commtable th:nth-child(4),#commtable td:nth-child(4){position:sticky;left:232px;min-width:160px;max-width:160px;z-index:2;background:var(--card)}
+#commtable thead th:nth-child(-n+4){z-index:5;background:#F0F4EE}
+#commtable tbody tr:nth-child(even) td:nth-child(-n+4){background:#FAFCF9}
+#commtable tbody tr:hover td:nth-child(-n+4){background:#F1F7F1}
 #commtable tfoot td:first-child{background:#F7FAF6}
+.pill{display:inline-block;font-size:.74rem;font-weight:700;border-radius:999px;padding:.14rem .62rem;white-space:nowrap;max-width:88px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
 
 /* ซ่อนคอลัมน์เงินเดือนจากผู้ใช้ที่ไม่ใช่แอดมิน */
-#commtable.noadmin th:nth-last-child(-n+2),#commtable.noadmin td:nth-last-child(-n+2){display:none}
+#commtable.noadmin th:nth-last-child(-n+2),#commtable.noadmin tbody tr:not(.teamhdr) td:nth-last-child(-n+2),#commtable.noadmin tfoot td:nth-last-child(-n+2){display:none}
+
+/* หน้าคำนวณค่าคอม: โหมดกรอกง่าย อ่านง่าย */
+#commtable td.in{background:#F1F8F1;padding:.25rem .3rem}
+#commtable td.in input{width:100%;min-width:88px;box-sizing:border-box;text-align:right;font-size:.95rem;padding:.45rem .5rem;border-radius:8px;border:1px solid #CFE0CF}
+#commtable td.in input:focus{outline:2px solid var(--money);border-color:var(--money)}
+#commtable td.in input:disabled{background:#EEF0ED;border-color:var(--line)}
+#commtable td.lk{background:#F3F4F6;color:#5C6E63}
+#commtable td.cp{background:#F5F9FC}
+#commtable tbody tr:nth-child(even) td.in{background:#ECF5EC}
+#commtable tbody tr:nth-child(even) td.lk{background:#EEF0F2}
+#commtable tbody tr:nth-child(even) td.cp{background:#EFF5FA}
+#commtable thead tr.ghead th{position:sticky;top:0;left:auto;min-width:0;max-width:none;z-index:4;font-size:.72rem;letter-spacing:.02em;padding:.3rem .4rem;border-bottom:1px solid var(--line)}
+#commtable thead tr.ghead th.g-emp{left:0;z-index:6;background:#F0F4EE;text-align:left}
+#commtable thead tr.ghead th.g-in{background:#DCEFDC;color:#1E6B2B}
+#commtable thead tr.ghead th.g-lk{background:#E6E8EB;color:#515F56}
+#commtable thead tr.ghead th.g-cp{background:#DEEAF4;color:#1D4F91}
+#commtable thead tr:nth-child(2) th{top:29px}
 #leadtable.noadmin th:nth-last-child(-n+2),#leadtable.noadmin td:nth-last-child(-n+2){display:none}
 #tstable.noadmin th:nth-last-child(-n+5),#tstable.noadmin td:nth-last-child(-n+5){display:none}
 #md-approval.noadmin{display:none}
@@ -328,6 +347,7 @@ table.sum td.l,table.sum th.l{text-align:left}
     </div>
   </div>
 
+  <p class="hint" style="margin:.2rem 0 .5rem">🟩 <strong>ช่องสีเขียว = กรอกตัวเลข</strong> · 🔗 สีเทา = ดึงอัตโนมัติ (ลา/สาย จาก Manday · หัก KPI จากหน้า KPI) · 🧮 สีฟ้า = ระบบคำนวณให้ · แถวเขียวเข้มคั่นแต่ละทีม พร้อมยอดรวมของทีม</p>
   <div class="tablewrap">
     <table class="team" id="commtable" style="min-width:1500px">
       <thead id="commhead"></thead>
@@ -1185,6 +1205,15 @@ function asOfDate(){
 function nowTH(){ return new Date().toLocaleString("th-TH",{dateStyle:"medium",timeStyle:"short"}); }
 
 /* ---------- core calc ---------- */
+const PILL_COLORS=[["#E9DFF8","#5B2E91"],["#DBEAFE","#1D4F91"],["#DCF2D9","#1E6B2B"],["#FFE3C8","#9A4E00"],["#FBDCE7","#A62B57"],["#D2EEE9","#0B6355"],["#FFF1B8","#7A5F00"],["#FFE0DC","#9A1F10"],["#E5E7E4","#454C43"]];
+function pillOf(text, shift){
+  const t=String(text||"").trim();
+  if(!t) return "—";
+  let h=shift||0;
+  for(const ch of t) h=(h*31+ch.codePointAt(0))%9973;
+  const c=PILL_COLORS[h%PILL_COLORS.length];
+  return `<span class="pill" style="background:${c[0]};color:${c[1]}" title="${esc(t)}">${esc(t)}</span>`;
+}
 const grpOf = e => /sales\s*admin/i.test(String((e&&e.dept)||"") + " " + String((e&&e.pos)||"")) ? "sa" : "crm";
 function commPct(net, grp){
   const tiers = grp==="sa" ? (S.commTiersSA||[]) : S.commTiers;
@@ -1666,6 +1695,8 @@ function renderComm(){
   const tb = $("commbody"); tb.innerHTML = "";
   const sum = {net:0,commission:0,ontime:0,travel:0,incentive:0,salaryNet:0,grand:0};
   let n = 0;
+  // รวบรวมแถวก่อน แล้วจัดกลุ่มตามทีมหัวหน้า
+  const byTeam = new Map();
   for(const e of DB.emp){
     if(!isWorking(e)) continue;
     if(br && e.branch!==br) continue;
@@ -1679,25 +1710,46 @@ function renderComm(){
     const r = calc({...d, leave:att.leave, late:att.late, kpi:kd.ded, salary:getSalary(e.code), grp:grpOf(e)});
     sum.net+=r.net; sum.commission+=r.commission; sum.ontime+=r.ontime; sum.travel+=r.travel;
     sum.incentive+=r.incentive; sum.salaryNet+=r.salaryNet; sum.grand+=r.grand;
-    const inp = (f,narrow)=>`<td><input type="number" min="0" class="${narrow?'narrow':''}" data-code="${esc(e.code)}" data-f="${f}" value="${d[f]||0}" ${CA_LOCK?'disabled':''}></td>`;
-    const chInp = CHANNELS().map(c=>`<td><input type="number" min="0" data-code="${esc(e.code)}" data-f="ch" data-chn="${esc(c.name)}" value="${num((d.ch||{})[c.name])||0}" ${CA_LOCK?'disabled':''}></td>`).join("");
-    tb.insertAdjacentHTML("beforeend",
-      `<tr><td class="l"><span class="mainname" title="${esc(e.name||e.nick)}">${esc(e.name||e.nick)}</span><span class="subname">${esc(e.nick||"")}</span></td>
-       <td class="l">${esc(e.code)}</td>
-       <td class="l">${esc(e.branch)}</td>
-       ${inp("crm")}${inp("ref")}${chInp}${inp("sub690")}
-       <td title="วันลาจาก Manday">${att.leave}</td>
-       <td title="จำนวนครั้งมาสายจาก Manday">${att.late}</td>
-       ${inp("ret",1)}${inp("bonus")}
-       <td class="${kd.ded?'neg':''}" title="${esc(kd.why)}">${kd.ded?'−'+fmt(kd.ded):'0'}</td>
-       ${inp("minc")}
-       <td>${fmt(r.net)}</td>
-       <td class="${r.commission?'pos':''}">${r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct}%)</span>`:"0"}</td>
-       <td class="${r.ontime?'pos':''}">${fmt(r.ontime)}</td>
-       <td class="${r.travel?'pos':''}">${fmt(r.travel)}</td>
-       <td class="${r.incentive>=0?'pos':'neg'}">${fmt(r.incentive)}</td>
-       <td>${fmt(r.salaryNet)}</td>
-       <td class="pos"><strong>${fmt(r.grand)}</strong></td></tr>`);
+    const key = e.sup || "~ไม่ระบุทีม";
+    if(!byTeam.has(key)) byTeam.set(key, {list:[], net:0, inc:0});
+    const g = byTeam.get(key);
+    g.net += r.net; g.inc += r.incentive;
+    g.list.push({e, d, att, kd, r});
+  }
+  const teams = [...byTeam.keys()].sort((a,b)=>{
+    const ax = a==="~ไม่ระบุทีม"?1:0, bx = b==="~ไม่ระบุทีม"?1:0;
+    return (ax-bx) || a.localeCompare(b,"th");
+  });
+  let seq = 0;
+  for(const t of teams){
+    const g = byTeam.get(t);
+    const tName = t === "~ไม่ระบุทีม" ? "" : t;
+    for(const o of g.list){
+      const e=o.e, d=o.d, att=o.att, kd=o.kd, r=o.r;
+      seq++;
+      const inp = (f)=>`<td class="in"><input type="number" min="0" data-code="${esc(e.code)}" data-f="${f}" value="${d[f]||0}" ${CA_LOCK?'disabled':''}></td>`;
+      const chInp = CHANNELS().map(c=>`<td class="in"><input type="number" min="0" data-code="${esc(e.code)}" data-f="ch" data-chn="${esc(c.name)}" value="${num((d.ch||{})[c.name])||0}" ${CA_LOCK?'disabled':''}></td>`).join("");
+      tb.insertAdjacentHTML("beforeend",
+        `<tr><td style="color:var(--muted)">${seq}</td>
+         <td>${pillOf(tName||e.sup, 0)}</td>
+         <td>${pillOf(e.pos, 7)}</td>
+         <td class="l"><span class="mainname" title="${esc(e.name||e.nick)}">${esc(e.name||e.nick)}</span><span class="subname">${esc(e.nick||"")}</span></td>
+         <td class="l">${esc(e.code)}</td>
+         <td class="l">${esc(e.branch)}</td>
+         ${inp("crm")}${inp("ref")}${chInp}${inp("sub690")}
+         <td class="lk" title="วันลาจาก Manday (อัตโนมัติ)">${att.leave}</td>
+         <td class="lk" title="จำนวนครั้งมาสายจาก Manday (อัตโนมัติ)">${att.late}</td>
+         ${inp("ret")}${inp("bonus")}
+         <td class="lk ${kd.ded?'neg':''}" title="${esc(kd.why)}">${kd.ded?'−'+fmt(kd.ded):'0'}</td>
+         ${inp("minc")}
+         <td class="cp">${fmt(r.net)}</td>
+         <td class="cp ${r.commission?'pos':''}">${r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct}%)</span>`:"0"}</td>
+         <td class="cp ${r.ontime?'pos':''}">${fmt(r.ontime)}</td>
+         <td class="cp ${r.travel?'pos':''}">${fmt(r.travel)}</td>
+         <td class="cp ${r.incentive>=0?'pos':'neg'}">${fmt(r.incentive)}</td>
+         <td class="cp">${fmt(r.salaryNet)}</td>
+         <td class="cp pos"><strong>${fmt(r.grand)}</strong></td></tr>`);
+    }
   }
   commFoot(sum, n);
   if(!(document.activeElement && document.activeElement.closest && document.activeElement.closest("#leadtable"))) renderLead();
@@ -1706,17 +1758,27 @@ function renderComm(){
   if(typeof renderCommReview === "function") renderCommReview();
 }
 function buildCommHead(){
+  const nCh = CHANNELS().length;
   const chs = CHANNELS().map(c=>`<th title="ช่องทางขายเพิ่ม (ตั้งค่าได้ในแท็บตั้งค่าเรต)">${esc(c.name)}</th>`).join("");
-  $("commhead").innerHTML = `<tr>
-    <th class="l">ชื่อเล่น</th><th class="l">รหัส</th><th class="l">สาขา</th>
+  const ghead = `<tr class="ghead">
+    <th class="g-emp" colspan="6">พนักงาน / ทีม</th>
+    <th class="g-in" colspan="${3+nCh}">🟩 กรอกยอดขาย</th>
+    <th class="g-lk" colspan="2">🔗 Manday</th>
+    <th class="g-in" colspan="2">🟩 กรอก</th>
+    <th class="g-lk">🔗 KPI</th>
+    <th class="g-in">🟩 กรอก</th>
+    <th class="g-cp" colspan="7">🧮 ระบบคำนวณให้อัตโนมัติ</th>
+  </tr>`;
+  $("commhead").innerHTML = ghead + `<tr>
+    <th>ลำดับ</th><th>ทีม</th><th>ตำแหน่ง</th><th class="l">ชื่อ-นามสกุล</th><th class="l">รหัส</th><th class="l">สาขา</th>
     <th>CRM</th><th>แนะนำ</th>${chs}<th>หัก690</th><th title="ลิงก์จาก Manday อัตโนมัติ">ลา 🔗</th><th title="ลิงก์จาก Manday อัตโนมัติ">สาย 🔗</th><th>ตีกลับ</th><th>โบนัส/อื่น</th><th title="หักอัตโนมัติเมื่อ KPI ไม่ผ่าน">หัก KPI 🔗</th><th>Incentive/เดือน</th>
     <th>ยอดสุทธิ</th><th>ค่าคอม %</th><th>Ontime</th><th>เดินทาง</th><th>Incentive</th><th>เงินเดือน</th><th>รวมรับ</th>
   </tr>`;
-  $("commtable").style.minWidth = (1500 + CHANNELS().length*90) + "px";
+  $("commtable").style.minWidth = (1720 + CHANNELS().length*90) + "px";
 }
 function commFoot(sum, n){
   $("commfoot").innerHTML =
-    `<td class="l" colspan="3">รวม ${n} คน</td><td colspan="${9+CHANNELS().length}"></td>
+    `<td class="l" colspan="6">รวม ${n} คน</td><td colspan="${9+CHANNELS().length}"></td>
      <td>${fmt(sum.net)}</td><td>${fmt(sum.commission)}</td><td>${fmt(sum.ontime)}</td><td>${fmt(sum.travel)}</td>
      <td>${fmt(sum.incentive)}</td><td>${fmt(sum.salaryNet)}</td><td>${fmt(sum.grand)}</td>`;
 }
@@ -1734,9 +1796,9 @@ function refreshCommComputed(){
     const r = calc({...rowData(code), leave:att.leave, late:att.late, kpi:kd.ded, salary:getSalary(code), grp:grpOf(e)});
     const tds = tr.querySelectorAll("td");
     const nCh = CHANNELS().length;
-    tds[6+nCh].textContent = att.leave; tds[7+nCh].textContent = att.late;
-    tds[10+nCh].textContent = kd.ded?'−'+fmt(kd.ded):'0'; tds[10+nCh].className = kd.ded?'neg':''; tds[10+nCh].title = kd.why;
-    const base = 12 + nCh; // ชื่อ+รหัส+สาขา 3 + ช่องกรอก/ลิงก์ 9 + ช่องทางขาย
+    tds[9+nCh].textContent = att.leave; tds[10+nCh].textContent = att.late;
+    tds[13+nCh].textContent = kd.ded?'−'+fmt(kd.ded):'0'; tds[13+nCh].className = kd.ded?'lk neg':'lk'; tds[13+nCh].title = kd.why;
+    const base = 15 + nCh; // ลำดับ+ทีม+ตำแหน่ง+ชื่อ+รหัส+สาขา 6 + ช่องกรอก/ลิงก์ 9 + ช่องทางขาย
     tds[base].textContent = fmt(r.net);
     tds[base+1].innerHTML = r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct}%)</span>`:"0";
     tds[base+1].className = r.commission?'pos':'';
