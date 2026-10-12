@@ -46,6 +46,8 @@ button.linkish{font-family:inherit;font-size:.8rem;background:none;border:none;c
 .bellpanel li .na{display:flex;flex-direction:column;gap:.25rem}
 .bellpanel li .na button{min-height:30px;padding:.15rem .6rem;font-size:.75rem;border-radius:7px}
 
+.mainname{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.subname{display:block;font-size:.72rem;font-weight:500;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pbadge{display:inline-block;font-size:.68rem;font-weight:600;background:#EAF2EC;color:#2E5A44;border:1px solid #D5E4D8;border-radius:999px;padding:.05rem .5rem;margin:.06rem .15rem .06rem 0;white-space:nowrap}
 .filechip{display:inline-flex;gap:.4rem;align-items:center;font-size:.8rem;background:#F3F7F3;border:1px solid var(--line);border-radius:8px;padding:.25rem .6rem}
 .layout{display:flex;gap:1.1rem;align-items:flex-start}
@@ -131,9 +133,9 @@ table.team tr.rowhl:hover td{background:#F7FAF6;cursor:pointer}
 .badge.trial{background:#FFF3DC;color:#8A6100}
 
 /* ตรึง ชื่อเล่น + รหัส + สาขา ในตารางคำนวณค่าคอม */
-#commtable th:nth-child(1),#commtable td:nth-child(1){min-width:120px;max-width:120px;left:0}
-#commtable th:nth-child(2),#commtable td:nth-child(2){position:sticky;left:120px;min-width:74px;z-index:2;background:var(--card)}
-#commtable th:nth-child(3),#commtable td:nth-child(3){position:sticky;left:194px;min-width:104px;z-index:2;background:var(--card)}
+#commtable th:nth-child(1),#commtable td:nth-child(1){min-width:158px;max-width:158px;left:0}
+#commtable th:nth-child(2),#commtable td:nth-child(2){position:sticky;left:158px;min-width:74px;z-index:2;background:var(--card)}
+#commtable th:nth-child(3),#commtable td:nth-child(3){position:sticky;left:232px;min-width:104px;z-index:2;background:var(--card)}
 #commtable thead th:nth-child(-n+3){z-index:5;background:#F0F4EE}
 #commtable tbody tr:nth-child(even) td:nth-child(-n+3){background:#FAFCF9}
 #commtable tbody tr:hover td:nth-child(-n+3){background:#F1F7F1}
@@ -310,10 +312,14 @@ table.sum td.l,table.sum th.l{text-align:left}
       <label class="f"><span>หัวหน้า</span><select id="c-sup"><option value="">ทุกคน</option></select></label>
     </div>
     <details class="imp">
-      <summary>นำเข้ายอดจากชีท (วางข้อมูล)</summary>
-      <p class="hint">คัดลอกจาก Google Sheets แล้ววาง — คอลัมน์: <code>ชื่อเล่น</code> <code>CRM</code> <code>แนะนำ</code> <code>หัก690</code> <code>ลา</code> <code>สาย</code> <code>ตีกลับ</code> (จับคู่พนักงานด้วยชื่อเล่น)</p>
-      <textarea id="c-paste" placeholder="มีน	642535	10130	3150	0	0	2"></textarea>
-      <div class="btnrow"><button class="ghost" id="c-import">นำเข้า</button><span class="hint" id="c-import-msg" style="margin:0"></span></div>
+      <summary>นำเข้ายอดย้อนหลัง (แนบไฟล์ CSV หรือวางจากชีท)</summary>
+      <p class="hint"><strong>ขั้นตอน:</strong> 1) เลือก "งวดเดือน" ด้านบนเป็นเดือนที่ต้องการก่อน — ข้อมูลจะเข้าเดือนนั้น · 2) แนบไฟล์ .csv หรือคัดลอกตารางจาก Excel/Google Sheets มาวาง (เอาแถวหัวตารางมาด้วย) · 3) กดนำเข้า<br>
+      ระบบอ่านหัวตารางจับคู่คอลัมน์ให้เอง รองรับ: <code>รหัส/ชื่อเล่น</code> <code>CRM</code> <code>แนะนำ</code> <code>Upsell</code> <code>Facebook</code> <code>Incall</code> <code>Line</code> <code>หัก690</code> <code>ลา</code> <code>สาย</code> <code>ตีกลับ</code> <code>โบนัส</code> <code>Incentive</code> <code>โทร</code> <code>ได้คุย</code> <code>Talk time</code> (คอลัมน์อื่นข้ามให้ · ไม่มีหัวตาราง = ใช้ลำดับเดิม ชื่อเล่น,CRM,แนะนำ,หัก690,ลา,สาย,ตีกลับ)</p>
+      <div class="frow" style="margin-bottom:.4rem">
+        <input type="file" id="c-file" accept=".csv,.tsv,.txt" style="max-width:300px">
+      </div>
+      <textarea id="c-paste" placeholder="ชื่อเล่น	CRM	แนะนำ	หัก690	ตีกลับ&#10;มีน	642535	10130	3150	2"></textarea>
+      <div class="btnrow"><button class="ghost" id="c-import">นำเข้าเข้างวดเดือนที่เลือก</button><span class="hint" id="c-import-msg" style="margin:0"></span></div>
     </details>
     <div class="btnrow" style="margin-top:.8rem">
       <button class="ghost" id="c-export">ดาวน์โหลด CSV เดือนนี้</button>
@@ -330,6 +336,16 @@ table.sum td.l,table.sum th.l{text-align:left}
     </table>
   </div>
   <p class="hint">ค่าคอม % คิดจากขั้นเทียร์ของ "ยอดสุทธิ CRM+แนะนำ" · Ontime จ่ายเมื่อ ลา=0 และ สาย=0 · เงินเดือนดึงฐานจากทะเบียนพนักงาน หักลา และหักสายตามเรต</p>
+
+  <div class="card" id="comm-review" style="border-left:4px solid var(--money)">
+    <h2>ขั้นตอนปิดงวด (เฉพาะแอดมิน)</h2>
+    <p class="hint" id="creview-status" style="margin-bottom:.5rem"></p>
+    <div class="btnrow">
+      <button class="primary" id="btn-creview">✅ แอดมินตรวจสอบเรียบร้อย — ล็อกกันแก้ไข (ใส่ PIN)</button>
+      <button class="ghost" id="btn-creviewundo" hidden>🔓 ยกเลิกการตรวจ เพื่อแก้ไข (ใส่ PIN)</button>
+      <button class="primary" id="btn-cgofinal" hidden>➡ ไปอนุมัติครั้งสุดท้าย (หน้าอนุมัติเงินเดือน & ค่าคอม)</button>
+    </div>
+  </div>
 </section>
 
 <!-- ================= รายคน ================= -->
@@ -992,6 +1008,7 @@ function applyAdminUI(){
   $("commtable").classList.toggle("noadmin", !IS_ADMIN);
   $("leadtable").classList.toggle("noadmin", !IS_ADMIN);
   $("md-approval").classList.toggle("noadmin", !IS_ADMIN);
+  $("comm-review").hidden = !IS_ADMIN;
   $("mdpay-noaccess").hidden = IS_ADMIN;
   $("bank-label").hidden = !IS_ADMIN;
   $("acct-label").hidden = !IS_ADMIN;
@@ -1357,9 +1374,10 @@ function renderLead(){
   for(const name of names){
     const r = leadRowCalc(name);
     sum.net += r.net; sum.com += r.com; sum.inc += r.d.inc; sum.take += r.takeHome;
-    const inp = f => `<td><input type="number" min="0" step="any" data-sup="${esc(name)}" data-lf="${f}" value="${r.d[f]||0}" ${(M.__approve&&M.__approve.locked)?'disabled':''}></td>`;
+    const inp = f => `<td><input type="number" min="0" step="any" data-sup="${esc(name)}" data-lf="${f}" value="${r.d[f]||0}" ${(M.__approve&&(M.__approve.locked||M.__approve.reviewed))?'disabled':''}></td>`;
+    const leEmp = DB.emp.find(z=>isWorking(z)&&z.nick===name);
     tb.insertAdjacentHTML("beforeend",
-      `<tr data-sup="${esc(name)}"><td class="l"><strong>${esc(name)}</strong></td>
+      `<tr data-sup="${esc(name)}"><td class="l"><span class="mainname" title="${esc(leEmp?leEmp.name:name)}">${esc(leEmp?leEmp.name:name)}</span><span class="subname">${esc(name)}</span></td>
        <td>${r.count}</td>
        ${inp("target")}
        <td>${fmt(r.net)}</td>
@@ -1392,7 +1410,7 @@ function refreshLeadComputed(){
 $("leadbody").addEventListener("input",e=>{
   const t = e.target;
   if(!t.dataset || !t.dataset.lf) return;
-  if(M.__approve && M.__approve.locked) return;
+  if(M.__approve && (M.__approve.locked || M.__approve.reviewed)) return;
   leadData(t.dataset.sup)[t.dataset.lf] = num(t.value);
   saveLead();
   refreshLeadComputed();
@@ -1558,7 +1576,7 @@ function renderKPI(){
     const inp=(f,step)=>`<td><input type="number" min="0" ${step?'step="any"':''} data-kcode="${esc(e.code)}" data-kf="${f}" value="${k[f]||0}"></td>`;
     const stCls = r.showLvl==="ใบเตือน"?"r":(r.showLvl==="ตักเตือน"?"y":"");
     tb.insertAdjacentHTML("beforeend",
-      `<tr><td class="l"><strong>${esc(e.nick||e.name)}</strong></td>
+      `<tr><td class="l"><span class="mainname" title="${esc(e.name||e.nick)}">${esc(e.name||e.nick)}</span><span class="subname">${esc(e.nick||"")}</span></td>
        <td class="l">${esc(e.code)}</td>
        <td class="l">${esc(e.branch)}</td>
        <td class="l">${esc(e.sup||"—")}</td>
@@ -1637,8 +1655,12 @@ function fillKpiCriteria(){
 
 function renderComm(){
   buildCommHead();
-  const CA_LOCK = !!(M.__approve && M.__approve.locked);
+  const a0 = (M.__approve||{});
+  const CA_LOCK = !!(a0.locked || a0.reviewed);
   $("comm-lockbar").hidden = !CA_LOCK;
+  $("comm-lockbar").innerHTML = a0.locked
+    ? "🔒 ค่าคอมงวดนี้อนุมัติครั้งสุดท้ายแล้ว — ข้อมูลถูกล็อก · ปลดล็อกได้ที่เมนู ✅ อนุมัติเงินเดือน & ค่าคอม (เฉพาะแอดมิน)"
+    : (a0.reviewed ? "🔒 แอดมินตรวจสอบเรียบร้อยแล้ว — ล็อกกันแก้ไข รออนุมัติครั้งสุดท้ายที่เมนู ✅ อนุมัติเงินเดือน & ค่าคอม" : "");
   const q = ($("c-q").value||"").trim().toLowerCase();
   const br = $("c-branch").value, cdp = $("c-dept").value, cps = $("c-pos").value, csup = $("c-sup").value;
   const tb = $("commbody"); tb.innerHTML = "";
@@ -1660,7 +1682,7 @@ function renderComm(){
     const inp = (f,narrow)=>`<td><input type="number" min="0" class="${narrow?'narrow':''}" data-code="${esc(e.code)}" data-f="${f}" value="${d[f]||0}" ${CA_LOCK?'disabled':''}></td>`;
     const chInp = CHANNELS().map(c=>`<td><input type="number" min="0" data-code="${esc(e.code)}" data-f="ch" data-chn="${esc(c.name)}" value="${num((d.ch||{})[c.name])||0}" ${CA_LOCK?'disabled':''}></td>`).join("");
     tb.insertAdjacentHTML("beforeend",
-      `<tr><td class="l"><strong>${esc(e.nick||e.name)}</strong></td>
+      `<tr><td class="l"><span class="mainname" title="${esc(e.name||e.nick)}">${esc(e.name||e.nick)}</span><span class="subname">${esc(e.nick||"")}</span></td>
        <td class="l">${esc(e.code)}</td>
        <td class="l">${esc(e.branch)}</td>
        ${inp("crm")}${inp("ref")}${chInp}${inp("sub690")}
@@ -1681,6 +1703,7 @@ function renderComm(){
   if(!(document.activeElement && document.activeElement.closest && document.activeElement.closest("#leadtable"))) renderLead();
   if(!(document.activeElement && document.activeElement.closest && document.activeElement.closest("#kpitable"))) renderKPI();
   if(typeof renderCommApprove === "function") renderCommApprove();
+  if(typeof renderCommReview === "function") renderCommReview();
 }
 function buildCommHead(){
   const chs = CHANNELS().map(c=>`<th title="ช่องทางขายเพิ่ม (ตั้งค่าได้ในแท็บตั้งค่าเรต)">${esc(c.name)}</th>`).join("");
@@ -1732,7 +1755,7 @@ function refreshCommComputed(){
 $("commbody").addEventListener("input",e=>{
   const t = e.target;
   if(!t.dataset || !t.dataset.code) return;
-  if(M.__approve && M.__approve.locked) return;
+  if(M.__approve && (M.__approve.locked || M.__approve.reviewed)) return;
   const v = num(t.value);
   if(t.dataset.f === "ch"){
     const d = rowData(t.dataset.code);
@@ -1745,21 +1768,76 @@ $("commbody").addEventListener("input",e=>{
   refreshCommComputed();
 });
 ["c-q","c-branch","c-dept","c-pos","c-sup"].forEach(id=>$(id).addEventListener("input", renderComm));
+$("c-file").addEventListener("change",ev=>{
+  const f=ev.target.files[0]; if(!f) return;
+  const fr=new FileReader();
+  fr.onload=()=>{ $("c-paste").value=String(fr.result||"").replace(/^\uFEFF/,""); 
+    $("c-import-msg").textContent=`โหลดไฟล์ ${f.name} แล้ว — เช็คงวดเดือนด้านบน แล้วกด "นำเข้าเข้างวดเดือนที่เลือก"`; };
+  fr.readAsText(f);
+});
+function splitCells(line){ return line.split(/\t|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(x=>x.replace(/^"|"$/g,"").trim()); }
+function headerColMap(cells){
+  const map={ch:{}, kpi:{}};
+  let hits=0;
+  const norm=t=>String(t||"").toLowerCase().replace(/[\s().:%฿-]/g,"");
+  cells.forEach((raw,i)=>{
+    const t=norm(raw);
+    if(!t) return;
+    const put=(k)=>{ if(map[k]===undefined){ map[k]=i; hits++; } };
+    if(/^(ชื่อเล่น|ชื่อพนักงาน|nick)$/.test(t) || t==="ชื่อ" || t==="name" || t==="พนักงาน"){ put("nick"); return; }
+    if(/^(รหัส|รหัสพนักงาน|code|id)$/.test(t)){ put("code"); return; }
+    for(const c of CHANNELS()){ if(t===norm(c.name)){ if(map.ch[c.name]===undefined){ map.ch[c.name]=i; hits++; } return; } }
+    if(t==="crm"||t==="ยอดcrm"){ put("crm"); return; }
+    if(t==="แนะนำ"||t==="ref"){ put("ref"); return; }
+    if(/690/.test(t)){ put("sub690"); return; }
+    if(t==="ตีกลับ"||t==="return"||t==="ตีกลับครั้ง"){ put("ret"); return; }
+    if(/^โบนัส/.test(t)||t==="bonus"){ put("bonus"); return; }
+    if(/incentive/.test(t)&&!/รวม/.test(t)){ put("minc"); return; }
+    if(t==="ลา"||t==="ลาวัน"||t==="วันลา"){ put("leave"); return; }
+    if(t==="สาย"||t==="มาสาย"){ put("late"); return; }
+    if(t==="โทร"||t==="ยอดโทร"||t==="call"){ if(map.kpi.call===undefined){map.kpi.call=i;hits++;} return; }
+    if(t==="ได้คุย"||t==="คุย"||t==="talk"){ if(map.kpi.talk===undefined){map.kpi.talk=i;hits++;} return; }
+    if(/^(talktime|tt|ttนาที)$/.test(t)){ if(map.kpi.tt===undefined){map.kpi.tt=i;hits++;} return; }
+  });
+  map._hits=hits;
+  return map;
+}
 $("c-import").addEventListener("click",()=>{
+  if(M.__approve && (M.__approve.locked || M.__approve.reviewed)){ alert("งวดนี้ถูกล็อกแล้ว (ตรวจสอบ/อนุมัติ) — ยกเลิกการตรวจท้ายหน้านี้ หรือปลดล็อกที่เมนู ✅ อนุมัติเงินเดือน & ค่าคอม"); return; }
   const lines = ($("c-paste").value||"").split(/\r?\n/).filter(l=>l.trim());
+  if(!lines.length){ $("c-import-msg").textContent="ยังไม่มีข้อมูล — แนบไฟล์หรือวางตารางก่อน"; return; }
+  let map = headerColMap(splitCells(lines[0]));
+  let start = 0;
+  if(map._hits >= 2 && (map.nick!==undefined || map.code!==undefined)) start = 1;  // มีหัวตาราง
+  else map = null;                                                                  // ไม่มีหัว → ลำดับเดิม
   let ok=0, miss=[];
-  for(const line of lines){
-    const c = line.split(/\t|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(x=>x.replace(/^"|"$/g,"").trim());
-    if(!c[0]) continue;
-    const key = c[0].toLowerCase();
-    const e = DB.emp.find(x=>isWorking(x) && (x.nick.toLowerCase()===key || x.code===c[0] || x.name.toLowerCase().includes(key)));
-    if(!e){ miss.push(c[0]); continue; }
+  for(let i=start;i<lines.length;i++){
+    const c = splitCells(lines[i]);
+    const keyRaw = map ? (c[map.code!==undefined?map.code:map.nick]||"") : (c[0]||"");
+    if(!keyRaw) continue;
+    const key = keyRaw.toLowerCase();
+    const e = DB.emp.find(x=> x.code===keyRaw || (x.nick||"").toLowerCase()===key || (x.name||"").toLowerCase().includes(key));
+    if(!e){ miss.push(keyRaw); continue; }
     const d = rowData(e.code);
-    d.crm=num(c[1]); d.ref=num(c[2]); d.sub690=num(c[3]); d.leave=num(c[4]); d.late=num(c[5]); d.ret=num(c[6]);
+    if(map){
+      const take=(k,f)=>{ if(map[k]!==undefined) d[f]=num(c[map[k]]); };
+      take("crm","crm"); take("ref","ref"); take("sub690","sub690"); take("ret","ret");
+      take("bonus","bonus"); take("minc","minc"); take("leave","leave"); take("late","late");
+      for(const cn in map.ch){ d.ch[cn]=num(c[map.ch[cn]]); }
+      if(map.kpi.call!==undefined||map.kpi.talk!==undefined||map.kpi.tt!==undefined){
+        const k=kpiData(e.code);
+        if(map.kpi.call!==undefined) k.call=num(c[map.kpi.call]);
+        if(map.kpi.talk!==undefined) k.talk=num(c[map.kpi.talk]);
+        if(map.kpi.tt!==undefined)   k.tt=num(c[map.kpi.tt]);
+      }
+    }else{
+      d.crm=num(c[1]); d.ref=num(c[2]); d.sub690=num(c[3]); d.leave=num(c[4]); d.late=num(c[5]); d.ret=num(c[6]);
+    }
     ok++;
   }
-  writeWholeMonth(); renderComm();
-  $("c-import-msg").textContent = `นำเข้า ${ok} คน` + (miss.length?` · หาไม่เจอ: ${miss.slice(0,6).join(", ")}${miss.length>6?"…":""}`:"");
+  writeWholeMonth(); renderComm(); renderKPI();
+  const mo = $("month").value ? new Date($("month").value+"-01").toLocaleDateString("th-TH",{month:"long",year:"numeric"}) : "";
+  $("c-import-msg").textContent = `✅ นำเข้า ${ok} คน เข้างวด${mo}` + (map?" (อ่านหัวตารางอัตโนมัติ)":" (รูปแบบไม่มีหัวตาราง)") + (miss.length?` · หาไม่เจอ: ${miss.slice(0,6).join(", ")}${miss.length>6?"…":""}`:"");
 });
 $("c-export").addEventListener("click",()=>{
   const head = ["รหัส","ชื่อเล่น","ชื่อ","สาขา","CRM","แนะนำ",...CHANNELS().map(c=>c.name),"หัก690","ลา","สาย","ตีกลับ","โบนัส/อื่น","หักKPI","Incentive/เดือน","ยอดสุทธิ","ค่าคอม","โบนัสไตรมาส","Ontime","เดินทาง","รวมIncentive"];
@@ -1781,7 +1859,7 @@ $("c-export").addEventListener("click",()=>{
   a.click(); URL.revokeObjectURL(a.href);
 });
 $("c-clear").addEventListener("click",()=>{
-  if(M.__approve && M.__approve.locked) return alert("งวดนี้อนุมัติค่าคอมแล้ว — ปลดล็อกก่อนที่เมนู ✅ อนุมัติเงินเดือน & ค่าคอม");
+  if(M.__approve && (M.__approve.locked || M.__approve.reviewed)) return alert("งวดนี้ถูกล็อกแล้ว — ยกเลิกการตรวจ/ปลดล็อกก่อน");
   if(!askPin("ล้างยอดทุกคนของเดือนนี้ (มีผลกับทุกเครื่องในทีม)")) return;
   M = {}; writeWholeMonth(); renderComm();
 });
@@ -2066,7 +2144,7 @@ function renderHist(){
       return `${esc(c.label)}: ${esc(c.from)||"—"} → ${esc(c.to)||"—"}`;
     }).join("<br>");
     ul.insertAdjacentHTML("beforeend",
-      `<li><span class="t">${esc(h.ts)}</span> · <strong>${esc(h.nick)}</strong> (${esc(h.code)}) — ${esc(h.action)}${h.by?` · โดย คุณ${esc(h.by)}`:""}<br>${lines}
+      `<li><span class="t">${esc(h.ts)}</span> · ${(()=>{const en=(DB.emp.find(z=>z.code===h.code)||{}).name; return en?`<strong>${esc(en)}</strong> <span style="color:var(--muted);font-size:.78rem">(${esc(h.nick)})</span>`:`<strong>${esc(h.nick)}</strong>`;})()} (${esc(h.code)}) — ${esc(h.action)}${h.by?` · โดย คุณ${esc(h.by)}`:""}<br>${lines}
        ${undoable(h)?`<br><button type="button" class="h-undo" data-idx="${idx}">↩ ย้อนกลับรายการนี้</button>`:""}</li>`);
   });
 }
@@ -2175,7 +2253,7 @@ function makeSlip(){
   const r = calc(p);
   const hr = ($("f-hr").value||"").trim();
   lsSet("uo-hrname", hr);
-  const who = pickedEmp ? `${pickedEmp.nick||pickedEmp.name} · ${pickedEmp.branch} · ${pickedEmp.pos}` : ($("f-emp").value||"—");
+  const who = pickedEmp ? `${pickedEmp.name||""}${pickedEmp.nick?" ("+pickedEmp.nick+")":""} · ${pickedEmp.branch} · ${pickedEmp.pos} · รหัส ${pickedEmp.code}` : ($("f-emp").value||"—");
   const mo = slipYm() ? new Date(slipYm()+"-01").toLocaleDateString("th-TH",{month:"long",year:"numeric"}) : "";
   $("slip-who").textContent = `${who}${mo?" · งวด "+mo:""}`;
   const b = [], t = []; // t = ข้อความสำหรับอีเมล
@@ -2648,7 +2726,8 @@ function renderMD(){
     if(gf && String(x.group)!==gf) continue;
     const e=x.e, r=mdCalc(x);
     const dd=MD_ST.ded[e.code]||{};
-    let row=`<tr id="mdrow-${esc(e.code)}"><td class="emp"><strong>${esc(e.nick||e.name)}</strong> <span class="badge g${x.group}">ก.${x.group}</span><br>
+    let row=`<tr id="mdrow-${esc(e.code)}"><td class="emp"><span class="mainname" title="${esc(e.name||e.nick)}">${esc(e.name||e.nick)}</span>
+      <span class="subname">${esc(e.nick||"")} <span class="badge g${x.group}">ก.${x.group}</span></span>
       <span style="font-size:.7rem;color:var(--muted)">${esc(e.code)} · ${(e.payType||"monthly")==="daily"?fmt(num(e.dayRate))+"/วัน":(IS_ADMIN?"เดือนละ "+fmt(getSalary(e.code)):"รายเดือน")} · ${esc(e.company||"UO")}</span></td>`;
     for(const d of days){
       const t=mdIso(d), we=d.getDay()===0||d.getDay()===6;
@@ -2711,7 +2790,7 @@ function renderMDPay(){
     const chk=MD_ST.checked && MD_ST.checked[o.x.e.code];
     for(const f of o.f){ n++;
       ul.insertAdjacentHTML("beforeend",
-        `<li data-mdcode="${esc(o.x.e.code)}" style="${chk?'opacity:.55':''}">${chk?'<span class="flag" style="background:var(--money-soft);color:var(--money)">✓ ตรวจแล้ว</span> ':''}<span class="flag ${f.t}">${f.t==="r"?"แดง":"เหลือง"}</span> <strong>${esc(o.x.e.nick||o.x.e.name)}</strong> — ${esc(f.m)}${chk&&chk.by?` <span style="color:var(--muted);font-size:.75rem">(คุณ${esc(chk.by)})</span>`:""}</li>`); }
+        `<li data-mdcode="${esc(o.x.e.code)}" style="${chk?'opacity:.55':''}">${chk?'<span class="flag" style="background:var(--money-soft);color:var(--money)">✓ ตรวจแล้ว</span> ':''}<span class="flag ${f.t}">${f.t==="r"?"แดง":"เหลือง"}</span> <strong>${esc(o.x.e.name||o.x.e.nick)}</strong> <span style="color:var(--muted);font-size:.78rem">${esc(o.x.e.nick||"")}</span> — ${esc(f.m)}${chk&&chk.by?` <span style="color:var(--muted);font-size:.75rem">(คุณ${esc(chk.by)})</span>`:""}</li>`); }
   }
   $("md-noalert").hidden=n>0;
   const tb=$("mdpaybody"); tb.innerHTML="";
@@ -2723,8 +2802,8 @@ function renderMDPay(){
     const manVal=(dd.man!==undefined&&dd.man!==null)?num(dd.man):(num(dd.train)+num(dd.loan));
     t2.w+=o.r.workDays; t2.l+=o.r.leaveDays; t2.p+=o.r.pay; t2.man+=o.r.man; t2.pg+=o.r.prog; t2.i+=o.r.inc; t2.n+=o.r.net;
     tb.insertAdjacentHTML("beforeend",
-      `<tr data-paycode="${esc(e.code)}"><td class="l"><strong>${esc(e.nick||e.name)}</strong> <span class="badge g${o.x.group}">ก.${o.x.group}</span><br>
-        <span style="font-size:.72rem;color:var(--muted)">${esc(e.name||"")}<br>${esc(e.dept||"—")} · ${esc(e.pos||"—")} · ${esc(e.branch||"—")} · ${esc(e.company||defComp)}</span></td>
+      `<tr data-paycode="${esc(e.code)}"><td class="l"><strong>${esc(e.name||e.nick)}</strong> <span class="badge g${o.x.group}">ก.${o.x.group}</span><br>
+        <span style="font-size:.72rem;color:var(--muted)">${esc(e.nick||"")} · ${esc(e.dept||"—")} · ${esc(e.pos||"—")} · ${esc(e.branch||"—")} · ${esc(e.company||defComp)}</span></td>
        <td class="l">${esc(e.code)}</td>
        <td class="l">${(e.payType||"monthly")==="daily"?"รายวัน "+fmt(num(e.dayRate))+"/วัน":"รายเดือน"}</td>
        <td class="l">${e.bank||e.acct?`${esc(e.bank||"")}<br><span style="font-size:.74rem;color:var(--muted)">${esc(e.acct||"")}</span>`:`<span class="flag y">ยังไม่กรอก</span>`}</td>
@@ -2814,6 +2893,36 @@ function saveCommApprove(obj){
   if(CLOUD && AUTHED) MONTHDOC(ym()).set({__approve: obj},{merge:true}).catch(cloudErr);
   else lsSet(localMonthKey(), JSON.stringify(M));
 }
+function renderCommReview(){
+  if(!$("creview-status")) return;
+  const a = commApr();
+  $("btn-creview").hidden = !!(a.reviewed || a.locked);
+  $("btn-creviewundo").hidden = !(a.reviewed && !a.locked);
+  $("btn-cgofinal").hidden = !(a.reviewed && !a.locked);
+  $("creview-status").innerHTML = a.locked
+    ? `🔒 อนุมัติครั้งสุดท้ายแล้ว ${esc(a.at||"")} — ปลดล็อกได้ที่หน้าอนุมัติ`
+    : a.reviewed
+      ? `✅ ตรวจสอบเรียบร้อยแล้ว ${esc(a.reviewedAt||"")} — ข้อมูลถูกล็อก ไปกดอนุมัติครั้งสุดท้ายได้เลย`
+      : `ขั้นที่ 1: แอดมินตรวจตัวเลขทั้งหน้าให้เรียบร้อย แล้วกดปุ่มด้านล่างเพื่อล็อกกันแก้ไข · ขั้นที่ 2: ไปกดอนุมัติครั้งสุดท้ายที่เมนู ✅ อนุมัติเงินเดือน & ค่าคอม${a.rejectNote?`<br><span class="flag r">↩ ถูกส่งกลับ: ${esc(a.rejectNote)}</span>`:""}`;
+}
+$("btn-creview").addEventListener("click",()=>{
+  const a = commApr();
+  if(a.reviewed || a.locked) return;
+  if(!askPin("ยืนยันว่าแอดมินตรวจสอบค่าคอมงวดนี้เรียบร้อย — ระบบจะล็อกหน้าคำนวณค่าคอมและหัวหน้าทีมกันแก้ไข")) return;
+  saveCommApprove(Object.assign({}, a, {reviewed:true, reviewedAt:nowTH()+(ensureEditor()?" · โดย คุณ"+ensureEditor():""), rejectNote:""}));
+  renderComm();
+});
+$("btn-creviewundo").addEventListener("click",()=>{
+  const a = commApr();
+  if(!a.reviewed || a.locked) return;
+  if(!askPin("ยกเลิกการตรวจ เพื่อกลับไปแก้ไขข้อมูล")) return;
+  saveCommApprove(Object.assign({}, a, {reviewed:false, reviewedAt:""}));
+  renderComm();
+});
+$("btn-cgofinal").addEventListener("click",()=>{
+  const btn=document.querySelectorAll('nav.tabs button[data-panel="p-mdpay"]')[0];
+  if(btn) btn.click();
+});
 function renderCommApprove(){
   if(!$("ca-ym")) return;
   const a = commApr();
@@ -2830,30 +2939,34 @@ function renderCommApprove(){
     <div class="stat"><div class="k">พนักงานในงวด</div><div class="v">${n} คน</div></div>
     <div class="stat"><div class="k">รวม Incentive</div><div class="v">${fmt(inc)} ฿</div></div>
     <div class="stat"><div class="k">รวมรับ (Incentive+เงินเดือน)</div><div class="v">${fmt(grand)} ฿</div></div>
-    <div class="stat"><div class="k">สถานะ</div><div class="v" style="font-size:1rem">${a.locked?"🔒 อนุมัติแล้ว":"ยังไม่อนุมัติ"}</div><div class="d">${a.locked?(a.at||""):(a.rejectNote?("↩ ส่งกลับ: "+esc(a.rejectNote)):"แก้ไขได้ตามปกติ")}</div></div>`;
+    <div class="stat"><div class="k">การตรวจของแอดมิน (ขั้นที่ 1)</div><div class="v" style="font-size:1rem">${a.reviewed||a.locked?"✅ ตรวจแล้ว":"⏳ ยังไม่ตรวจ"}</div><div class="d">${a.reviewed?(a.reviewedAt||""):"กดได้ที่ท้ายหน้าคำนวณค่าคอม"}</div></div>
+    <div class="stat"><div class="k">อนุมัติครั้งสุดท้าย (ขั้นที่ 2)</div><div class="v" style="font-size:1rem">${a.locked?"🔒 อนุมัติแล้ว":"ยังไม่อนุมัติ"}</div><div class="d">${a.locked?(a.at||""):(a.rejectNote?("↩ ส่งกลับ: "+esc(a.rejectNote)):"")}</div></div>`;
   $("btn-capprove").hidden = !!a.locked;
   $("btn-caunlock").hidden = !a.locked;
   $("btn-careject").hidden = !!a.locked;
   $("ca-status").textContent = a.locked ? "แก้ไขหน้าคำนวณค่าคอม/หัวหน้าทีมไม่ได้จนกว่าจะปลดล็อก" : "";
 }
 $("btn-capprove").addEventListener("click",()=>{
-  if(commApr().locked) return;
-  if(!askPin("อนุมัติค่าคอมงวดเดือนนี้ — หลังอนุมัติหน้าคำนวณค่าคอมและหัวหน้าทีมจะถูกล็อก")) return;
-  saveCommApprove({locked:true, at:nowTH()+(ensureEditor()?" · โดย คุณ"+ensureEditor():""), rejectNote:""});
-  renderComm(); renderCommApprove();
+  const a0=commApr();
+  if(a0.locked) return;
+  const warn = a0.reviewed ? "" : "\n⚠ งวดนี้ยังไม่ผ่านขั้นตรวจของแอดมินที่หน้าคำนวณค่าคอม";
+  if(!askPin("อนุมัติค่าคอมงวดนี้ครั้งสุดท้าย (Final) — ล็อกถาวรจนกว่าจะปลดล็อก"+warn)) return;
+  saveCommApprove({locked:true, at:nowTH()+(ensureEditor()?" · โดย คุณ"+ensureEditor():""), rejectNote:"",
+    reviewed:true, reviewedAt:a0.reviewedAt || (nowTH()+(ensureEditor()?" · โดย คุณ"+ensureEditor():""))});
+  renderComm();
 });
 $("btn-caunlock").addEventListener("click",()=>{
   if(!commApr().locked) return;
-  if(!askPin("ปลดล็อกค่าคอมงวดนี้เพื่อแก้ไข (ต้องอนุมัติใหม่เมื่อเสร็จ)")) return;
-  saveCommApprove({locked:false, at:"", rejectNote:""});
-  renderComm(); renderCommApprove();
+  if(!askPin("ปลดล็อกค่าคอมงวดนี้เพื่อแก้ไข (สถานะตรวจ+อนุมัติจะถูกยกเลิก ต้องทำใหม่ทั้งสองขั้น)")) return;
+  saveCommApprove({locked:false, at:"", rejectNote:"", reviewed:false, reviewedAt:""});
+  renderComm();
 });
 $("btn-careject").addEventListener("click",()=>{
   if(commApr().locked) return alert("งวดนี้อนุมัติแล้ว — ปลดล็อกก่อน");
   const reason=prompt("เหตุผลที่ส่งกลับให้แก้ไข (จำเป็น):");
   if(!reason||!reason.trim()) return;
-  saveCommApprove({locked:false, at:"", rejectNote:reason.trim()});
-  renderCommApprove();
+  saveCommApprove({locked:false, at:"", rejectNote:reason.trim(), reviewed:false, reviewedAt:""});
+  renderComm();
 });
 $("md-alerts").addEventListener("click",e=>{
   const li=e.target.closest("li[data-mdcode]"); if(!li) return;
@@ -2919,7 +3032,7 @@ function buildNotifs(){
     if(diff>7 || diff<-60) continue;                     // เตือนล่วงหน้า 7 วัน
     if(lsGet("uo-ntf-emp:"+ntfMonthKey()+":"+e.code)) continue;
     const when = diff>0?`ครบทดลองงานในอีก ${diff} วัน`: diff===0?"ครบทดลองงานวันนี้":`ครบทดลองงานมาแล้ว ${-diff} วัน`;
-    out.push({id:"emp:"+e.code, ic:"👤", title:`${e.nick||e.name} (${e.code}) — รับสถานะพนักงานทดลองงาน`, when, panel:"p-emp", emp:e.code, urgent:diff<=0});
+    out.push({id:"emp:"+e.code, ic:"👤", title:`${e.name}${e.nick?" ("+e.nick+")":""} · ${e.code} — รับสถานะพนักงานทดลองงาน`, when, panel:"p-emp", emp:e.code, urgent:diff<=0});
   }
   return out;
 }
