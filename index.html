@@ -995,7 +995,7 @@ const $ = id => document.getElementById(id);
 const fmt = n => (isFinite(n)?n:0).toLocaleString("th-TH",{maximumFractionDigits:2});
 const num = v => { const n = parseFloat(String(v??"").replace(/[, ]/g,"")); return isFinite(n)?n:0; };
 const fmt2 = n => (isFinite(n)?n:0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmtIn = n => num(n) ? fmt2(num(n)) : ""; // ช่องกรอกตัวเลข: ว่างเมื่อเป็น 0 · มีค่าแล้วใส่ทศนิยม 2 ตำแหน่ง
+const fmtIn = n => num(n) ? num(n).toLocaleString("en-US",{maximumFractionDigits:2}) : ""; // ช่องกรอกตัวเลข: ว่างเมื่อเป็น 0 · ไม่บังคับ .00 · มีทศนิยมค่อยแสดง (สูงสุด 2 ตำแหน่ง)
 /* ช่องกรอกตัวเลขแบบพิมพ์อย่างเดียว (ไม่มีลูกศร) · คลิกแล้วเลือกทั้งหมด · ออกจากช่องแล้วจัดทศนิยมให้ */
 function numInputBehavior(container){
   container.addEventListener("focusin",e=>{ const t=e.target; if(t.matches && t.matches("input[data-num]")){ setTimeout(()=>{ try{ t.select(); }catch(x){} },0); } });
@@ -1561,8 +1561,8 @@ function renderLead(){
        <td>${r.count}</td>
        ${inp("target")}
        <td class="cp">${fmt(r.net)}</td>
-       <td class="cp ${r.ach>=100?'pos':r.d.target&&r.ach<80?'neg':''}">${r.d.target?r.ach.toFixed(1)+"%":"—"}</td>
-       <td class="cp">${r.pct?r.pct+"%":"0%"}</td>
+       <td class="cp ${r.ach>=100?'pos':r.d.target&&r.ach<80?'neg':''}">${r.d.target?fmt(+r.ach.toFixed(1)):"—"}</td>
+       <td class="cp">${r.pct||0}</td>
        <td class="cp ${r.com?'pos':''}">${fmt(r.com)}</td>
        ${inp("inc")}
        <td class="cp">${fmt(r.perHead)}</td>
@@ -1580,9 +1580,9 @@ function refreshLeadComputed(){
   $("leadbody").querySelectorAll("tr[data-sup]").forEach(tr=>{
     const r = leadRowCalc(tr.dataset.sup);
     const tds = tr.querySelectorAll("td");
-    tds[4].textContent = r.d.target ? r.ach.toFixed(1)+"%" : "—";
+    tds[4].textContent = r.d.target ? fmt(+r.ach.toFixed(1)) : "—";
     tds[4].className = "cp "+(r.ach>=100?'pos':(r.d.target&&r.ach<80?'neg':''));
-    tds[5].textContent = (r.pct||0)+"%";
+    tds[5].textContent = (r.pct||0);
     tds[6].textContent = fmt(r.com); tds[6].className = "cp "+(r.com?'pos':'');
     tds[10].innerHTML = `<strong>${fmt(r.takeHome)}</strong>`;
   });
@@ -1769,7 +1769,7 @@ function renderKPI(){
        <td>${r.avgTalk?r.avgTalk.toFixed(0):"—"}</td>
        <td>${r.avgTT?r.avgTT.toFixed(0):"—"}</td>
        <td>${fmt(r.net)}</td>
-       <td class="${r.retFail?'neg':''}">${r.net>0?r.retPct.toFixed(1)+"%":"—"}</td>
+       <td class="${r.retFail?'neg':''}">${r.net>0?fmt(+r.retPct.toFixed(1)):"—"}</td>
        <td class="l">${r.show==="—"?"—":`<span class="flag ${stCls||'y'}" style="${r.showLvl==='ผ่าน'?'background:var(--money-soft);color:var(--money)':''}">${esc(r.show)}</span>`}</td>
        <td class="l"><select data-kcode="${esc(e.code)}" data-kf="ov" style="width:110px" ${KL}>
          ${["","ผ่าน","ตักเตือน","ใบเตือน","ยกเว้น"].map(o=>`<option value="${o}" ${k.ov===o?"selected":""}>${o||"อัตโนมัติ"}</option>`).join("")}
@@ -1851,7 +1851,7 @@ function refreshKPIRow(tr, code){
   tds[10].textContent = r.avgTalk?r.avgTalk.toFixed(0):"—";
   tds[11].textContent = r.avgTT?r.avgTT.toFixed(0):"—";
   tds[12].textContent = fmt(r.net);
-  tds[13].textContent = r.net>0?r.retPct.toFixed(1)+"%":"—";
+  tds[13].textContent = r.net>0?fmt(+r.retPct.toFixed(1)):"—";
   tds[13].className = r.retFail?"neg":"";
   const stCls = r.showLvl==="ใบเตือน"?"r":(r.showLvl==="ตักเตือน"?"y":"");
   tds[14].innerHTML = r.show==="—"?"—":`<span class="flag ${stCls||'y'}" style="${r.showLvl==='ผ่าน'?'background:var(--money-soft);color:var(--money)':''}">${esc(r.show)}</span>`;
@@ -1969,7 +1969,7 @@ function renderComm(){
          <td class="lk ${kd.ded?'neg':''}" title="${esc(kd.why)}">${kd.ded?'−'+fmt(kd.ded):'0'}</td>
          ${inp("minc")}
          <td class="cp">${fmt(r.net)}</td>
-         <td class="cp ${r.commission?'pos':''}">${r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct}%)</span>`:"0"}</td>
+         <td class="cp ${r.commission?'pos':''}">${r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct})</span>`:"0"}</td>
          <td class="cp ${r.ontime?'pos':''}">${fmt(r.ontime)}</td>
          <td class="cp ${r.travel?'pos':''}">${fmt(r.travel)}</td>
          <td class="cp ${r.incentive>=0?'pos':'neg'}">${fmt(r.incentive)}</td>
@@ -2028,7 +2028,7 @@ function refreshCommComputed(){
     tds[13+nCh].textContent = kd.ded?'−'+fmt(kd.ded):'0'; tds[13+nCh].className = kd.ded?'lk neg':'lk'; tds[13+nCh].title = kd.why;
     const base = 15 + nCh; // ลำดับ+ทีม+ตำแหน่ง+ชื่อ+รหัส+สาขา 6 + ช่องกรอก/ลิงก์ 9 + ช่องทางขาย
     tds[base].textContent = fmt(r.net);
-    tds[base+1].innerHTML = r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct}%)</span>`:"0";
+    tds[base+1].innerHTML = r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct})</span>`:"0";
     tds[base+1].className = r.commission?'pos':'';
     tds[base+2].textContent = fmt(r.ontime); tds[base+2].className = r.ontime?'pos':'';
     tds[base+3].textContent = fmt(r.travel); tds[base+3].className = r.travel?'pos':'';
@@ -2142,7 +2142,7 @@ $("c-export").addEventListener("click",()=>{
     const row = [o.seq, o.team||"", e.pos||"", (e.name||"")+(e.nick?` (${e.nick})`:""), e.code, e.branch||"",
       num(d.crm)||0, num(d.ref)||0, ...CHANNELS().map(c=>num((d.ch||{})[c.name])||0),
       num(d.sub690)||0, att.leave, att.late, num(d.ret)||0, num(d.bonus)||0, kd.ded?-kd.ded:0, num(d.minc)||0,
-      r.net, r.commission.toFixed(2)+(r.pct?` (${r.pct}%)`:""), r.ontime, r.travel, r.incentive.toFixed(2)];
+      r.net, r.commission.toFixed(2)+(r.pct?` (${r.pct})`:""), r.ontime, r.travel, r.incentive.toFixed(2)];
     if(IS_ADMIN) row.push(r.salaryNet.toFixed(2), r.grand.toFixed(2));
     out.push(row);
   }
@@ -3176,13 +3176,13 @@ function renderMDPay(){
   const diff=total-prevTotal;
   const pendChk=rows.filter(o=>o.f.length>0 && !(MD_ST.checked&&MD_ST.checked[o.x.e.code])).length;
   $("apcards").innerHTML=`
-    <div class="stat"><div class="k">ยอดจ่ายรวม (ตามฟิลเตอร์)</div><div class="v">${fmt(total)} ฿</div>
+    <div class="stat"><div class="k">ยอดจ่ายรวม (ตามฟิลเตอร์)</div><div class="v">${fmt(total)}</div>
       <div class="d">${prevTotal?("เทียบรอบก่อน "+(diff>=0?"▲ +":"▼ −")+fmt(Math.abs(diff))+" ฿"):"ยังไม่มีข้อมูลรอบก่อน"}</div></div>
     <div class="stat"><div class="k">จำนวนพนักงาน</div><div class="v">${rows.length} คน</div><div class="d">กลุ่ม 1/2/3: ${rows.filter(o=>o.x.group===1).length}/${rows.filter(o=>o.x.group===2).length}/${rows.filter(o=>o.x.group===3).length}</div></div>
-    <div class="stat"><div class="k">กลุ่ม 1 ทดลอง/รายวัน</div><div class="v">${fmt(gsum(1))} ฿</div></div>
-    <div class="stat"><div class="k">กลุ่ม 2 ออกระหว่างรอบ</div><div class="v red">${fmt(gsum(2))} ฿</div></div>
-    <div class="stat"><div class="k">กลุ่ม 3 ประจำ</div><div class="v">${fmt(gsum(3))} ฿</div></div>
-    <div class="stat"><div class="k">ยอดหักรวม (หักอื่น ๆ + สวัสดิการ)</div><div class="v red">−${fmt(ded)} ฿</div></div>
+    <div class="stat"><div class="k">กลุ่ม 1 ทดลอง/รายวัน</div><div class="v">${fmt(gsum(1))}</div></div>
+    <div class="stat"><div class="k">กลุ่ม 2 ออกระหว่างรอบ</div><div class="v red">${fmt(gsum(2))}</div></div>
+    <div class="stat"><div class="k">กลุ่ม 3 ประจำ</div><div class="v">${fmt(gsum(3))}</div></div>
+    <div class="stat"><div class="k">ยอดหักรวม (หักอื่น ๆ + สวัสดิการ)</div><div class="v red">−${fmt(ded)}</div></div>
     <div class="stat"><div class="k">ป้ายเตือนรอตรวจ</div><div class="v ${pendChk?'red':''}">${pendChk} รายการ</div><div class="d">${pendChk?"ติ๊ก \u201cตรวจสอบแล้ว\u201d ท้ายแถวเมื่อเช็กเรียบร้อย":"ตรวจครบแล้ว ✓"}</div></div>`;
   const ul=$("md-alerts"); ul.innerHTML="";
   let n=0;
@@ -3338,8 +3338,8 @@ function renderCommApprove(){
   }
   $("ca-cards").innerHTML = `
     <div class="stat"><div class="k">พนักงานในงวด</div><div class="v">${n} คน</div></div>
-    <div class="stat"><div class="k">รวม Incentive</div><div class="v">${fmt(inc)} ฿</div></div>
-    <div class="stat"><div class="k">รวมรับ (Incentive+เงินเดือน)</div><div class="v">${fmt(grand)} ฿</div></div>
+    <div class="stat"><div class="k">รวม Incentive</div><div class="v">${fmt(inc)}</div></div>
+    <div class="stat"><div class="k">รวมรับ (Incentive+เงินเดือน)</div><div class="v">${fmt(grand)}</div></div>
     <div class="stat"><div class="k">การตรวจของแอดมิน (ขั้นที่ 1)</div><div class="v" style="font-size:1rem">${a.reviewed||a.locked?"✅ ตรวจแล้ว":"⏳ ยังไม่ตรวจ"}</div><div class="d">${a.reviewed?(a.reviewedAt||""):"กดได้ที่ท้ายหน้าคำนวณค่าคอม"}</div></div>
     <div class="stat"><div class="k">อนุมัติครั้งสุดท้าย (ขั้นที่ 2)</div><div class="v" style="font-size:1rem">${a.locked?"🔒 อนุมัติแล้ว":"ยังไม่อนุมัติ"}</div><div class="d">${a.locked?(a.at||""):(a.rejectNote?("↩ ส่งกลับ: "+esc(a.rejectNote)):"")}</div></div>`;
   $("btn-capprove").hidden = !!a.locked;
