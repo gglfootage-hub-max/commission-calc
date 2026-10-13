@@ -654,6 +654,11 @@ table.sum td.l,table.sum th.l{text-align:left}
 
 <!-- ================= ประวัติ ================= -->
 <section class="panel" id="p-hist">
+  <div class="card" style="margin-bottom:1rem;border-left:4px solid var(--money)">
+    <h2>ถังขยะ — รายการที่ล้าง / ย้าย (กู้คืนได้) <small>ระบบเก็บสำเนาอัตโนมัติก่อนล้างยอด ย้ายเดือน ล้าง Manday · เก็บไว้ 30 รายการล่าสุด ซิงก์ทุกเครื่อง</small></h2>
+    <ul class="hist" id="trashlist"></ul>
+    <p class="hint" id="trash-empty" style="margin:0">ยังไม่มีรายการ</p>
+  </div>
   <div class="card">
     <h2>ประวัติการแก้ไขข้อมูลพนักงาน <small>ปรับเงินเดือน เข้า-ออก และการแก้ไขทุกช่อง</small></h2>
     <div class="frow" style="max-width:420px">
@@ -1951,7 +1956,7 @@ function commRows(){
 function commColLabels(){
   return ["ลำดับ","ทีม","ตำแหน่ง","ชื่อ-นามสกุล","รหัส","สาขา","CRM","แนะนำ",...CHANNELS().map(c=>c.name),
     "หัก690","ลา","สาย","ตีกลับ","โบนัส/อื่น","หัก KPI","Incentive/เดือน",
-    "ยอดสุทธิ","ค่าคอม %","Ontime","เดินทาง","Incentive","เงินเดือน","รวมรับ"];
+    "ยอดสุทธิ","% ค่าคอม","ค่าคอม","Ontime","เดินทาง","Incentive","เงินเดือน","รวมรับ"];
 }
 function renderComm(){
   buildCommHead();
@@ -1982,7 +1987,8 @@ function renderComm(){
          <td class="lk ${kd.ded?'neg':''}" title="${esc(kd.why)}">${kd.ded?'−'+fmt(kd.ded):'0'}</td>
          ${inp("minc")}
          <td class="cp">${fmt(r.net)}</td>
-         <td class="cp ${r.commission?'pos':''}">${r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct})</span>`:"0"}</td>
+         <td class="cp" style="color:var(--muted)">${r.pct||0}</td>
+         <td class="cp ${r.commission?'pos':''}">${fmt(r.commission)}</td>
          <td class="cp ${r.ontime?'pos':''}">${fmt(r.ontime)}</td>
          <td class="cp ${r.travel?'pos':''}">${fmt(r.travel)}</td>
          <td class="cp ${r.incentive>=0?'pos':'neg'}">${fmt(r.incentive)}</td>
@@ -2007,20 +2013,20 @@ function buildCommHead(){
     <th class="g-in" colspan="2">🟩 กรอก</th>
     <th class="g-lk">🔗 KPI</th>
     <th class="g-in">🟩 กรอก</th>
-    <th class="g-cp" colspan="5">🧮 ระบบคำนวณให้อัตโนมัติ</th>
+    <th class="g-cp" colspan="6">🧮 ระบบคำนวณให้อัตโนมัติ</th>
     <th class="g-cp g-sal" colspan="2">🧮 เงินเดือน</th>
   </tr>`;
   $("commhead").innerHTML = ghead + `<tr>
     <th>ลำดับ</th><th>ทีม</th><th>ตำแหน่ง</th><th class="l">ชื่อ-นามสกุล</th><th class="l">รหัส</th><th class="l">สาขา</th>
     <th>CRM</th><th>แนะนำ</th>${chs}<th>หัก690</th><th title="ลิงก์จาก Manday อัตโนมัติ">ลา 🔗</th><th title="ลิงก์จาก Manday อัตโนมัติ">สาย 🔗</th><th>ตีกลับ</th><th>โบนัส/อื่น</th><th title="หักอัตโนมัติเมื่อ KPI ไม่ผ่าน">หัก KPI 🔗</th><th>Incentive/เดือน</th>
-    <th>ยอดสุทธิ</th><th>ค่าคอม %</th><th>Ontime</th><th>เดินทาง</th><th>Incentive</th><th>เงินเดือน</th><th>รวมรับ</th>
+    <th>ยอดสุทธิ</th><th title="% ตามเทียร์ของตำแหน่ง (CRM / Sales Admin / Upsell)">% ค่าคอม</th><th>ค่าคอม</th><th>Ontime</th><th>เดินทาง</th><th>Incentive</th><th>เงินเดือน</th><th>รวมรับ</th>
   </tr>`;
-  $("commtable").style.minWidth = (1720 + CHANNELS().length*90) + "px";
+  $("commtable").style.minWidth = (1790 + CHANNELS().length*90) + "px";
 }
 function commFoot(sum, n){
   $("commfoot").innerHTML =
     `<td class="l" colspan="6">รวม ${n} คน</td><td colspan="${9+CHANNELS().length}"></td>
-     <td>${fmt(sum.net)}</td><td>${fmt(sum.commission)}</td><td>${fmt(sum.ontime)}</td><td>${fmt(sum.travel)}</td>
+     <td>${fmt(sum.net)}</td><td></td><td>${fmt(sum.commission)}</td><td>${fmt(sum.ontime)}</td><td>${fmt(sum.travel)}</td>
      <td>${fmt(sum.incentive)}</td><td>${fmt(sum.salaryNet)}</td><td>${fmt(sum.grand)}</td>`;
 }
 function refreshCommComputed(){
@@ -2041,13 +2047,13 @@ function refreshCommComputed(){
     tds[13+nCh].textContent = kd.ded?'−'+fmt(kd.ded):'0'; tds[13+nCh].className = kd.ded?'lk neg':'lk'; tds[13+nCh].title = kd.why;
     const base = 15 + nCh; // ลำดับ+ทีม+ตำแหน่ง+ชื่อ+รหัส+สาขา 6 + ช่องกรอก/ลิงก์ 9 + ช่องทางขาย
     tds[base].textContent = fmt(r.net);
-    tds[base+1].innerHTML = r.pct?fmt(r.commission)+` <span style="color:var(--muted);font-size:.72rem">(${r.pct})</span>`:"0";
-    tds[base+1].className = r.commission?'pos':'';
-    tds[base+2].textContent = fmt(r.ontime); tds[base+2].className = r.ontime?'pos':'';
-    tds[base+3].textContent = fmt(r.travel); tds[base+3].className = r.travel?'pos':'';
-    tds[base+4].textContent = fmt(r.incentive); tds[base+4].className = r.incentive>=0?'pos':'neg';
-    tds[base+5].textContent = fmt(r.salaryNet);
-    tds[base+6].innerHTML = `<strong>${fmt(r.grand)}</strong>`;
+    tds[base+1].textContent = r.pct||0;
+    tds[base+2].textContent = fmt(r.commission); tds[base+2].className = "cp "+(r.commission?'pos':'');
+    tds[base+3].textContent = fmt(r.ontime); tds[base+3].className = "cp "+(r.ontime?'pos':'');
+    tds[base+4].textContent = fmt(r.travel); tds[base+4].className = "cp "+(r.travel?'pos':'');
+    tds[base+5].textContent = fmt(r.incentive); tds[base+5].className = "cp "+(r.incentive>=0?'pos':'neg');
+    tds[base+6].textContent = fmt(r.salaryNet);
+    tds[base+7].innerHTML = `<strong>${fmt(r.grand)}</strong>`;
     sum.net+=r.net; sum.commission+=r.commission; sum.ontime+=r.ontime; sum.travel+=r.travel;
     sum.incentive+=r.incentive; sum.salaryNet+=r.salaryNet; sum.grand+=r.grand;
   });
@@ -2155,14 +2161,14 @@ $("c-export").addEventListener("click",()=>{
     const row = [o.seq, o.team||"", e.pos||"", (e.name||"")+(e.nick?` (${e.nick})`:""), e.code, e.branch||"",
       num(d.crm)||0, num(d.ref)||0, ...CHANNELS().map(c=>num((d.ch||{})[c.name])||0),
       num(d.sub690)||0, att.leave, att.late, num(d.ret)||0, num(d.bonus)||0, kd.ded?-kd.ded:0, num(d.minc)||0,
-      r.net, r.commission.toFixed(2)+(r.pct?` (${r.pct})`:""), r.ontime, r.travel, r.incentive.toFixed(2)];
+      r.net, r.pct||0, r.commission.toFixed(2), r.ontime, r.travel, r.incentive.toFixed(2)];
     if(IS_ADMIN) row.push(r.salaryNet.toFixed(2), r.grand.toFixed(2));
     out.push(row);
   }
   // แถวรวมท้ายตาราง (เหมือนบนจอ)
   const nCh = CHANNELS().length;
   const tot = ["รวม "+n+" คน","","","","","", ...Array(2+nCh+7).fill(""),
-    sum.net, sum.commission.toFixed(2), sum.ontime, sum.travel, sum.incentive.toFixed(2)];
+    sum.net, "", sum.commission.toFixed(2), sum.ontime, sum.travel, sum.incentive.toFixed(2)];
   if(IS_ADMIN) tot.push(sum.salaryNet.toFixed(2), sum.grand.toFixed(2));
   out.push(tot);
   const csv = "\uFEFF"+[head,...out].map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
@@ -2171,6 +2177,61 @@ $("c-export").addEventListener("click",()=>{
   a.download = `commission-${ym()}.csv`;
   a.click(); URL.revokeObjectURL(a.href);
 });
+/* ---------- ถังขยะ: เก็บสำเนาก่อนทำรายการที่ลบข้อมูล แล้วกู้คืนได้ ---------- */
+let TRASH = []; // [{id, ts, ts2, by, action, kind:'month'|'manday', ym, data}]
+let trashUnsub = null;
+async function trashSnapshot(action, kind, ymv, data){
+  const item = {id:String(Date.now()), ts:nowTH(), ts2:Date.now(), by:EDITOR()||"", action, kind, ym:ymv, data:JSON.parse(JSON.stringify(data||{}))};
+  try{
+    if(CLOUD && AUTHED) await fdb.collection("trash").doc(item.id).set(item);
+    else { TRASH.unshift(item); TRASH = TRASH.slice(0,30); lsSet("uo-trash", JSON.stringify(TRASH)); renderTrash(); }
+  }catch(e){ cloudErr(e); }
+  DB.hist.unshift({ts:item.ts, ts2:item.ts2, by:item.by, code:"—", nick:"ทั้งงวด", action:action+" "+ymv+" (กู้คืนได้ที่ถังขยะด้านบน)", changes:[]});
+  saveDB(); if(typeof renderHist==="function") renderHist();
+}
+function subscribeTrash(){
+  if(CLOUD && AUTHED){
+    if(trashUnsub) trashUnsub();
+    trashUnsub = fdb.collection("trash").orderBy("ts2","desc").limit(30).onSnapshot(sn=>{ TRASH = sn.docs.map(d=>d.data()); renderTrash(); }, e=>{ cloudErr(e); });
+  }else{
+    try{ TRASH = JSON.parse(lsGet("uo-trash")||"[]"); }catch(e){ TRASH=[]; }
+    renderTrash();
+  }
+}
+function renderTrash(){
+  const ul=$("trashlist"); if(!ul) return;
+  ul.innerHTML="";
+  $("trash-empty").hidden = TRASH.length>0;
+  const label=v=>{ try{ return new Date(v+"-01").toLocaleDateString("th-TH",{month:"long",year:"numeric"}); }catch(e){ return v; } };
+  TRASH.forEach((t,i)=>{
+    const n = t.kind==="manday" ? Object.keys((t.data&&t.data.grid)||{}).length : Object.keys(t.data||{}).filter(k=>!k.startsWith("__")).length;
+    ul.insertAdjacentHTML("beforeend",
+      `<li><span class="t">${esc(t.ts)}</span> · <strong>${esc(t.action)}</strong> — ${t.kind==="manday"?"ตารางลงเวลา รอบ":"ยอดค่าคอม/KPI/หัวหน้า งวด"} ${esc(label(t.ym))} (${n} คน)${t.by?` · โดย คุณ${esc(t.by)}`:""}
+       <br><button type="button" class="h-undo" data-trash="${i}">↩ กู้คืนข้อมูลชุดนี้ (ใส่ PIN)</button></li>`);
+  });
+}
+$("trashlist").addEventListener("click", async e=>{
+  const b=e.target.closest("[data-trash]"); if(!b) return;
+  const t=TRASH[Number(b.dataset.trash)]; if(!t) return;
+  const label=v=>new Date(v+"-01").toLocaleDateString("th-TH",{month:"long",year:"numeric"});
+  if(!confirm(`กู้คืน "${t.action}" ของ ${label(t.ym)}?\nข้อมูลปัจจุบันของ${t.kind==="manday"?"รอบ":"งวด"}นั้นจะถูกแทนที่ด้วยสำเนาที่เก็บไว้`)) return;
+  if(!askPin("ยืนยันกู้คืนข้อมูล "+label(t.ym))) return;
+  try{
+    if(t.kind==="manday"){
+      const cur = await readMdDoc(t.ym);
+      await trashSnapshot("ก่อนกู้คืน (สำรองค่าปัจจุบัน)", "manday", t.ym, cur);
+      await writeMdDoc(t.ym, Object.assign(mdBlank(), t.data));
+      if(mdYm()===t.ym) subscribeMD();
+    }else{
+      const cur = await readMonthDoc(t.ym);
+      await trashSnapshot("ก่อนกู้คืน (สำรองค่าปัจจุบัน)", "month", t.ym, cur);
+      await writeMonthDoc(t.ym, t.data);
+      if(ym()===t.ym){ if(CLOUD && AUTHED) subscribeMonth(); else { M = JSON.parse(JSON.stringify(t.data)); renderComm(); } }
+    }
+    alert("กู้คืนแล้ว ✓ เปิดงวด "+label(t.ym)+" เพื่อตรวจ");
+  }catch(err){ cloudErr(err); alert("กู้คืนไม่สำเร็จ: "+(err&&err.message||err)); }
+});
+
 /* ---------- ย้าย/คัดลอกข้อมูลงวดเดือน (กรอกผิดเดือน) ---------- */
 async function readMonthDoc(ymv){
   if(CLOUD && AUTHED){ const sn=await MONTHDOC(ymv).get(); return sn.exists ? (sn.data()||{}) : {}; }
@@ -2202,6 +2263,8 @@ $("btn-mvmonth").addEventListener("click", async ()=>{
     else merged[k]=JSON.parse(JSON.stringify(M[k]));
   }
   try{
+    await trashSnapshot((mode==="move"?"ย้าย":"คัดลอก")+"ไปเดือน "+dst+" (สำเนาปลายทางก่อนทับ)", "month", dst, dstData);
+    if(mode==="move") await trashSnapshot("ย้ายออกไปเดือน "+dst, "month", src, M);
     await writeMonthDoc(dst, merged);
     if(mode==="move"){
       M={}; writeWholeMonth();
@@ -2212,7 +2275,8 @@ $("btn-mvmonth").addEventListener("click", async ()=>{
 });
 $("c-clear").addEventListener("click",()=>{
   if(M.__approve && (M.__approve.locked || M.__approve.reviewed)) return alert("งวดนี้ถูกล็อกแล้ว — ยกเลิกการตรวจ/ปลดล็อกก่อน");
-  if(!askPin("ล้างยอดทุกคนของเดือนนี้ (มีผลกับทุกเครื่องในทีม)")) return;
+  if(!askPin("ล้างยอดทุกคนของเดือนนี้ (มีผลกับทุกเครื่องในทีม) — ระบบเก็บสำเนาไว้ในถังขยะ กู้คืนได้ที่แท็บประวัติ")) return;
+  trashSnapshot("ล้างยอดเดือน", "month", ym(), M);
   M = {}; writeWholeMonth(); renderComm();
 });
 
@@ -2904,6 +2968,7 @@ async function cloudStart(){
   }, cloudErr));
   subscribeMonth();
   subscribeMD();
+  subscribeTrash();
   setSync(true, "ซิงก์ทีมแบบเรียลไทม์");
 }
 function cloudStop(){
@@ -3455,6 +3520,7 @@ $("btn-mdmv").addEventListener("click", async ()=>{
   }
   for(const k of ["inc","ded","mlPaid","checked"]){ dstSt[k]=Object.assign({}, dstSt[k]||{}, MD_ST[k]||{}); }
   try{
+    if(mode==="move") await trashSnapshot("ย้ายตารางลงเวลาไปรอบ "+dst, "manday", src, MD_ST);
     await writeMdDoc(dst, dstSt);
     if(mode==="move"){ MD_ST=Object.assign(mdBlank(), {}); mdSave(true); }
     msg.textContent=`✅ ${mode==="move"?"ย้าย":"คัดลอก"}แล้ว ${codes.length} คน → รอบ ${label(dst)}${skipped?` (ข้าม ${skipped} ช่องที่วันที่ไม่มีในเดือนปลายทาง)`:""}`;
@@ -3465,7 +3531,8 @@ $("btn-mdclear").addEventListener("click",()=>{
   if(MD_ST.locked) return alert("รอบนี้อนุมัติแล้ว — ปลดล็อกก่อน");
   const n=Object.keys(MD_ST.grid||{}).filter(c=>Object.keys(MD_ST.grid[c]||{}).length).length;
   if(!n) return alert("รอบนี้ยังไม่มีการลงเวลา");
-  if(!askPin(`ล้างตารางลงเวลาของรอบ ${mdCycleLabel()} ทั้งหมด (${n} คน) — กู้คืนไม่ได้`)) return;
+  if(!askPin(`ล้างตารางลงเวลาของรอบ ${mdCycleLabel()} ทั้งหมด (${n} คน) — ระบบเก็บสำเนาไว้ในถังขยะ กู้คืนได้ที่แท็บประวัติ`)) return;
+  trashSnapshot("ล้างตารางลงเวลา", "manday", mdYm(), MD_ST);
   MD_ST=mdBlank(); mdSave(true); renderMD();
   $("mdmv-msg").textContent="✅ ล้างรอบนี้แล้ว";
 });
@@ -3635,6 +3702,7 @@ $("editor-chip").addEventListener("click",()=>ensureEditor(true));
   fillKpiCriteria();
   renderEmp(); renderComm(); renderHist(); renderLead(); renderKPI();
   renderBell();
+  subscribeTrash();
   function onMonthChange(){
     syncMonthMirrors();
     if(CLOUD && AUTHED) subscribeMonth();
