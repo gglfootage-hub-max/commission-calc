@@ -813,6 +813,15 @@ table.sum td.l,table.sum th.l{text-align:left}
   </div>
 
   <div class="card" style="margin-bottom:1rem">
+    <h2>เทียร์ % ค่าคอม Upsell <small>ใช้กับพนักงานแผนก/ตำแหน่ง Upsell (ค่าเริ่มต้น 3% ทุกยอด)</small></h2>
+    <table class="tiers">
+      <thead><tr><th>ยอดสุทธิตั้งแต่ (บาท)</th><th>ค่าคอม (%)</th><th></th></tr></thead>
+      <tbody id="uptierbody"></tbody>
+    </table>
+    <div class="btnrow"><button class="ghost" id="btn-adduptier">เพิ่มเทียร์</button></div>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem">
     <h2>ช่องทางยอดขายเพิ่มเติม <small>โผล่เป็นช่องกรอกในหน้าคำนวณค่าคอม · รวมเข้ายอดสุทธิอัตโนมัติ (CRM + แนะนำ + ช่องทางเหล่านี้ − หัก690)</small></h2>
     <table class="tiers" style="max-width:460px">
       <thead><tr><th class="l">ชื่อช่องทาง</th><th></th></tr></thead>
@@ -1184,6 +1193,7 @@ function applyAdminUI(){
 const DEFAULTS = {
   commTiers:[{min:0,pct:0},{min:100000,pct:0},{min:300000,pct:0}],
   commTiersSA:[{min:0,pct:0}],
+  commTiersUP:[{min:0,pct:3}],
   leadTiers:[{ach:80,pct:0.6},{ach:100,pct:1},{ach:120,pct:1.5}],
   tiers:[{min:600000,pay:4500},{min:350000,pay:4000},{min:300000,pay:3500},{min:250000,pay:2500},{min:130000,pay:1500},{min:100000,pay:1000}],
   qtiers:[], qPay:"quarter", pin:"1234", mdDivisor:30,
@@ -1347,9 +1357,12 @@ function asOfDate(){
 function nowTH(){ return new Date().toLocaleString("th-TH",{dateStyle:"medium",timeStyle:"short"}); }
 
 /* ---------- core calc ---------- */
-const grpOf = e => /sales\s*admin/i.test(String((e&&e.dept)||"") + " " + String((e&&e.pos)||"")) ? "sa" : "crm";
+const grpOf = e => { const t=String((e&&e.dept)||"")+" "+String((e&&e.pos)||"");
+  if(/sales\s*admin/i.test(t)) return "sa";
+  if(/up\s*-?\s*sell|อัพเซล|อัปเซล/i.test(t)) return "up";
+  return "crm"; };
 function commPct(net, grp){
-  const tiers = grp==="sa" ? (S.commTiersSA||[]) : S.commTiers;
+  const tiers = grp==="sa" ? (S.commTiersSA||[]) : grp==="up" ? (S.commTiersUP||[{min:0,pct:3}]) : S.commTiers;
   let pct = 0;
   for(const t of [...tiers].sort((x,y)=>y.min-x.min)){ if(net >= t.min){ pct = t.pct; break; } }
   return pct;
@@ -2721,6 +2734,8 @@ function fillSettings(){
   [...(S.qtiers||[])].sort((a,b)=>b.min-a.min).forEach(t=>tierRow("qtierbody", t.min, t.pay, "q-min","q-pay"));
   $("satierbody").innerHTML="";
   [...(S.commTiersSA||[])].sort((a,b)=>a.min-b.min).forEach(t=>tierRow("satierbody", t.min, t.pct, "sa-min","sa-pct"));
+  $("uptierbody").innerHTML="";
+  [...(S.commTiersUP||[{min:0,pct:3}])].sort((a,b)=>a.min-b.min).forEach(t=>tierRow("uptierbody", t.min, t.pct, "up-min","up-pct"));
   $("leadachbody").innerHTML="";
   [...(S.leadTiers||[])].sort((a,b)=>a.ach-b.ach).forEach(t=>tierRow("leadachbody", t.ach, t.pct, "la-ach","la-pct"));
   $("s-qpay").value = S.qPay || "quarter";
@@ -2754,6 +2769,7 @@ $("btn-addpos").addEventListener("click",()=>listRow("posbody","ps-name",""));
 $("btn-addbr").addEventListener("click",()=>listRow("brbody","br-name",""));
 $("btn-addhol").addEventListener("click",()=>holRow("",""));
 $("btn-addsatier").addEventListener("click",()=>tierRow("satierbody",0,0,"sa-min","sa-pct"));
+$("btn-adduptier").addEventListener("click",()=>tierRow("uptierbody",0,0,"up-min","up-pct"));
 $("btn-addleadtier").addEventListener("click",()=>tierRow("leadachbody",0,0,"la-ach","la-pct"));
 $("btn-leadsave").addEventListener("click",()=>{
   S.leadTiers=[...document.querySelectorAll("#leadachbody tr")].map(tr=>({
@@ -2770,6 +2786,9 @@ $("btn-save").addEventListener("click",()=>{
     min:num(tr.querySelector(".q-min").value), pay:num(tr.querySelector(".q-pay").value)})).filter(t=>t.pay>0||t.min>0);
   S.commTiersSA=[...document.querySelectorAll("#satierbody tr")].map(tr=>({
     min:num(tr.querySelector(".sa-min").value), pct:num(tr.querySelector(".sa-pct").value)}));
+  S.commTiersUP=[...document.querySelectorAll("#uptierbody tr")].map(tr=>({
+    min:num(tr.querySelector(".up-min").value), pct:num(tr.querySelector(".up-pct").value)}));
+  if(!S.commTiersUP.length) S.commTiersUP=[{min:0,pct:3}];
   S.qPay=$("s-qpay").value;
   S.pin=String($("s-pin").value||"1234").trim() || "1234";
   S.channels=[...document.querySelectorAll("#chbody .ch-name")].map(i=>({name:i.value.trim()})).filter(c=>c.name);
