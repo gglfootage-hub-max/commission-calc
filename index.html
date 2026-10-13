@@ -129,6 +129,11 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 table.team input.narrow{width:52px}
 table.team tr.rowhl:hover td{background:#F7FAF6;cursor:pointer}
 
+table.sortable thead tr:not(.ghead) th{cursor:pointer;user-select:none;white-space:nowrap}
+table.sortable thead tr:not(.ghead) th:not(.bulk)::after{content:" ⇅";font-size:.7em;opacity:.28}
+table.sortable thead tr:not(.ghead) th:hover::after{opacity:.7}
+table.sortable thead th.sort-asc::after{content:" ▲";opacity:1;color:var(--money)}
+table.sortable thead th.sort-desc::after{content:" ▼";opacity:1;color:var(--money)}
 .badge{display:inline-block;font-size:.72rem;font-weight:600;padding:.1rem .5rem;border-radius:999px}
 .badge.on{background:var(--money-soft);color:var(--money)}
 .badge.off{background:var(--deduct-soft);color:var(--deduct)}
@@ -989,11 +994,12 @@ const FIREBASE_CONFIG = {
 const $ = id => document.getElementById(id);
 const fmt = n => (isFinite(n)?n:0).toLocaleString("th-TH",{maximumFractionDigits:2});
 const num = v => { const n = parseFloat(String(v??"").replace(/[, ]/g,"")); return isFinite(n)?n:0; };
-const fmt2 = n => (isFinite(n)?n:0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}); // ช่องกรอกตัวเลข: ทศนิยม 2 ตำแหน่งอัตโนมัติ
+const fmt2 = n => (isFinite(n)?n:0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtIn = n => num(n) ? fmt2(num(n)) : ""; // ช่องกรอกตัวเลข: ว่างเมื่อเป็น 0 · มีค่าแล้วใส่ทศนิยม 2 ตำแหน่ง
 /* ช่องกรอกตัวเลขแบบพิมพ์อย่างเดียว (ไม่มีลูกศร) · คลิกแล้วเลือกทั้งหมด · ออกจากช่องแล้วจัดทศนิยมให้ */
 function numInputBehavior(container){
   container.addEventListener("focusin",e=>{ const t=e.target; if(t.matches && t.matches("input[data-num]")){ setTimeout(()=>{ try{ t.select(); }catch(x){} },0); } });
-  container.addEventListener("focusout",e=>{ const t=e.target; if(t.matches && t.matches("input[data-num]")){ t.value = fmt2(num(t.value)); } });
+  container.addEventListener("focusout",e=>{ const t=e.target; if(t.matches && t.matches("input[data-num]")){ t.value = fmtIn(t.value); } });
 }
 const esc = s => String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
 
@@ -1424,8 +1430,8 @@ function applyRemoteMonth(data){
   if(active && active.closest && active.closest("#commtable")){
     $("commbody").querySelectorAll("input").forEach(inp=>{
       if(inp===active) return;
-      if(inp.dataset.f==="ch") inp.value = fmt2(num((rowData(inp.dataset.code).ch||{})[inp.dataset.chn])||0);
-      else inp.value = fmt2(rowData(inp.dataset.code)[inp.dataset.f]||0);
+      if(inp.dataset.f==="ch") inp.value = fmtIn((rowData(inp.dataset.code).ch||{})[inp.dataset.chn]);
+      else inp.value = fmtIn(rowData(inp.dataset.code)[inp.dataset.f]);
     });
     refreshCommComputed();
   }else renderComm();
@@ -1548,7 +1554,7 @@ function renderLead(){
   for(const name of names){
     const r = leadRowCalc(name);
     sum.net += r.net; sum.com += r.com; sum.inc += r.d.inc; sum.take += r.takeHome;
-    const inp = f => `<td class="in"><input type="text" inputmode="decimal" data-num="1" data-sup="${esc(name)}" data-lf="${f}" value="${fmt2(r.d[f]||0)}" ${(M.__approve&&(M.__approve.locked||M.__approve.reviewed))?'disabled':''}></td>`;
+    const inp = f => `<td class="in"><input type="text" inputmode="decimal" data-num="1" data-sup="${esc(name)}" data-lf="${f}" placeholder="0" value="${fmtIn(r.d[f])}" ${(M.__approve&&(M.__approve.locked||M.__approve.reviewed))?'disabled':''}></td>`;
     const leEmp = DB.emp.find(z=>isWorking(z)&&z.nick===name);
     tb.insertAdjacentHTML("beforeend",
       `<tr data-sup="${esc(name)}"><td class="l"><span class="mainname" title="${esc(leEmp?leEmp.name:name)}">${esc(leEmp?leEmp.name:name)}</span><span class="subname">${esc(name)}</span></td>
@@ -1568,6 +1574,7 @@ function renderLead(){
        <td>${fmt(sum.net)}</td><td></td><td></td><td>${fmt(sum.com)}</td><td>${fmt(sum.inc)}</td>
        <td></td><td></td><td>${fmt(sum.take)}</td>` : "";
   if(!names.length) tb.innerHTML = `<tr><td class="l" colspan="11">ยังไม่มีการระบุ "หัวหน้า" ให้พนักงาน — เข้าแท็บพนักงาน คลิกแถวลูกทีม แล้วกรอกช่องหัวหน้าเป็นชื่อเล่นของหัวหน้าทีม</td></tr>`;
+  if(typeof applySort==="function") applySort("leadtable");
 }
 function refreshLeadComputed(){
   $("leadbody").querySelectorAll("tr[data-sup]").forEach(tr=>{
@@ -1772,6 +1779,7 @@ function renderKPI(){
   $("kpi-summary").innerHTML =
     `แสดง ${shown} คน · <span class="flag" style="background:var(--money-soft);color:var(--money)">ผ่าน ${cnt["ผ่าน"]}</span> <span class="flag y">ตักเตือน ${cnt["ตักเตือน"]}</span> <span class="flag r">ใบเตือน ${cnt["ใบเตือน"]}</span> · ยังไม่กรอก ${notFilled} คน`;
   renderKpiSubmit();
+  if(typeof applySort==="function") applySort("kpitable");
 }
 /* ---------- ส่งงาน KPI: HR ลงชื่อส่ง → แอดมินตรวจและล็อก (เก็บใน M.__kpiSubmit) ---------- */
 function kpiSub(){ return (M && M.__kpiSubmit) || {}; }
@@ -1945,8 +1953,8 @@ function renderComm(){
   {
     for(const o of rows){
       const e=o.e, d=o.d, att=o.att, kd=o.kd, r=o.r, seq=o.seq, tName=o.team;
-      const inp = (f)=>`<td class="in"><input type="text" inputmode="decimal" data-num="1" data-code="${esc(e.code)}" data-f="${f}" value="${fmt2(d[f]||0)}" ${CA_LOCK?'disabled':''}></td>`;
-      const chInp = CHANNELS().map(c=>`<td class="in"><input type="text" inputmode="decimal" data-num="1" data-code="${esc(e.code)}" data-f="ch" data-chn="${esc(c.name)}" value="${fmt2(num((d.ch||{})[c.name])||0)}" ${CA_LOCK?'disabled':''}></td>`).join("");
+      const inp = (f)=>`<td class="in"><input type="text" inputmode="decimal" data-num="1" data-code="${esc(e.code)}" data-f="${f}" placeholder="0" value="${fmtIn(d[f])}" ${CA_LOCK?'disabled':''}></td>`;
+      const chInp = CHANNELS().map(c=>`<td class="in"><input type="text" inputmode="decimal" data-num="1" data-code="${esc(e.code)}" data-f="ch" data-chn="${esc(c.name)}" placeholder="0" value="${fmtIn((d.ch||{})[c.name])}" ${CA_LOCK?'disabled':''}></td>`).join("");
       tb.insertAdjacentHTML("beforeend",
         `<tr><td style="color:var(--muted)">${seq}</td>
          <td class="l">${esc(tName||"—")}</td>
@@ -1970,6 +1978,7 @@ function renderComm(){
     }
   }
   commFoot(sum, n);
+  if(typeof applySort==="function") applySort("commtable");
   if(!(document.activeElement && document.activeElement.closest && document.activeElement.closest("#leadtable"))) renderLead();
   if(!(document.activeElement && document.activeElement.closest && document.activeElement.closest("#kpitable"))) renderKPI();
   if(typeof renderCommApprove === "function") renderCommApprove();
@@ -2282,6 +2291,7 @@ function renderEmp(){
         <td>${getSalary(e.code)?fmt(getSalary(e.code)):"—"}</td><td class="l">${statusBadge(e.status)}</td></tr>`);
   }
   $("emp-count").textContent = `แสดง ${n} จาก ${DB.emp.length} คน`;
+  if(typeof applySort==="function") applySort("emptable");
   renderBulkCount();
 }
 /* ---------- แก้ไขหลายคนพร้อมกัน (แอดมิน) ---------- */
@@ -3131,6 +3141,7 @@ function renderMD(){
     row+=`<td class="res" title="${esc(bd)}">${r.workDays}</td><td class="res" title="${esc(bd)}">${r.leaveDays}</td><td class="res" title="${esc(bd)}" style="color:var(--muted)">${r.offDays}</td></tr>`;
     tb.insertAdjacentHTML("beforeend",row);
   }
+  if(typeof applySort==="function") applySort("tstable");
   renderMDPay();
   const ae=document.activeElement;
   if(mdYm()===ym()){
@@ -3208,6 +3219,7 @@ function renderMDPay(){
   $("mdpayfoot").innerHTML = rows.length ?
     `<td class="l" colspan="4">รวม ${rows.length} คน</td><td>${t2.w}</td><td>${t2.l}</td><td>${fmt(t2.p)}</td>
      <td>−${fmt(t2.man)}</td><td>−${fmt(t2.pg)}</td><td>${fmt(t2.i)}</td><td><strong>${fmt(t2.n)}</strong></td><td></td>` : "";
+  if(typeof applySort==="function") applySort("mdpaytable");
 }
 $("mdpaybody").addEventListener("input",e=>{
   const t=e.target;
@@ -3440,6 +3452,58 @@ $("btn-mdclear").addEventListener("click",()=>{
 });
 $("md-divisor").addEventListener("change",()=>{ S.mdDivisor=num($("md-divisor").value)||30; persistS(); renderMD(); });
 $("md-month").addEventListener("input",()=>subscribeMD());
+
+/* ================= เรียงตาราง: คลิกหัวคอลัมน์ (▲ น้อย→มาก · ▼ มาก→น้อย · คลิกอีกครั้ง = เรียงแบบเดิม) ================= */
+const SORT_ST = {};
+const SORT_RERENDER = {commtable:()=>renderComm(), leadtable:()=>renderLead(), emptable:()=>renderEmp(), kpitable:()=>renderKPI(), mdpaytable:()=>renderMDPay(), tstable:()=>renderMD()};
+function sortCellVal(td){
+  if(!td) return {n:null, s:""};
+  const inp = td.querySelector ? td.querySelector("input,select") : null;
+  const raw = inp ? (inp.type==="checkbox" ? (inp.checked?"1":"0") : inp.value) : (td.textContent||"");
+  const t = String(raw).trim();
+  if(inp && inp.type!=="checkbox" && t==="") return {n:0, s:""}; // ช่องกรอกว่าง = 0
+  const c = t.replace(/[,%฿\s]/g,"").replace(/^−/,"-");
+  const n = /^-?\d+(\.\d+)?$/.test(c) ? parseFloat(c) : null;
+  return {n, s:t};
+}
+function applySort(tableId){
+  const st = SORT_ST[tableId]; const tb = document.querySelector("#"+tableId+" tbody");
+  if(!st || !tb) return;
+  const rows = [...tb.querySelectorAll("tr")].filter(tr=>tr.children.length>1);
+  rows.sort((a,b)=>{
+    const va = sortCellVal(a.children[st.col]), vb = sortCellVal(b.children[st.col]);
+    let c;
+    if(va.n!==null && vb.n!==null) c = va.n - vb.n;
+    else if(va.n!==null) return -1; else if(vb.n!==null) return 1;
+    else c = va.s.localeCompare(vb.s, "th");
+    return st.dir * c;
+  });
+  rows.forEach(r=>tb.appendChild(r));
+  if(tableId==="commtable") rows.forEach((r,i)=>{ r.children[0].textContent = i+1; });
+  markSortHead(tableId);
+}
+function markSortHead(tableId){
+  const st = SORT_ST[tableId];
+  document.querySelectorAll("#"+tableId+" thead tr:not(.ghead) th").forEach((th,i)=>{
+    th.classList.toggle("sort-asc", !!st && st.col===i && st.dir===1);
+    th.classList.toggle("sort-desc", !!st && st.col===i && st.dir===-1);
+  });
+}
+function makeSortable(tableId){
+  const t = $(tableId); if(!t) return;
+  t.classList.add("sortable");
+  t.addEventListener("click", e=>{
+    const th = e.target.closest("th"); if(!th || !th.closest("thead")) return;
+    if(th.closest("tr.ghead") || th.classList.contains("bulk") || th.querySelector("input")) return;
+    const col = [...th.parentElement.children].indexOf(th);
+    const st = SORT_ST[tableId];
+    if(st && st.col===col){ if(st.dir===1) st.dir=-1; else delete SORT_ST[tableId]; }
+    else SORT_ST[tableId] = {col, dir:1};
+    if(SORT_ST[tableId]) applySort(tableId);
+    else { if(SORT_RERENDER[tableId]) SORT_RERENDER[tableId](); markSortHead(tableId); }
+  });
+}
+["commtable","leadtable","emptable","kpitable","mdpaytable","tstable"].forEach(makeSortable);
 
 /* ================= กระดิ่งแจ้งเตือน ================= */
 const NOTIF_TASKS=[
