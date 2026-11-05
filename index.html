@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>คำนวณค่าคอม · เงินเดือน · พนักงาน</title>
+<title>ระบบ HR GGLxUO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -185,6 +185,14 @@ label.f span.bepick,.bepick{display:flex;gap:.3rem;flex-wrap:nowrap;width:100%;m
 .hrd-chip{display:inline-block;font-size:.74rem;padding:.1rem .45rem;border-radius:999px;background:#F0F4EE;margin:.1rem .2rem .1rem 0;white-space:nowrap}
 .hrd-chip.ok{background:var(--money-soft);color:var(--money)} .hrd-chip.bad{background:var(--deduct-soft);color:var(--deduct)} .hrd-chip.warn{background:#FFF3DC;color:#8A6100}
 #p-hrd textarea{width:100%;min-height:70px;font-family:inherit;font-size:.92rem;padding:.5rem .6rem;border:1px solid var(--line);border-radius:10px;box-sizing:border-box}
+.help-card{margin-bottom:1rem}
+.help-card h2 .ic{margin-right:.3rem}
+.help-card ol{padding-left:1.3rem;margin:.3rem 0 .6rem}
+.help-card ol li{margin:.25rem 0;line-height:1.5}
+.help-card .tip{background:#F4F8F4;border-left:3px solid var(--money);border-radius:8px;padding:.5rem .8rem;font-size:.86rem;margin:.3rem 0}
+.help-card .warn{background:#FFF3DC;border-left:3px solid #E0A100;border-radius:8px;padding:.5rem .8rem;font-size:.86rem;margin:.3rem 0}
+.help-card .who{display:inline-block;font-size:.74rem;background:var(--money-soft);color:var(--money);border-radius:999px;padding:.1rem .55rem;margin-left:.4rem;vertical-align:middle}
+.help-card mark{background:#FFF1B8;padding:0 .15rem;border-radius:3px}
 .badge{display:inline-block;font-size:.72rem;font-weight:600;padding:.1rem .5rem;border-radius:999px}
 .badge.on{background:var(--money-soft);color:var(--money)}
 .badge.off{background:var(--deduct-soft);color:var(--deduct)}
@@ -370,8 +378,8 @@ table.sum td.l,table.sum th.l{text-align:left}
 
 <header class="site">
   <div class="wrap">
-    <h1>คำนวณค่าคอม · เงินเดือน · พนักงาน
-      <span class="sub">ระบบคิด Incentive และทะเบียนพนักงาน UO</span>
+    <h1>ระบบ HR GGLxUO
+      <span class="sub">ค่าคอม · เงินเดือน · ลงเวลา · ทะเบียนพนักงาน · รายงานทีม HR</span>
     </h1>
     <div class="hd-right">
       <button id="editor-chip" class="bellbtn" title="ลงชื่อผู้ใช้งานเครื่องนี้ (คลิกเพื่อเปลี่ยน)" style="font-size:.85rem;white-space:nowrap">👤 <span id="editor-name">ลงชื่อผู้ใช้</span></button>
@@ -415,6 +423,7 @@ table.sum td.l,table.sum th.l{text-align:left}
   <button role="tab" aria-selected="false" data-panel="p-hrd"><span class="ic">📝</span>รายงานรายวัน HR</button>
   <button role="tab" aria-selected="false" data-panel="p-hist"><span class="ic">🕘</span>ประวัติการแก้ไข</button>
   <span class="navgroup">ระบบ</span>
+  <button role="tab" aria-selected="false" data-panel="p-help"><span class="ic">📖</span>คู่มือการใช้งาน</button>
   <button role="tab" aria-selected="false" data-panel="p-set"><span class="ic">⚙️</span>ตั้งค่าเรต</button>
 </nav>
 <div class="tabpanels">
@@ -1006,6 +1015,18 @@ table.sum td.l,table.sum th.l{text-align:left}
   </div>
 </section>
 
+<!-- ================= คู่มือการใช้งาน ================= -->
+<section class="panel" id="p-help">
+  <div class="card" style="margin-bottom:1rem">
+    <h2>คู่มือการใช้งาน <small id="help-sub">แสดงเฉพาะเมนูที่คุณมีสิทธิ์ใช้</small></h2>
+    <div class="frow" style="max-width:520px">
+      <label class="f"><span>ค้นหาในคู่มือ</span><input type="text" id="help-q" placeholder="เช่น ลงเวลา, ส่งสลิป, ย้ายเดือน"></label>
+    </div>
+    <div class="subtabs" id="help-tabs" style="margin-top:.6rem"></div>
+  </div>
+  <div id="help-body"></div>
+</section>
+
 <!-- ================= ตั้งค่า ================= -->
 <section class="panel" id="p-set">
   <div class="card" style="margin-bottom:1rem">
@@ -1479,6 +1500,7 @@ function applyAdminUI(){
   if($("users-card")) $("users-card").hidden = !(IS_ADMIN && CLOUD && AUTHED);
   if(typeof applyTabPerms==="function") applyTabPerms();
   if(typeof subscribeUsers==="function") subscribeUsers();
+  if(typeof renderHelp==="function") renderHelp();
   if(typeof renderHrd==="function" && $("hrd-view")) { if(!IS_ADMIN && $("hrd-view").value==="target") $("hrd-view").value="entry"; renderHrd(); }
   { const nb=document.querySelector('nav.tabs button[data-panel="p-set"]'); if(nb) nb.hidden = !IS_ADMIN;
     if(!IS_ADMIN && $("p-set").classList.contains("active")){ const b0=document.querySelector('nav.tabs button[data-panel="p-comm"]'); if(b0) b0.click(); } }
@@ -3352,8 +3374,11 @@ async function cloudStart(){
   }, cloudErr));
   /* โปรไฟล์ผู้ใช้ + สิทธิ์เมนู (users/{uid}) */
   await loadMyProfile();
-  /* ตรวจสิทธิ์แอดมิน: อ่านเอกสารเงินเดือนได้ = แอดมิน (คุมด้วย Firestore Rules) */
+  if(!AUTHED || !firebase.auth().currentUser) return; // ถูกเตะออก (บัญชีปิดใช้งาน)
+  const LIMITED = !!(ME && !ME.legacy && ME.role !== "admin"); // มีโปรไฟล์และไม่ใช่แอดมิน → จำกัดสิทธิ์แน่นอน ไม่ว่า Rules จะเปิดกว้างแค่ไหน
+  /* ตรวจสิทธิ์แอดมิน: มีโปรไฟล์ระดับแอดมิน หรือ (ไม่มีโปรไฟล์) อ่านเอกสารเงินเดือนได้ */
   try{
+    if(LIMITED) throw new Error("limited");
     const salSnap = await DOC("salaries").get();
     IS_ADMIN = true;
     if(!salSnap.exists){
@@ -3404,6 +3429,7 @@ async function cloudStart(){
 const ALL_TABS = [["p-comm","คำนวณค่าคอม"],["p-lead","หัวหน้าทีม"],["p-kpi","KPI/ใบเตือน"],["p-one","สลิปเงินเดือน"],["p-md","ลงเวลา (Manday)"],["p-mdpay","อนุมัติเงินเดือน & ค่าคอม"],["p-sub","นำส่ง ปกส./กองทุน/กยศ."],["p-emp","พนักงาน"],["p-prob","ทดลองงาน"],["p-hrd","รายงานรายวัน HR"],["p-hist","ประวัติการแก้ไข"]];
 const DEFAULT_USER_TABS = ["p-hrd","p-md","p-comm","p-kpi","p-emp","p-prob"];
 let ME = null;      // {uid,email,name,role,tabs,active}
+let meUnsub = null;
 let USERS = [];     // รายการผู้ใช้ทั้งหมด (แอดมิน)
 let usersUnsub = null;
 async function loadMyProfile(){
@@ -3418,6 +3444,18 @@ async function loadMyProfile(){
     alert("บัญชีนี้ถูกปิดใช้งาน — ติดต่อแอดมิน");
     firebase.auth().signOut(); return;
   }
+  try{
+    if(meUnsub){ meUnsub(); meUnsub=null; }
+    meUnsub = fdb.collection("users").doc(u.uid).onSnapshot(sn=>{
+      if(!sn.exists || sn.metadata.hasPendingWrites) return;
+      const d = sn.data()||{};
+      const was = JSON.stringify({r:ME&&ME.role, t:ME&&ME.tabs, a:ME&&ME.active});
+      ME = Object.assign({uid:u.uid, email:u.email}, d);
+      if(ME.active===false){ alert("บัญชีนี้ถูกปิดใช้งาน — ติดต่อแอดมิน"); firebase.auth().signOut(); return; }
+      const now = JSON.stringify({r:ME.role, t:ME.tabs, a:ME.active});
+      if(was!==now){ if((ME.role==="admin")!==IS_ADMIN){ location.reload(); return; } applyTabPerms(); if(typeof renderHelp==="function") renderHelp(); }
+    }, ()=>{});
+  }catch(e){}
   if(ME && ME.name && !EDITOR()) lsSet("uo-editor", ME.name);
   if(ME && ME.name && EDITOR()!==ME.name) lsSet("uo-editor", ME.name);
   renderEditor();
@@ -3425,7 +3463,7 @@ async function loadMyProfile(){
 function myTabsAllowed(){
   if(!CLOUD || !AUTHED) return null;                 // โหมดเครื่องเดียว: เห็นทุกเมนู
   if(IS_ADMIN || (ME && ME.role==="admin")) return null;
-  if(!ME || ME.legacy || !Array.isArray(ME.tabs)) return [...DEFAULT_USER_TABS, "p-lead","p-one","p-sub","p-hist"]; // ยังไม่มีโปรไฟล์: เห็นทุกเมนูยกเว้นของแอดมิน
+  if(!ME || ME.legacy || !Array.isArray(ME.tabs)) return DEFAULT_USER_TABS; // ยังไม่มีโปรไฟล์: เห็นเฉพาะเมนูพื้นฐาน จนกว่าแอดมินจะตั้งสิทธิ์
   return ME.tabs;
 }
 function applyTabPerms(){
@@ -3433,6 +3471,7 @@ function applyTabPerms(){
   document.querySelectorAll('nav.tabs button[data-panel]').forEach(b=>{
     const pid=b.dataset.panel;
     if(pid==="p-set"){ return; } // คุมโดย applyAdminUI
+    if(pid==="p-help"){ b.hidden=false; return; } // คู่มือเห็นทุกคน
     if(pid==="p-mdpay" && !IS_ADMIN && !(ME && ME.role==="admin")) { b.hidden = true; return; }
     b.hidden = allowed ? !allowed.includes(pid) : false;
   });
@@ -3512,6 +3551,7 @@ $("btn-usersave").addEventListener("click", async ()=>{
 function cloudStop(){
   unsubs.forEach(u=>u&&u()); unsubs=[];
   if(usersUnsub){ usersUnsub(); usersUnsub=null; }
+  if(meUnsub){ meUnsub(); meUnsub=null; }
   ME=null; USERS=[];
   if(monthUnsub){ monthUnsub(); monthUnsub=null; }
 }
@@ -4517,6 +4557,119 @@ function hrTeamRow(name, role, note){
 }
 $("btn-addhrteam").addEventListener("click",()=>hrTeamRow("","branch",""));
 
+/* ================= คู่มือการใช้งาน (แสดงตามสิทธิ์) ================= */
+const HELP_DOCS = [
+  {id:"start", ic:"🚀", title:"เริ่มต้นใช้งาน", who:"ทุกคน", steps:[
+    "เปิดเว็บ → ใส่อีเมลและรหัสผ่านที่แอดมินสร้างให้ → เข้าสู่ระบบ (ถ้าลืมรหัส แจ้งแอดมินให้กด \"ส่งลิงก์ตั้งรหัสใหม่\")",
+    "มุมขวาบนมีปุ่ม 👤 ชื่อของคุณ — ระบบใช้ชื่อนี้บันทึกว่าใครแก้ไขอะไร ถ้าชื่อไม่ถูกให้คลิกเปลี่ยน",
+    "เมนูด้านซ้ายแสดงเฉพาะหน้าที่คุณมีสิทธิ์ — ถ้าต้องใช้หน้าอื่น แจ้งแอดมิน",
+    "ทุกหน้ามีช่อง \"งวดเดือน\" (เลือกเดือน + ปี พ.ศ.) ข้อมูลแยกเก็บรายเดือน เช็กเดือนให้ถูกก่อนกรอกทุกครั้ง",
+    "ข้อมูลบันทึกอัตโนมัติทันทีที่พิมพ์ และซิงก์ทุกเครื่อง ไม่ต้องกดเซฟ (ยกเว้นหน้าที่มีปุ่ม \"บันทึก\" ชัดเจน)",
+    "กระดิ่ง 🔔 เตือนงานตามปฏิทิน: ค่าคอมวันที่ 12 · KPI 13 · สลิป 16 · เงินเดือน 25 และคนใกล้ครบทดลองงาน"],
+   tips:["ช่องกรอกตัวเลขพิมพ์ได้เลย ไม่ต้องใส่ลูกน้ำ ระบบจัดรูปให้ · คลิกหัวตารางเพื่อเรียงลำดับ (▲▼)","ทำผิดเดือน/กดล้างผิด → ดูหัวข้อ \"ประวัติการแก้ไข\" มีถังขยะกู้คืนได้"]},
+  {id:"p-hrd", ic:"📝", title:"รายงานรายวัน HR", who:"ทีม HR ทุกคน", steps:[
+    "เมนู รายงานรายวัน HR → แท็บ \"ลงข้อมูลวันนี้\" ระบบเลือกชื่อคุณให้อัตโนมัติ (เปลี่ยนได้) วันที่ = วันนี้",
+    "กรอกตัวเลขตามช่องที่ขึ้นมา (ช่องขึ้นตามบทบาทของคุณ เช่น HR สาขาจะเห็น มา/ลา/สาย/ขาด/ใบสมัคร/สัมภาษณ์/รับ)",
+    "กรอก 4 หัวข้อ: ✅ ทำแล้ว · ⏳ ค้าง · ⚠️ ปัญหา · 🙋 ขอความช่วยเหลือ (เรื่องรอตัดสินใจใส่ช่องนี้ ผู้บริหารจะเห็นในแดชบอร์ด)",
+    "กด \"บันทึกรายงานวันนี้\" ก่อน 18:00 — ส่งช้าหรือไม่ส่งนับเป็นขาด 1 ครั้ง",
+    "แก้ย้อนหลัง: คลิกแถวในตาราง \"รายงานของฉันเดือนนี้\" หรือเปลี่ยนวันที่ด้านบน · ปุ่ม \"ดึงข้อมูลเมื่อวานมาแก้\" ช่วยให้กรอกเร็วขึ้น",
+    "แท็บ \"ชีทรวมทุกคน\" ดูรายงานทุกคนในเดือน ค้นหาคำได้ · แท็บ \"แดชบอร์ด\" ดูคะแนนเทียบเป้าและใครยังไม่ส่งวันนี้"],
+   tips:["เป้ารายเดือนของคุณดูได้ในแดชบอร์ด (ป้าย สะสม / เป้า) — เขียว = ถึงเป้า เหลือง = 80–99% แดง = ต่ำกว่า 80%"], admin:["แท็บ \"เป้ารายเดือน\" ตั้งเป้าแยกรายคนทุกตัวชี้วัด ว่าง = ค่าเริ่มต้น · ปุ่มคัดลอกจากเดือนก่อน · รายชื่อทีม/บทบาทแก้ที่ตั้งค่าเรต → ทีม HR"]},
+  {id:"p-md", ic:"🗓️", title:"ลงเวลา (Manday)", who:"HR สาขา · มิ้นท์ · HRBP", steps:[
+    "เลือกรอบเดือน (รอบ = 26 เดือนก่อน ถึง 25 เดือนที่เลือก) และกรองสาขา/แผนก/กลุ่มได้",
+    "วันอาทิตย์และวันหยุดพิเศษขึ้น OFF ให้อัตโนมัติ ช่องว่าง = มาทำงานปกติ ไม่ต้องกรอก",
+    "คลิกช่องวันของพนักงาน → เลือกรหัส (S ป่วย · PL กิจ · LP กิจไม่รับเงิน · HF ครึ่งวัน · AL พักร้อน · L สาย+นาที · AA ขาด · WFH · W มาทำงานวันหยุด · LO ลาออก · ML ลาคลอด) → ใส่เหตุผล → บันทึก",
+    "ลาป่วยพิมพ์ในเหตุผลว่า \"มีใบรับรอง\" หรือ \"ไม่มีใบรับรอง\" (ป่วยเกิน 3 วันไม่มีใบรับรองจะขึ้นป้ายเตือน)",
+    "ลงให้ครบทุกวันก่อน 18:00 — วันลา/สาย จะไปหักในหน้าคำนวณค่าคอมและเงินเดือนอัตโนมัติ",
+    "แดชบอร์ดด้านบนตารางสรุป มา/ลา/สาย/ขาด และ 10 อันดับ ไว้ใส่รายงานรายวัน"],
+   tips:["คอลัมน์ขวาสุด วันทำงาน · รวมวันลา · วันหยุด ชี้เมาส์จะเห็นที่มาของตัวเลข","ลงผิดรอบ: เปิด \"ลงเวลาผิดรอบ?\" → ย้ายทั้งรอบไปเดือนที่ถูกได้ (ใส่ PIN)"], warn:["รอบที่อนุมัติแล้วจะล็อก แก้ไม่ได้ — ต้องให้แอดมินปลดล็อกที่หน้าอนุมัติ"]},
+  {id:"p-comm", ic:"🧮", title:"คำนวณค่าคอม", who:"HRBP · ผู้ดูแลค่าคอม", steps:[
+    "เลือกงวดเดือน → กรองสาขา/แผนก/ตำแหน่ง/หัวหน้าได้ แถวเรียงตามทีม",
+    "กรอกเฉพาะช่องสีเขียว 🟩: CRM · แนะนำ · ช่องทางขาย (Upsell/Facebook/Incall/Line) · หัก690 · ตีกลับ · โบนัส · Incentive/เดือน",
+    "ช่องสีเทา 🔗 ดึงอัตโนมัติ (ลา/สาย จาก Manday · หัก KPI จากหน้า KPI) · ช่องสีฟ้า 🧮 ระบบคำนวณ (% ค่าคอมตามตำแหน่ง CRM / Sales Admin / Upsell)",
+    "นำเข้าย้อนหลัง: เปิด \"นำเข้ายอดย้อนหลัง\" → แนบ CSV หรือวางจากชีท (เอาหัวตารางมาด้วย) → นำเข้าเข้างวดที่เลือก",
+    "ดาวน์โหลด CSV เดือนนี้ = ตารางบนจอ 100% ตามฟิลเตอร์",
+    "ปิดงวด: ท้ายหน้า แอดมินกด \"ตรวจสอบเรียบร้อย — ล็อก\" (PIN) → ไปอนุมัติครั้งสุดท้ายที่หน้าอนุมัติ"],
+   tips:["กรอกผิดเดือน: เปิด \"กรอกผิดเดือน?\" → ย้ายหรือคัดลอกทั้งเดือนไปเดือนที่ถูก (PIN) · ล้างยอดเดือนนี้ก็กู้คืนได้จากถังขยะ"]},
+  {id:"p-lead", ic:"⭐", title:"หัวหน้าทีม", who:"HRBP", steps:[
+    "ยอดทีมจริงรวมจากลูกทีมอัตโนมัติ (ตามช่อง \"หัวหน้า\" ในทะเบียนพนักงาน)",
+    "กรอกเป้า (฿) และ Incentive พิเศษ → ระบบคิด Achiev % และ Com % ตามเรท 80% → 0.6 · 100% → 1 · 120% → 1.5",
+    "ฟิลเตอร์ผลงาน: ถึงเป้า / ใกล้เป้า / ต่ำกว่า 80% / ยังไม่ตั้งเป้า"]},
+  {id:"p-kpi", ic:"📊", title:"KPI / ใบเตือน", who:"HRBP · QA", steps:[
+    "กรอก โทร · ได้คุย · Talk time ของพนักงานขายแต่ละคน (วันทำงานดึงจาก Manday ยอดขายดึงจากหน้าค่าคอม)",
+    "ระบบออกสถานะให้: ผ่าน / ตักเตือน / ใบเตือน และคิดหัก KPI ไปหน้าค่าคอมอัตโนมัติ (เกณฑ์ตั้งโดยแอดมินที่ตั้งค่าเรต)",
+    "ยกเว้นรายคน (น้องใหม่/ลาคลอด) ใช้ช่อง \"ปรับเอง\" + หมายเหตุ",
+    "กรอกครบแล้วกด \"บันทึกและลงชื่อ ส่งให้แอดมินตรวจ\" ท้ายหน้า → ช่องจะล็อก รอแอดมินกดตรวจสอบ (ถ้าต้องแก้ กด \"ยกเลิกการส่ง\")"]},
+  {id:"p-one", ic:"🧾", title:"สลิปเงินเดือน", who:"HRBP", steps:[
+    "พิมพ์ชื่อเล่นหรือรหัสพนักงาน → เลือกงวดเดือน → ระบบดึงยอดค่าคอม ลา สาย KPI และรายการหัก (ประกันสังคม/กองทุน/กยศ.) ให้",
+    "ใส่ชื่อ HR ผู้ออกเอกสาร → กด \"คำนวณ\" → ได้สลิปหัวบริษัทพร้อมข้อมูลพนักงานและอายุงาน",
+    "🖨 พิมพ์ / บันทึก PDF หรือ 📧 ส่งสลิปทางอีเมล (ถ้าแอดมินตั้ง Apps Script ไว้ จะส่งถึงพนักงานทันที)"]},
+  {id:"p-mdpay", ic:"✅", title:"อนุมัติเงินเดือน & ค่าคอม", who:"แอดมิน · HR ผู้ตรวจ", steps:[
+    "เลือกงวด → กล่องสถานะ 2 ขั้นบอกว่าเงินเดือนและค่าคอมอยู่ขั้นไหน",
+    "ส่วนที่ 1 เงินเดือน: ตรวจรายการป้ายเตือน (ยังไม่กรอกบัญชี, เริ่มกลางรอบ, ยอดต่างจากรอบก่อน) → ตารางหักรายการเข้าร่วมอัตโนมัติ · กรอกมือแค่ \"หักอื่น ๆ\" และ \"Incentive\"",
+    "HR ผู้ตรวจ 2 คน (มิ้นท์ / หวาน) ติ๊ก ☑ ท้ายแถวทุกคน → แอดมินกด \"อนุมัติเงินเดือนรอบนี้\" (PIN) ระบบเตือนถ้ายังติ๊กไม่ครบ",
+    "ส่วนที่ 2 ค่าคอม: ต้องผ่านการตรวจที่ท้ายหน้าค่าคอมก่อน แล้วกด \"อนุมัติค่าคอมงวดนี้\" (PIN)",
+    "ดาวน์โหลด CSV ตารางเงินเดือน ส่งบัญชีได้เลย · ส่งกลับให้แก้ไข ต้องใส่เหตุผล"]},
+  {id:"p-sub", ic:"📑", title:"นำส่ง ปกส. / กองทุน / กยศ.", who:"มิ้นท์ · HRBP", steps:[
+    "เลือกเดือน → กดปุ่มรายการ (ประกันสังคม / กองทุน / กยศ.) → เห็นคนที่ติ๊กเข้าร่วมพร้อมยอดหักพนักงานและสมทบนายจ้าง",
+    "เลขที่/เลขสมาชิกและ % หรือยอดคงที่ของแต่ละคน ตั้งในฟอร์มพนักงาน (หัวข้อ \"เข้าร่วม\")",
+    "นำส่งแล้วให้บันทึก: สถานะ · วันที่ · เลขอ้างอิง · ช่องทาง → \"บันทึกการนำส่ง\" · ดาวน์โหลด CSV แนบยื่นได้"]},
+  {id:"p-emp", ic:"👥", title:"ทะเบียนพนักงาน", who:"HR ทุกคน", steps:[
+    "+ เพิ่มพนักงานใหม่ → รหัสรันให้อัตโนมัติ (แอดมินแก้ได้คนเดียว) กรอกชื่อ ชื่อเล่น แผนก ตำแหน่ง สาขา หัวหน้า เบอร์โทร อีเมล บัญชีที่จ่าย (UO/GGL/นอก)",
+    "วันที่ทุกช่องใส่ ว/ด/ปปปป พ.ศ. (ใส่ ค.ศ. มา ระบบแปลงให้) · สถานะ ทดลองงาน/ปัจจุบัน/ลาออก",
+    "ติ๊ก \"เข้าร่วม\" ประกันสังคม/กองทุน/กยศ. แล้วกรอกเลขที่, % หรือยอดคงที่ (ถ้ามี) → มีผลต่อหน้าอนุมัติ สลิป และนำส่ง",
+    "กดบันทึก → ยืนยันชื่อผู้แก้ → ทุกการเปลี่ยนแปลงลงประวัติ",
+    "แก้หลายคนพร้อมกัน: ติ๊กหน้าชื่อ → การ์ด \"แก้ไขหลายคน\" เลือกเฉพาะช่องที่จะเปลี่ยน (แอดมิน)"],
+   tips:["สำรองข้อมูล (.json) ทำทุกเดือน · ธนาคาร/เลขบัญชี/ใบสมัคร เห็นเฉพาะแอดมิน"]},
+  {id:"p-prob", ic:"🌱", title:"ทดลองงาน", who:"HRBP · HR สาขา", steps:[
+    "รายชื่อคนสถานะทดลองงานขึ้นอัตโนมัติ พร้อมวันครบกำหนด (90 วัน หรือวันผ่านงานที่กรอกไว้) และ KPI งวดนี้",
+    "ครบกำหนดและผ่าน → กด \"ผ่านทดลองงาน\" ใส่วันที่ → สถานะเป็นปัจจุบันทุกหน้าทันที · ไม่ผ่าน → กด \"ไม่ผ่าน\" ใส่วันที่มีผล",
+    "ตัวเลขแดงที่เมนูบอกจำนวนคนที่กำลังทดลองงาน"]},
+  {id:"p-hist", ic:"🕘", title:"ประวัติการแก้ไข & ถังขยะ", who:"ทุกคน", steps:[
+    "ทุกการแก้ไขทะเบียน/เงินเดือน/บัญชีผู้ใช้ บันทึกว่าใคร แก้อะไร เมื่อไร ย้อนกลับได้ (PIN)",
+    "ถังขยะด้านบน: รายการที่ล้างยอด ย้ายเดือน ล้าง Manday เก็บสำเนาไว้ กด \"กู้คืนข้อมูลชุดนี้\" (PIN) ได้ทันที"]},
+  {id:"p-set", ic:"⚙️", title:"ตั้งค่าเรต (แอดมิน)", who:"แอดมิน", adminOnly:true, steps:[
+    "เทียร์ค่าคอม CRM / Sales Admin / Upsell · เรทหัวหน้าทีม · โบนัสไตรมาส · ค่าเดินทาง/ตีกลับ/สาย",
+    "เกณฑ์ KPI/ใบเตือน และยอดหัก KPI · รายการที่พนักงานเข้าร่วม (% / เพดาน) · ช่องทางขาย · แผนก ตำแหน่ง สาขา บริษัท (ชื่อเต็มบนสลิป)",
+    "วันหยุดพิเศษ (Manday) · HR ผู้ตรวจ 2 คน · ระยะทดลองงาน · PIN",
+    "ผู้ใช้และสิทธิ์: สร้างบัญชี ติ๊กเมนูที่ให้เห็น แก้สิทธิ์ ปิดใช้งาน ส่งลิงก์ตั้งรหัสใหม่ (อัปเดต Firestore Rules ตามกล่องครั้งแรก)",
+    "ทีม HR (รายงานรายวัน): ชื่อ บทบาท สาขา · ส่งสลิปทางอีเมล: วาง URL Apps Script",
+    "แก้เสร็จกด \"บันทึกการตั้งค่า\" ด้านล่างทุกครั้ง"]}
+];
+function helpAllowedIds(){
+  const allowed = (typeof myTabsAllowed==="function") ? myTabsAllowed() : null;
+  const admin = IS_ADMIN || (typeof ME!=="undefined" && ME && ME.role==="admin");
+  return HELP_DOCS.filter(h=>{
+    if(h.id==="start") return true;
+    if(h.adminOnly) return admin;
+    if(h.id==="p-mdpay") return admin;
+    if(!allowed) return true;
+    return allowed.includes(h.id);
+  }).map(h=>h.id);
+}
+let HELP_CUR = "";
+function renderHelp(){
+  if(!$("help-body")) return;
+  const ids = helpAllowedIds();
+  const admin = IS_ADMIN || (typeof ME!=="undefined" && ME && ME.role==="admin");
+  const q = ($("help-q").value||"").trim().toLowerCase();
+  if(!ids.includes(HELP_CUR)) HELP_CUR = "";
+  $("help-sub").textContent = admin ? "คุณเป็นแอดมิน — เห็นคู่มือทุกหน้า" : `แสดง ${ids.length} หัวข้อตามเมนูที่คุณมีสิทธิ์ใช้`;
+  $("help-tabs").innerHTML = `<button type="button" data-hp="" class="${HELP_CUR===""?'on':''}">ทั้งหมด</button>` + HELP_DOCS.filter(h=>ids.includes(h.id)).map(h=>`<button type="button" data-hp="${h.id}" class="${HELP_CUR===h.id?'on':''}">${h.ic} ${esc(h.title)}</button>`).join("");
+  const hl = t => q ? esc(t).replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi"), m=>`<mark>${m}</mark>`) : esc(t);
+  const docs = HELP_DOCS.filter(h=>ids.includes(h.id) && (!HELP_CUR || h.id===HELP_CUR)).filter(h=>!q || [h.title,...(h.steps||[]),...(h.tips||[]),...(h.warn||[]),...(admin?(h.admin||[]):[])].join(" ").toLowerCase().includes(q));
+  $("help-body").innerHTML = docs.map(h=>`<div class="card help-card" id="help-${h.id}">
+    <h2><span class="ic">${h.ic}</span>${hl(h.title)}<span class="who">${esc(h.who)}</span>${h.id!=="start"&&h.id!=="p-set"?` <button type="button" class="ghost" data-goto="${h.id}" style="min-height:28px;padding:.1rem .6rem;font-size:.76rem;margin-left:.5rem">เปิดหน้านี้ →</button>`:""}</h2>
+    <ol>${(h.steps||[]).map(x=>`<li>${hl(x)}</li>`).join("")}</ol>
+    ${(h.tips||[]).map(x=>`<div class="tip">💡 ${hl(x)}</div>`).join("")}
+    ${(h.warn||[]).map(x=>`<div class="warn">⚠️ ${hl(x)}</div>`).join("")}
+    ${admin?(h.admin||[]).map(x=>`<div class="tip">🔑 แอดมิน: ${hl(x)}</div>`).join(""):""}
+  </div>`).join("") || `<p class="hint">ไม่พบหัวข้อที่ตรงกับคำค้น</p>`;
+}
+$("help-tabs").addEventListener("click",e=>{ const b=e.target.closest("[data-hp]"); if(!b) return; HELP_CUR=b.dataset.hp; renderHelp(); });
+$("help-q").addEventListener("input",renderHelp);
+$("help-body").addEventListener("click",e=>{ const b=e.target.closest("[data-goto]"); if(!b) return; const nb=document.querySelector(`nav.tabs button[data-panel="${b.dataset.goto}"]`); if(nb && !nb.hidden) nb.click(); });
+
 /* ================= เรียงตาราง: คลิกหัวคอลัมน์ (▲ น้อย→มาก · ▼ มาก→น้อย · คลิกอีกครั้ง = เรียงแบบเดิม) ================= */
 const SORT_ST = {};
 const SORT_RERENDER = {commtable:()=>renderComm(), leadtable:()=>renderLead(), emptable:()=>renderEmp(), kpitable:()=>renderKPI(), mdpaytable:()=>renderMDPay(), tstable:()=>renderMD()};
@@ -4680,6 +4833,7 @@ $("editor-chip").addEventListener("click",()=>ensureEditor(true));
   fillKpiCriteria();
   renderEmp(); renderComm(); renderHist(); renderLead(); renderKPI();
   renderBell();
+  renderHelp();
   subscribeTrash();
   if(!$("sub-month").value) $("sub-month").value = mdYm();
   if(!(CLOUD && AUTHED)) subscribeSub();
