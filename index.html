@@ -166,7 +166,7 @@ table.sortable thead tr:not(.ghead) th:not(.bulk)::after{content:" ⇅";font-siz
 table.sortable thead tr:not(.ghead) th:hover::after{opacity:.7}
 table.sortable thead th.sort-asc::after{content:" ▲";opacity:1;color:var(--money)}
 table.sortable thead th.sort-desc::after{content:" ▼";opacity:1;color:var(--money)}
-.bepick{display:flex;gap:.3rem;flex-wrap:nowrap;width:100%}
+label.f span.bepick,.bepick{display:flex;gap:.3rem;flex-wrap:nowrap;width:100%;margin-bottom:0}
 .bepick select{min-width:0;padding:.45rem .3rem;font-size:.92rem}
 .bepick .be-m{flex:1 1 auto}
 .bepick .be-y{flex:0 0 78px;width:78px}
@@ -179,6 +179,12 @@ table.sortable thead th.sort-desc::after{content:" ▼";opacity:1;color:var(--mo
 .subtabs button{font-family:inherit;font-size:.9rem;font-weight:700;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:.4rem .9rem;cursor:pointer;color:var(--ink)}
 .subtabs button.on{background:var(--money);color:#fff;border-color:var(--money)}
 .navcount{margin-left:auto;background:var(--deduct);color:#fff;font-size:.7rem;font-weight:800;border-radius:999px;padding:.05rem .45rem}
+.hrd-bar{display:inline-block;height:8px;border-radius:999px;background:#E4EBE2;width:90px;vertical-align:middle;overflow:hidden}
+.hrd-bar i{display:block;height:100%;background:var(--money)}
+.hrd-bar.warn i{background:#E0A100} .hrd-bar.bad i{background:var(--deduct)}
+.hrd-chip{display:inline-block;font-size:.74rem;padding:.1rem .45rem;border-radius:999px;background:#F0F4EE;margin:.1rem .2rem .1rem 0;white-space:nowrap}
+.hrd-chip.ok{background:var(--money-soft);color:var(--money)} .hrd-chip.bad{background:var(--deduct-soft);color:var(--deduct)} .hrd-chip.warn{background:#FFF3DC;color:#8A6100}
+#p-hrd textarea{width:100%;min-height:70px;font-family:inherit;font-size:.92rem;padding:.5rem .6rem;border:1px solid var(--line);border-radius:10px;box-sizing:border-box}
 .badge{display:inline-block;font-size:.72rem;font-weight:600;padding:.1rem .5rem;border-radius:999px}
 .badge.on{background:var(--money-soft);color:var(--money)}
 .badge.off{background:var(--deduct-soft);color:var(--deduct)}
@@ -405,6 +411,8 @@ table.sum td.l,table.sum th.l{text-align:left}
   <span class="navgroup">ทะเบียน</span>
   <button role="tab" aria-selected="false" data-panel="p-emp"><span class="ic">👥</span>พนักงาน</button>
   <button role="tab" aria-selected="false" data-panel="p-prob"><span class="ic">🌱</span>ทดลองงาน <span class="navcount" id="prob-count" hidden>0</span></button>
+  <span class="navgroup">ทีม HR</span>
+  <button role="tab" aria-selected="false" data-panel="p-hrd"><span class="ic">📝</span>รายงานรายวัน HR</button>
   <button role="tab" aria-selected="false" data-panel="p-hist"><span class="ic">🕘</span>ประวัติการแก้ไข</button>
   <span class="navgroup">ระบบ</span>
   <button role="tab" aria-selected="false" data-panel="p-set"><span class="ic">⚙️</span>ตั้งค่าเรต</button>
@@ -732,6 +740,86 @@ table.sum td.l,table.sum th.l{text-align:left}
       <thead><tr><th class="l">พนักงาน</th><th class="l">รหัส</th><th class="l">แผนก</th><th class="l">ตำแหน่ง</th><th class="l">สาขา</th><th class="l">หัวหน้า</th><th>เริ่มงาน</th><th>ครบกำหนด</th><th>เหลือ (วัน)</th><th class="l">KPI งวดนี้</th><th class="l">ดำเนินการ</th></tr></thead>
       <tbody id="probbody"></tbody>
     </table>
+  </div>
+</section>
+
+<!-- ================= รายงานรายวันทีม HR ================= -->
+<section class="panel" id="p-hrd">
+  <div class="card" style="margin-bottom:1rem">
+    <h2>รายงานรายวันทีม HR <small>ทุกคนลงข้อมูลของตัวเองทุกวันก่อน 18:00 · เก็บรวมชีทเดียวกัน ซิงก์ทุกเครื่อง · แอดมินตั้งเป้ารายเดือน · แดชบอร์ดดูผลงานทุกคน</small></h2>
+    <div class="frow" style="max-width:720px">
+      <label class="f"><span>เดือน</span><input type="month" id="hrd-month"></label>
+      <label class="f"><span>มุมมอง</span><select id="hrd-view"><option value="entry">📝 ลงข้อมูลวันนี้</option><option value="sheet">📋 ชีทรวมทุกคน</option><option value="dash">📊 แดชบอร์ด</option><option value="target">🎯 เป้ารายเดือน (แอดมิน)</option></select></label>
+    </div>
+    <div class="subtabs" id="hrd-tabs" style="margin-top:.6rem"></div>
+  </div>
+
+  <!-- ลงข้อมูล -->
+  <div id="hrd-entry">
+    <div class="card" style="margin-bottom:1rem">
+      <div class="frow" style="max-width:720px">
+        <label class="f"><span>ชื่อผู้ลงข้อมูล</span><select id="hrd-who"></select></label>
+        <label class="f"><span>วันที่ (ว/ด/ปปปป พ.ศ.)</span><input type="text" id="hrd-date" placeholder="เช่น 5/11/2569"></label>
+      </div>
+      <p class="hint" id="hrd-role-hint" style="margin-bottom:0"></p>
+    </div>
+    <div class="card" style="margin-bottom:1rem">
+      <h2>ตัวเลขวันนี้ <small>กรอกเฉพาะตัวเลข ระบบรวมให้เป็นรายเดือนและเทียบเป้าอัตโนมัติ</small></h2>
+      <div class="frow" id="hrd-nums"></div>
+    </div>
+    <div class="card" style="margin-bottom:1rem">
+      <h2>สรุปงาน 4 หัวข้อ</h2>
+      <div class="frow" style="grid-template-columns:1fr 1fr">
+        <label class="f"><span>✅ ทำแล้ววันนี้</span><textarea id="hrd-done" rows="3"></textarea></label>
+        <label class="f"><span>⏳ ค้าง / ยังไม่เสร็จ</span><textarea id="hrd-pending" rows="3"></textarea></label>
+        <label class="f"><span>⚠️ ปัญหาที่เจอ</span><textarea id="hrd-problem" rows="3"></textarea></label>
+        <label class="f"><span>🙋 ขอความช่วยเหลือ / เรื่องรอตัดสินใจ</span><textarea id="hrd-help" rows="3"></textarea></label>
+      </div>
+      <div class="btnrow">
+        <button class="primary" id="hrd-save">บันทึกรายงานวันนี้</button>
+        <button class="ghost" id="hrd-copyprev">ดึงข้อมูลเมื่อวานมาแก้</button>
+        <span class="hint" id="hrd-msg" style="margin:0"></span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>รายงานของฉันเดือนนี้ <small>คลิกแถวเพื่อแก้ไข</small></h2>
+      <div class="tablewrap"><table class="team" id="hrd-mytable" style="min-width:700px"><thead id="hrd-myhead"></thead><tbody id="hrd-mybody"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- ชีทรวม -->
+  <div id="hrd-sheet" hidden>
+    <div class="card" style="margin-bottom:1rem">
+      <div class="frow" style="max-width:720px">
+        <label class="f"><span>คน</span><select id="hrd-sheet-who"><option value="">ทุกคน</option></select></label>
+        <label class="f"><span>ค้นหาในข้อความ</span><input type="text" id="hrd-sheet-q" placeholder="คำที่อยู่ในรายงาน"></label>
+      </div>
+      <div class="btnrow"><button class="ghost" id="hrd-csv">ดาวน์โหลด CSV เดือนนี้</button><span class="hint" id="hrd-sheet-count" style="margin:0"></span></div>
+    </div>
+    <div class="tablewrap"><table class="team" id="hrd-sheettable" style="min-width:1400px"><thead id="hrd-sheethead"></thead><tbody id="hrd-sheetbody"></tbody></table></div>
+  </div>
+
+  <!-- แดชบอร์ด -->
+  <div id="hrd-dash" hidden>
+    <div class="mdcards" id="hrd-cards"></div>
+    <div class="card" style="margin-bottom:1rem">
+      <h2>ผลงานรายคนเทียบเป้าเดือนนี้ <small>% = ผลสะสมเดือนนี้ ÷ เป้า (ตัวชี้วัดที่ยิ่งน้อยยิ่งดี คิดกลับด้านให้) · คะแนนรวม = เฉลี่ยทุกตัวชี้วัด</small></h2>
+      <div class="tablewrap"><table class="team" id="hrd-dashtable" style="min-width:1000px"><thead><tr><th class="l">คน</th><th class="l">บทบาท</th><th>ส่งรายงาน</th><th>คะแนนรวม</th><th class="l">ตัวชี้วัด (สะสม / เป้า)</th><th class="l">เรื่องรอตัดสินใจล่าสุด</th></tr></thead><tbody id="hrd-dashbody"></tbody></table></div>
+    </div>
+    <div class="card">
+      <h2>ใครยังไม่ส่งรายงานวันนี้</h2>
+      <p id="hrd-missing" style="margin:0"></p>
+    </div>
+  </div>
+
+  <!-- เป้า -->
+  <div id="hrd-target" hidden>
+    <div class="card" style="margin-bottom:1rem">
+      <h2>เป้ารายเดือน <small id="hrd-target-label"></small></h2>
+      <p class="hint">ช่องว่าง = ใช้ค่าเริ่มต้นของบทบาท · ตั้งแยกรายคนได้ · เปลี่ยนเดือนด้านบนเพื่อตั้งเป้าเดือนอื่น · รายชื่อทีมและบทบาทแก้ที่แท็บตั้งค่าเรต (การ์ด "ทีม HR")</p>
+      <div class="tablewrap"><table class="team" id="hrd-targettable" style="min-width:900px"><thead id="hrd-targethead"></thead><tbody id="hrd-targetbody"></tbody></table></div>
+      <div class="btnrow"><button class="primary" id="hrd-target-save">บันทึกเป้าเดือนนี้</button><button class="ghost" id="hrd-target-copy">คัดลอกเป้าจากเดือนก่อน</button><span class="hint" id="hrd-target-msg" style="margin:0"></span></div>
+    </div>
   </div>
 </section>
 
@@ -1075,6 +1163,60 @@ table.sum td.l,table.sum th.l{text-align:left}
     </div>
   </div>
 
+  <div class="card" id="users-card" style="margin-bottom:1rem;border-left:4px solid var(--money)">
+    <h2>ผู้ใช้และสิทธิ์ <small>เฉพาะแอดมิน · สร้างบัญชีให้แต่ละคน แล้วติ๊กว่าเห็นเมนูไหนได้บ้าง · ซิงก์ทันที</small></h2>
+    <div class="tablewrap" style="margin-bottom:.8rem"><table class="team" id="userstable" style="min-width:900px"><thead><tr><th class="l">ชื่อ</th><th class="l">อีเมล (ใช้ล็อกอิน)</th><th class="l">ระดับ</th><th class="l">เมนูที่เห็น</th><th class="l">สถานะ</th><th class="l">จัดการ</th></tr></thead><tbody id="usersbody"></tbody></table></div>
+    <div id="user-form" style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem">
+      <h2 id="user-form-title" style="font-size:.95rem">เพิ่มผู้ใช้ใหม่</h2>
+      <div class="frow" style="max-width:960px">
+        <label class="f"><span>ชื่อ (ชื่อเล่น)</span><input type="text" id="u-name" placeholder="เช่น มิ้นท์"></label>
+        <label class="f"><span>อีเมลสำหรับล็อกอิน</span><input type="email" id="u-email" placeholder="mint@ggl.com"></label>
+        <label class="f" id="u-pass-label"><span>รหัสผ่านเริ่มต้น (6 ตัวขึ้นไป)</span><input type="text" id="u-pass" placeholder="เช่น Mint2569!"></label>
+        <label class="f"><span>ระดับ</span><select id="u-role"><option value="user">ผู้ใช้ทั่วไป</option><option value="admin">แอดมิน (เห็นทุกอย่าง รวมเงินเดือน)</option></select></label>
+      </div>
+      <div style="margin:.5rem 0 .2rem;font-size:.8rem;color:var(--muted);font-weight:700">เมนูที่ให้เห็น (ผู้ใช้ทั่วไป)</div>
+      <div id="u-tabs" style="display:flex;flex-wrap:wrap;gap:.35rem .9rem"></div>
+      <div class="btnrow" style="margin-top:.6rem">
+        <button class="primary" id="btn-usersave">สร้างบัญชี</button>
+        <button class="ghost" id="btn-usercancel" hidden>ยกเลิกแก้ไข</button>
+        <span class="hint" id="user-msg" style="margin:0"></span>
+      </div>
+    </div>
+    <details class="imp" style="margin-top:.6rem"><summary>Firestore Rules ที่ต้องอัปเดตให้สิทธิ์ทำงาน (ทำครั้งเดียว)</summary>
+      <p class="hint">Firebase Console → Firestore Database → Rules → แทนที่ทั้งหมดด้วยโค้ดนี้ → Publish (แก้ 'teamhr@ggl.com' เป็นอีเมลแอดมินหลักของคุณ)</p>
+      <pre style="background:#F3F6F2;border-radius:8px;padding:.6rem;font-size:.72rem;overflow:auto">rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signedIn() { return request.auth != null; }
+    function userDoc() { return get(/databases/$(db)/documents/users/$(request.auth.uid)); }
+    function hasUserDoc() { return exists(/databases/$(db)/documents/users/$(request.auth.uid)); }
+    function isAdmin() {
+      return signedIn() && (request.auth.token.email in ['teamhr@ggl.com']
+        || (hasUserDoc() && userDoc().data.role == 'admin'));
+    }
+    function isActive() { return signedIn() && (!hasUserDoc() || userDoc().data.active != false); }
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow write: if isAdmin();
+    }
+    match /app/salaries { allow read, write: if isAdmin(); }
+    match /app/salhist  { allow read, write: if isAdmin(); }
+    match /{document=**} { allow read, write: if isActive(); }
+  }
+}</pre>
+    </details>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem">
+    <h2>ทีม HR (รายงานรายวัน) <small>ใครอยู่ทีม บทบาทอะไร — บทบาทกำหนดว่าต้องกรอกตัวเลขอะไรและเป้าเริ่มต้นเท่าไร</small></h2>
+    <table class="tiers" style="max-width:720px">
+      <thead><tr><th class="l">ชื่อ</th><th class="l">บทบาท</th><th class="l">สาขา/หมายเหตุ</th><th></th></tr></thead>
+      <tbody id="hrteambody"></tbody>
+    </table>
+    <div class="btnrow"><button class="ghost" id="btn-addhrteam">เพิ่มคน</button></div>
+    <p class="hint">บทบาท: QA ฟังสาย · HRBP หัวหน้าทีม · HR สาขา · มิ้นท์ (สาขา+เทรนนิ่ง+สวัสดิการ+เบิก) · ฝึกงานซัพพอร์ตทีมขาย · ฝึกงานจัดสรรรายชื่อ · Audit — กด "บันทึกการตั้งค่า" ด้านล่าง</p>
+  </div>
+
   <div class="card" style="margin-bottom:1rem">
     <h2>ส่งสลิปทางอีเมลอัตโนมัติ <small>ใช้ Google Apps Script ของบัญชี Gmail บริษัท (ฟรี) · ถ้าเว้นว่าง ปุ่มส่งอีเมลจะเปิดโปรแกรมอีเมลของเครื่องแทน</small></h2>
     <div class="frow" style="max-width:960px">
@@ -1334,6 +1476,10 @@ function applyAdminUI(){
   $("sal-label").hidden = !IS_ADMIN;
   $("fsal-label").hidden = !IS_ADMIN;
   if($("kpi-crit-card")) $("kpi-crit-card").hidden = !IS_ADMIN;
+  if($("users-card")) $("users-card").hidden = !(IS_ADMIN && CLOUD && AUTHED);
+  if(typeof applyTabPerms==="function") applyTabPerms();
+  if(typeof subscribeUsers==="function") subscribeUsers();
+  if(typeof renderHrd==="function" && $("hrd-view")) { if(!IS_ADMIN && $("hrd-view").value==="target") $("hrd-view").value="entry"; renderHrd(); }
   { const nb=document.querySelector('nav.tabs button[data-panel="p-set"]'); if(nb) nb.hidden = !IS_ADMIN;
     if(!IS_ADMIN && $("p-set").classList.contains("active")){ const b0=document.querySelector('nav.tabs button[data-panel="p-comm"]'); if(b0) b0.click(); } }
   if($("bulk-card")) $("bulk-card").hidden = !IS_ADMIN;
@@ -3077,6 +3223,7 @@ function fillSettings(){
   CHANNELS().forEach(c=>chRow(c.name));
   $("compbody").innerHTML="";
   (S.companies||["UO","GGL"]).forEach(c=>compRow(c));
+  $("hrteambody").innerHTML=""; hrdTeam().forEach(t=>hrTeamRow(t.name,t.role,t.note));
   $("deptbody").innerHTML=""; (S.depts||[]).forEach(n=>listRow("deptbody","dp-name",n));
   $("posbody").innerHTML="";  (S.poss||[]).forEach(n=>listRow("posbody","ps-name",n));
   $("brbody").innerHTML="";   ((S.branches&&S.branches.length)?S.branches:BASE_BRANCHES).forEach(n=>listRow("brbody","br-name",n));
@@ -3131,6 +3278,7 @@ $("btn-save").addEventListener("click",()=>{
   S.channels=[...document.querySelectorAll("#chbody .ch-name")].map(i=>({name:i.value.trim()})).filter(c=>c.name);
   S.companies=[...document.querySelectorAll("#compbody .comp-name")].map(i=>i.value.trim()).filter(Boolean);
   S.compInfo={}; document.querySelectorAll("#compbody tr").forEach(tr=>{ const n=tr.querySelector(".comp-name").value.trim(); if(n) S.compInfo[n]={full:tr.querySelector(".comp-full").value.trim(), addr:tr.querySelector(".comp-addr").value.trim()}; });
+  S.hrTeam=[...document.querySelectorAll("#hrteambody tr")].map(tr=>({name:tr.querySelector(".ht-name").value.trim(), role:tr.querySelector(".ht-role").value, note:tr.querySelector(".ht-note").value.trim()})).filter(x=>x.name);
   S.emailUrl=$("s-email-url").value.trim(); S.emailKey=$("s-email-key").value.trim(); S.emailFrom=$("s-email-from").value.trim();
   if(!S.companies.length) S.companies=["UO"];
   S.depts=[...document.querySelectorAll("#deptbody .dp-name")].map(i=>i.value.trim()).filter(Boolean);
@@ -3202,6 +3350,8 @@ async function cloudStart(){
       renderComm(); renderLead(); renderMD(); renderKPI();
     }
   }, cloudErr));
+  /* โปรไฟล์ผู้ใช้ + สิทธิ์เมนู (users/{uid}) */
+  await loadMyProfile();
   /* ตรวจสิทธิ์แอดมิน: อ่านเอกสารเงินเดือนได้ = แอดมิน (คุมด้วย Firestore Rules) */
   try{
     const salSnap = await DOC("salaries").get();
@@ -3246,10 +3396,123 @@ async function cloudStart(){
   subscribeTrash();
   if(!$("sub-month").value) $("sub-month").value = mdYm();
   subscribeSub();
+  if(!$("hrd-month").value) $("hrd-month").value = ym();
+  subscribeHrd();
   setSync(true, "ซิงก์ทีมแบบเรียลไทม์");
 }
+/* ================= ผู้ใช้และสิทธิ์ ================= */
+const ALL_TABS = [["p-comm","คำนวณค่าคอม"],["p-lead","หัวหน้าทีม"],["p-kpi","KPI/ใบเตือน"],["p-one","สลิปเงินเดือน"],["p-md","ลงเวลา (Manday)"],["p-mdpay","อนุมัติเงินเดือน & ค่าคอม"],["p-sub","นำส่ง ปกส./กองทุน/กยศ."],["p-emp","พนักงาน"],["p-prob","ทดลองงาน"],["p-hrd","รายงานรายวัน HR"],["p-hist","ประวัติการแก้ไข"]];
+const DEFAULT_USER_TABS = ["p-hrd","p-md","p-comm","p-kpi","p-emp","p-prob"];
+let ME = null;      // {uid,email,name,role,tabs,active}
+let USERS = [];     // รายการผู้ใช้ทั้งหมด (แอดมิน)
+let usersUnsub = null;
+async function loadMyProfile(){
+  ME = null;
+  const u = firebase.auth().currentUser; if(!u) return;
+  try{
+    const sn = await fdb.collection("users").doc(u.uid).get();
+    if(sn.exists){ ME = Object.assign({uid:u.uid, email:u.email}, sn.data()); }
+    else { ME = {uid:u.uid, email:u.email, name:"", role:"", tabs:null, active:true, legacy:true}; }
+  }catch(e){ ME = {uid:u.uid, email:u.email, name:"", role:"", tabs:null, active:true, legacy:true}; }
+  if(ME && ME.active===false){
+    alert("บัญชีนี้ถูกปิดใช้งาน — ติดต่อแอดมิน");
+    firebase.auth().signOut(); return;
+  }
+  if(ME && ME.name && !EDITOR()) lsSet("uo-editor", ME.name);
+  if(ME && ME.name && EDITOR()!==ME.name) lsSet("uo-editor", ME.name);
+  renderEditor();
+}
+function myTabsAllowed(){
+  if(!CLOUD || !AUTHED) return null;                 // โหมดเครื่องเดียว: เห็นทุกเมนู
+  if(IS_ADMIN || (ME && ME.role==="admin")) return null;
+  if(!ME || ME.legacy || !Array.isArray(ME.tabs)) return [...DEFAULT_USER_TABS, "p-lead","p-one","p-sub","p-hist"]; // ยังไม่มีโปรไฟล์: เห็นทุกเมนูยกเว้นของแอดมิน
+  return ME.tabs;
+}
+function applyTabPerms(){
+  const allowed = myTabsAllowed();
+  document.querySelectorAll('nav.tabs button[data-panel]').forEach(b=>{
+    const pid=b.dataset.panel;
+    if(pid==="p-set"){ return; } // คุมโดย applyAdminUI
+    if(pid==="p-mdpay" && !IS_ADMIN && !(ME && ME.role==="admin")) { b.hidden = true; return; }
+    b.hidden = allowed ? !allowed.includes(pid) : false;
+  });
+  const cur = document.querySelector('nav.tabs button[aria-selected="true"]');
+  if(cur && cur.hidden){ const first=[...document.querySelectorAll('nav.tabs button[data-panel]')].find(b=>!b.hidden); if(first) first.click(); }
+  document.querySelectorAll("nav.tabs .navgroup").forEach(g=>{ let n=g.nextElementSibling, any=false; while(n && !n.classList.contains("navgroup")){ if(n.tagName==="BUTTON" && !n.hidden) any=true; n=n.nextElementSibling; } g.hidden=!any; });
+  const chip=$("editor-chip"); if(chip && ME && ME.name){ chip.title = `${ME.name} · ${ME.email} · ${ME.role==="admin"||IS_ADMIN?"แอดมิน":"ผู้ใช้ทั่วไป"}`; }
+}
+function subscribeUsers(){
+  if(usersUnsub){ usersUnsub(); usersUnsub=null; }
+  if(!(CLOUD && AUTHED && IS_ADMIN)) return;
+  usersUnsub = fdb.collection("users").onSnapshot(sn=>{ USERS = sn.docs.map(d=>Object.assign({uid:d.id}, d.data())); renderUsers(); }, e=>{ /* ไม่มีสิทธิ์อ่าน users = rules ยังไม่อัปเดต */ $("user-msg").textContent="อ่านรายชื่อผู้ใช้ไม่ได้ — อัปเดต Firestore Rules ตามกล่องด้านล่างก่อน"; });
+}
+let USER_EDIT = null;
+function renderUsers(){
+  if(!$("usersbody")) return;
+  const tb=$("usersbody"); tb.innerHTML="";
+  USERS.slice().sort((a,b)=>(a.name||"").localeCompare(b.name||"","th")).forEach(u=>{
+    const tabs = u.role==="admin" ? '<span class="hrd-chip ok">ทุกเมนู</span>' : (Array.isArray(u.tabs)?u.tabs:DEFAULT_USER_TABS).map(t=>{ const f=ALL_TABS.find(x=>x[0]===t); return f?`<span class="hrd-chip">${esc(f[1])}</span>`:""; }).join("");
+    tb.insertAdjacentHTML("beforeend",`<tr><td class="l"><strong>${esc(u.name||"—")}</strong></td><td class="l">${esc(u.email||"")}</td><td class="l">${u.role==="admin"?'<span class="badge on">แอดมิน</span>':'<span class="badge trial">ผู้ใช้</span>'}</td><td class="l" style="white-space:normal;max-width:380px">${tabs}</td><td class="l">${u.active===false?'<span class="badge off">ปิดใช้งาน</span>':'<span class="badge on">ใช้งาน</span>'}</td>
+      <td class="l" style="white-space:nowrap"><button type="button" class="ghost" data-uedit="${esc(u.uid)}" style="min-height:30px;padding:.15rem .6rem;font-size:.8rem">แก้สิทธิ์</button> <button type="button" class="ghost" data-ureset="${esc(u.email||"")}" style="min-height:30px;padding:.15rem .6rem;font-size:.8rem">ส่งลิงก์ตั้งรหัสใหม่</button> <button type="button" class="${u.active===false?'ghost':'danger'}" data-utoggle="${esc(u.uid)}" style="min-height:30px;padding:.15rem .6rem;font-size:.8rem">${u.active===false?"เปิดใช้งาน":"ปิดใช้งาน"}</button></td></tr>`);
+  });
+  if(!USERS.length) tb.innerHTML=`<tr><td class="l" colspan="6" style="color:var(--muted)">ยังไม่มีผู้ใช้ — สร้างบัญชีด้านล่าง (บัญชีแอดมินหลักที่ล็อกอินอยู่ตอนนี้ใช้ได้เหมือนเดิม)</td></tr>`;
+  if(!$("u-tabs").children.length) $("u-tabs").innerHTML = ALL_TABS.map(([id,l])=>`<label style="display:inline-flex;gap:.3rem;align-items:center;font-size:.86rem"><input type="checkbox" class="u-tab" value="${id}" ${DEFAULT_USER_TABS.includes(id)?"checked":""}>${esc(l)}</label>`).join("");
+}
+function userFormReset(){
+  USER_EDIT=null; $("user-form-title").textContent="เพิ่มผู้ใช้ใหม่"; $("btn-usersave").textContent="สร้างบัญชี"; $("btn-usercancel").hidden=true; $("u-pass-label").hidden=false; $("u-email").disabled=false;
+  $("u-name").value=""; $("u-email").value=""; $("u-pass").value=""; $("u-role").value="user";
+  document.querySelectorAll("#u-tabs .u-tab").forEach(c=>c.checked=DEFAULT_USER_TABS.includes(c.value));
+}
+$("usersbody").addEventListener("click", async e=>{
+  const ed=e.target.closest("[data-uedit]"), rs=e.target.closest("[data-ureset]"), tg=e.target.closest("[data-utoggle]");
+  if(ed){ const u=USERS.find(x=>x.uid===ed.dataset.uedit); if(!u) return; USER_EDIT=u;
+    $("user-form-title").textContent="แก้สิทธิ์: "+(u.name||u.email); $("btn-usersave").textContent="บันทึกสิทธิ์"; $("btn-usercancel").hidden=false; $("u-pass-label").hidden=true; $("u-email").disabled=true;
+    $("u-name").value=u.name||""; $("u-email").value=u.email||""; $("u-role").value=u.role==="admin"?"admin":"user";
+    renderUsers(); document.querySelectorAll("#u-tabs .u-tab").forEach(c=>c.checked=(Array.isArray(u.tabs)?u.tabs:DEFAULT_USER_TABS).includes(c.value));
+    $("user-form").scrollIntoView({block:"center"}); return; }
+  if(rs){ const em=rs.dataset.ureset; if(!em) return; if(!confirm("ส่งอีเมลลิงก์ตั้งรหัสผ่านใหม่ไปที่ "+em+" ?")) return;
+    try{ await firebase.auth().sendPasswordResetEmail(em); alert("ส่งแล้ว ✓ ให้เจ้าตัวเช็คอีเมล (รวมถึงกล่องสแปม)"); }catch(err){ alert("ส่งไม่สำเร็จ: "+(err.code||err.message)); } return; }
+  if(tg){ const u=USERS.find(x=>x.uid===tg.dataset.utoggle); if(!u) return; if(u.uid===(ME&&ME.uid)) return alert("ปิดบัญชีตัวเองไม่ได้");
+    const to = u.active===false; if(!confirm(`${to?"เปิด":"ปิด"}ใช้งานบัญชี ${u.name||u.email}?`)) return;
+    try{ await fdb.collection("users").doc(u.uid).set({active:to},{merge:true}); DB.hist.unshift({ts:nowTH(),ts2:Date.now(),by:EDITOR(),code:"—",nick:u.name||u.email,action:(to?"เปิด":"ปิด")+"ใช้งานบัญชีผู้ใช้",changes:[]}); saveDB(); }catch(err){ alert("ไม่สำเร็จ: "+(err.code||err.message)); } }
+});
+$("btn-usercancel").addEventListener("click", userFormReset);
+$("btn-usersave").addEventListener("click", async ()=>{
+  if(!IS_ADMIN) return alert("ต้องเป็นแอดมิน");
+  const name=$("u-name").value.trim(), email=$("u-email").value.trim().toLowerCase(), pass=$("u-pass").value, role=$("u-role").value;
+  const tabs=[...document.querySelectorAll("#u-tabs .u-tab")].filter(c=>c.checked).map(c=>c.value);
+  const msg=$("user-msg");
+  if(!name) return alert("กรอกชื่อ");
+  if(USER_EDIT){
+    try{ await fdb.collection("users").doc(USER_EDIT.uid).set({name, role, tabs},{merge:true});
+      DB.hist.unshift({ts:nowTH(),ts2:Date.now(),by:EDITOR(),code:"—",nick:name,action:"แก้สิทธิ์ผู้ใช้ ("+(role==="admin"?"แอดมิน":tabs.length+" เมนู")+")",changes:[]}); saveDB();
+      msg.textContent="บันทึกสิทธิ์แล้ว ✓"; userFormReset(); }catch(err){ msg.textContent="ไม่สำเร็จ: "+(err.code||err.message); }
+    return;
+  }
+  if(!email || !/^\S+@\S+\.\S+$/.test(email)) return alert("อีเมลไม่ถูกต้อง");
+  if(!pass || pass.length<6) return alert("รหัสผ่านต้องมี 6 ตัวขึ้นไป");
+  if(!confirm(`สร้างบัญชี ${name} (${email}) ระดับ ${role==="admin"?"แอดมิน":"ผู้ใช้ทั่วไป"}?`)) return;
+  $("btn-usersave").disabled=true; msg.textContent="กำลังสร้าง...";
+  try{
+    // ใช้ Firebase app ตัวที่สองเพื่อสร้างผู้ใช้โดยไม่หลุดจากบัญชีแอดมินที่ล็อกอินอยู่
+    const sec = firebase.apps.find(a=>a.name==="secondary") || firebase.initializeApp(FIREBASE_CONFIG, "secondary");
+    const cred = await sec.auth().createUserWithEmailAndPassword(email, pass);
+    const uid = cred.user.uid;
+    await sec.auth().signOut();
+    await fdb.collection("users").doc(uid).set({name, email, role, tabs, active:true, createdAt:nowTH(), createdBy:EDITOR()||(ME&&ME.email)||""});
+    DB.hist.unshift({ts:nowTH(),ts2:Date.now(),by:EDITOR(),code:"—",nick:name,action:"สร้างบัญชีผู้ใช้ "+email,changes:[]}); saveDB();
+    msg.textContent=`สร้างแล้ว ✓ แจ้ง ${name}: อีเมล ${email} รหัสผ่าน ${pass} (แนะนำให้กด "ส่งลิงก์ตั้งรหัสใหม่" เพื่อให้เจ้าตัวตั้งเอง)`;
+    userFormReset();
+  }catch(err){
+    const map={"auth/email-already-in-use":"อีเมลนี้มีบัญชีอยู่แล้ว","auth/invalid-email":"อีเมลไม่ถูกต้อง","auth/weak-password":"รหัสผ่านสั้นเกินไป","permission-denied":"ไม่มีสิทธิ์เขียน users — อัปเดต Firestore Rules ก่อน"};
+    msg.textContent="ไม่สำเร็จ: "+(map[err.code]||err.message||err.code);
+  }
+  $("btn-usersave").disabled=false;
+});
 function cloudStop(){
   unsubs.forEach(u=>u&&u()); unsubs=[];
+  if(usersUnsub){ usersUnsub(); usersUnsub=null; }
+  ME=null; USERS=[];
   if(monthUnsub){ monthUnsub(); monthUnsub=null; }
 }
 if(CLOUD){
@@ -3275,6 +3538,7 @@ if(CLOUD){
   $("btn-logout").addEventListener("click",()=>firebase.auth().signOut());
   firebase.auth().onAuthStateChanged(user=>{
     AUTHED = !!user;
+    if(!user){ IS_ADMIN=false; ME=null; document.querySelectorAll('nav.tabs button[data-panel]').forEach(b=>b.hidden=false); }
     $("login-overlay").hidden = AUTHED;
     $("btn-logout").hidden = !AUTHED;
     if(AUTHED){ cloudStart(); }
@@ -4046,6 +4310,213 @@ $("btn-subcsv").addEventListener("click",()=>{
   a.download=`${SUB_PROG.replace(/[\/\\:*?"<>|]/g,"")}-${subYm()}.csv`; a.click(); URL.revokeObjectURL(a.href);
 });
 
+/* ================= รายงานรายวันทีม HR ================= */
+/* บทบาท → ตัวชี้วัดที่ต้องกรอกรายวัน · agg: sum=รวมเดือน avg=เฉลี่ย max=สูงสุด · dir: up=ยิ่งมากยิ่งดี down=ยิ่งน้อยยิ่งดี info=ดูเฉยๆ · t=เป้าเริ่มต้นต่อเดือน */
+const HRD_ROLES = {
+  qa:    {label:"QA ฟังสาย", metrics:[{k:"calls",l:"สายที่ฟัง",agg:"sum",dir:"up",t:880},{k:"score",l:"คะแนนเฉลี่ย (0-100)",agg:"avg",dir:"up",t:80},{k:"cover",l:"พนักงานที่ฟังแล้ว (คน)",agg:"max",dir:"up",t:0},{k:"severe",l:"เคสร้ายแรง",agg:"sum",dir:"info",t:0},{k:"late",l:"เคสแจ้งช้ากว่า 2 ชม.",agg:"sum",dir:"down",t:0}]},
+  hrbp:  {label:"HRBP หัวหน้าทีม", metrics:[{k:"newin",l:"พนักงานเข้าใหม่",agg:"sum",dir:"info",t:0},{k:"resign",l:"ลาออก",agg:"sum",dir:"info",t:0},{k:"passed",l:"ปรับสถานะผ่านทดลองงาน",agg:"sum",dir:"info",t:0},{k:"docmiss",l:"เอกสารพนักงานยังขาด (คน)",agg:"last",dir:"down",t:0},{k:"acctq",l:"ข้อซักถามบัญชีที่ตอบแล้ว",agg:"sum",dir:"info",t:0},{k:"teamsent",l:"HR ที่ส่งรายงานวันนี้ (คน)",agg:"avg",dir:"up",t:7}]},
+  branch:{label:"HR สาขา", metrics:[{k:"present",l:"มาทำงาน (คน)",agg:"avg",dir:"info",t:0},{k:"leave",l:"ลา",agg:"sum",dir:"info",t:0},{k:"late",l:"สาย",agg:"sum",dir:"down",t:10},{k:"absent",l:"ขาด",agg:"sum",dir:"down",t:0},{k:"apply",l:"ใบสมัครใหม่",agg:"sum",dir:"up",t:40},{k:"interview",l:"สัมภาษณ์",agg:"sum",dir:"up",t:16},{k:"hired",l:"รับเข้าทำงาน",agg:"sum",dir:"up",t:4},{k:"welfare",l:"เรื่องสวัสดิการ/ของใช้ที่ปิดได้",agg:"sum",dir:"info",t:0}]},
+  mint:  {label:"มิ้นท์ สาขา+เทรนนิ่ง+สวัสดิการ+เบิก", metrics:[{k:"present",l:"มาทำงาน (คน)",agg:"avg",dir:"info",t:0},{k:"late",l:"สาย",agg:"sum",dir:"down",t:10},{k:"absent",l:"ขาด",agg:"sum",dir:"down",t:0},{k:"trained",l:"อบรมพนักงาน (คน)",agg:"sum",dir:"up",t:4},{k:"tscore",l:"คะแนนทดสอบเฉลี่ย",agg:"avg",dir:"up",t:80},{k:"claimin",l:"ใบเบิกที่รับ",agg:"sum",dir:"info",t:0},{k:"claimsent",l:"ใบเบิกส่งบัญชีแล้ว",agg:"sum",dir:"info",t:0},{k:"claimback",l:"ใบเบิกถูกตีกลับ",agg:"sum",dir:"down",t:1}]},
+  intern_sales:{label:"ฝึกงาน ซัพพอร์ตทีมขาย", metrics:[{k:"jobs",l:"งานที่รับ",agg:"sum",dir:"info",t:0},{k:"done",l:"งานที่เสร็จ",agg:"sum",dir:"up",t:0},{k:"over1h",l:"งานที่เกิน 1 ชม.",agg:"sum",dir:"down",t:2},{k:"keyed",l:"ยอดขายที่คีย์ (บาท)",agg:"sum",dir:"info",t:0},{k:"backlog",l:"ออเดอร์ค้าง/ตีกลับ",agg:"last",dir:"down",t:0}]},
+  intern_list:{label:"ฝึกงาน จัดสรรรายชื่อ", metrics:[{k:"lists",l:"รายชื่อที่แจก",agg:"sum",dir:"up",t:0},{k:"ontime",l:"แจกทันก่อน 09:30 (1=ทัน 0=ช้า)",agg:"avg",dir:"up",t:1},{k:"stock",l:"รายชื่อคงเหลือ",agg:"last",dir:"info",t:0},{k:"dup",l:"รายชื่อซ้ำ/ผิดที่ถูกแจ้ง",agg:"sum",dir:"down",t:5},{k:"upsell",l:"รายชื่อ Upsell ที่เตรียม",agg:"sum",dir:"info",t:0}]},
+  audit: {label:"Audit ทุกแผนก", metrics:[{k:"sent9",l:"ส่งรายงานผู้บริหารก่อน 09:00 (1/0)",agg:"avg",dir:"up",t:1},{k:"red",l:"สัญญาณแดงที่พบ",agg:"sum",dir:"info",t:0},{k:"ordopen",l:"คำสั่งแก้ที่เปิดอยู่",agg:"last",dir:"info",t:0},{k:"ordclosed",l:"คำสั่งแก้ที่ปิดวันนี้",agg:"sum",dir:"up",t:0},{k:"err",l:"ข้อผิดพลาดในรายงานที่ถูกทักท้วง",agg:"sum",dir:"down",t:0}]}
+};
+const HRD_DEFAULT_TEAM = [
+  {name:"QA",role:"qa",note:"ระบุชื่อ"},{name:"HRBP",role:"hrbp",note:"ระบุชื่อ"},
+  {name:"ยี่",role:"branch",note:"อ่อนนุช"},{name:"สิงโต",role:"branch",note:"ขอนแก่น"},{name:"ปู",role:"branch",note:"ปราจีนบุรี 304"},
+  {name:"มิ้นท์",role:"mint",note:"ปราจีนบุรี"},{name:"เนย",role:"intern_sales",note:"ฝึกงาน"},{name:"เปียโน",role:"intern_list",note:"ฝึกงาน"},{name:"ลูกแก้ว",role:"audit",note:""}
+];
+const hrdTeam = () => (Array.isArray(S.hrTeam) && S.hrTeam.length) ? S.hrTeam.filter(x=>x&&x.name) : HRD_DEFAULT_TEAM;
+const hrdRoleOf = name => { const m=hrdTeam().find(x=>x.name===name); return (m && HRD_ROLES[m.role]) ? m.role : "branch"; };
+let HRD = {entries:{}};     // {"ชื่อ|YYYY-MM-DD": {name,date,n:{k:v},done,pending,problem,help,by,at}}
+let HRD_T = {};             // {ชื่อ:{k:เป้า}}
+let hrdUnsub=null, hrdTUnsub=null, HRD_EDIT=null;
+function hrdYm(){ return $("hrd-month").value || ym(); }
+function hrdIso(d){ return mdIso(d); }
+function hrdToday(){ return hrdIso(new Date()); }
+function hrdKey(name, iso){ return name+"|"+iso; }
+function subscribeHrd(){
+  if(hrdUnsub){ hrdUnsub(); hrdUnsub=null; } if(hrdTUnsub){ hrdTUnsub(); hrdTUnsub=null; }
+  const ymv=hrdYm();
+  if(CLOUD && AUTHED){
+    hrdUnsub = fdb.collection("hrdaily").doc(ymv).onSnapshot(sn=>{ if(sn.metadata.hasPendingWrites) return; HRD = sn.exists ? Object.assign({entries:{}}, sn.data()) : {entries:{}}; renderHrd(); }, cloudErr);
+    hrdTUnsub = fdb.collection("hrtargets").doc(ymv).onSnapshot(sn=>{ if(sn.metadata.hasPendingWrites) return; HRD_T = sn.exists ? (sn.data()||{}) : {}; renderHrd(); }, cloudErr);
+  }else{
+    try{ HRD = Object.assign({entries:{}}, JSON.parse(lsGet("uo-hrd-"+ymv)||"{}")); }catch(e){ HRD={entries:{}}; }
+    try{ HRD_T = JSON.parse(lsGet("uo-hrdt-"+ymv)||"{}"); }catch(e){ HRD_T={}; }
+    renderHrd();
+  }
+}
+function saveHrdEntry(key, entry){
+  HRD.entries[key]=entry;
+  if(CLOUD && AUTHED) fdb.collection("hrdaily").doc(hrdYm()).set({entries:{[key]:entry}},{merge:true}).catch(cloudErr);
+  else lsSet("uo-hrd-"+hrdYm(), JSON.stringify(HRD));
+}
+function saveHrdTargets(){
+  if(CLOUD && AUTHED) fdb.collection("hrtargets").doc(hrdYm()).set(HRD_T).catch(cloudErr);
+  else lsSet("uo-hrdt-"+hrdYm(), JSON.stringify(HRD_T));
+}
+function hrdTargetOf(name, m){ const t=(HRD_T[name]||{})[m.k]; return (t!==undefined && t!==null && t!=="") ? num(t) : num(m.t); }
+function hrdWorkdaysSoFar(ymv){
+  const y=Number(ymv.slice(0,4)), mo=Number(ymv.slice(5,7)); const today=new Date(); today.setHours(0,0,0,0);
+  const out=[]; for(let d=new Date(y,mo-1,1); d.getMonth()===mo-1 && d<=today; d.setDate(d.getDate()+1)){ if(d.getDay()!==0 && !holNameOf(d)) out.push(hrdIso(d)); }
+  return out;
+}
+function hrdEntriesOf(name){ return Object.values(HRD.entries||{}).filter(e=>e.name===name && String(e.date||"").startsWith(hrdYm())).sort((a,b)=>a.date.localeCompare(b.date)); }
+function hrdAgg(list, m){
+  const vals=list.map(e=>num((e.n||{})[m.k])).filter((v,i)=>{ const raw=(list[i].n||{})[m.k]; return raw!==undefined && raw!=="" && raw!==null; });
+  if(!vals.length) return null;
+  if(m.agg==="sum") return vals.reduce((a,b)=>a+b,0);
+  if(m.agg==="avg") return vals.reduce((a,b)=>a+b,0)/vals.length;
+  if(m.agg==="max") return Math.max(...vals);
+  return vals[vals.length-1];
+}
+function hrdPct(actual, target, dir){
+  if(dir==="info" || !(target>0 && actual!==null)) { if(dir==="down" && target===0 && actual!==null) return actual===0?100:0; return null; }
+  if(dir==="down") return actual<=target ? 100 : Math.max(0, Math.round(target/actual*100));
+  return Math.min(150, Math.round(actual/target*100));
+}
+function hrdScore(name){
+  const role=HRD_ROLES[hrdRoleOf(name)], list=hrdEntriesOf(name);
+  const items=role.metrics.map(m=>{ const a=hrdAgg(list,m), t=hrdTargetOf(name,m); return {m, actual:a, target:t, pct:hrdPct(a,t,m.dir)}; });
+  const scored=items.filter(i=>i.pct!==null);
+  const score = scored.length ? Math.round(scored.reduce((a,i)=>a+Math.min(100,i.pct),0)/scored.length) : null;
+  const days=hrdWorkdaysSoFar(hrdYm()); const sent=new Set(list.map(e=>e.date)); const sentN=days.filter(d=>sent.has(d)).length;
+  return {items, score, days:days.length, sent:sentN, list};
+}
+function renderHrd(){
+  if(!$("hrd-view")) return;
+  syncBEPickers();
+  const v=$("hrd-view").value;
+  ["entry","sheet","dash","target"].forEach(k=>{ $("hrd-"+k).hidden = v!==k; });
+  $("hrd-tabs").innerHTML = [["entry","📝 ลงข้อมูลวันนี้"],["sheet","📋 ชีทรวมทุกคน"],["dash","📊 แดชบอร์ด"],...(IS_ADMIN?[["target","🎯 เป้ารายเดือน"]]:[])].map(([k,l])=>`<button type="button" data-hv="${k}" class="${v===k?'on':''}">${l}</button>`).join("");
+  // รายชื่อ
+  const team=hrdTeam(); const names=team.map(t=>t.name);
+  const keepSel=(sel, first)=>{ const cur=sel.value; sel.innerHTML=(first?`<option value="">${first}</option>`:"")+names.map(n=>`<option>${esc(n)}</option>`).join(""); if(names.includes(cur)||cur==="") sel.value=cur; };
+  keepSel($("hrd-who"), ""); keepSel($("hrd-sheet-who"), "ทุกคน");
+  if(!$("hrd-who").dataset.user){ const me=EDITOR(); if(names.includes(me)) $("hrd-who").value=me; else if(!$("hrd-who").value) $("hrd-who").value=names[0]||""; }
+  if(!$("hrd-date").value) $("hrd-date").value = mdBE(new Date());
+  if(v==="entry") renderHrdEntry();
+  if(v==="sheet") renderHrdSheet();
+  if(v==="dash") renderHrdDash();
+  if(v==="target") renderHrdTarget();
+}
+function hrdCurIso(){ const d=parseBE($("hrd-date").value); return d ? hrdIso(d) : hrdToday(); }
+function renderHrdEntry(){
+  const name=$("hrd-who").value, role=HRD_ROLES[hrdRoleOf(name)]; const mem=hrdTeam().find(t=>t.name===name)||{};
+  $("hrd-role-hint").innerHTML = `บทบาท: <strong>${esc(role.label)}</strong>${mem.note?" · "+esc(mem.note):""} · ตัวเลขที่ต้องกรอก ${role.metrics.length} ช่อง · เป้าเดือนนี้ดูได้ในแดชบอร์ด`;
+  const iso=hrdCurIso(); const cur=HRD.entries[hrdKey(name,iso)]||{n:{}};
+  if(!$("hrd-nums").dataset.role || $("hrd-nums").dataset.role!==name+"|"+iso || !$("hrd-nums").children.length){
+    $("hrd-nums").dataset.role=name+"|"+iso;
+    $("hrd-nums").innerHTML = role.metrics.map(m=>`<label class="f"><span>${esc(m.l)}</span><input type="text" inputmode="decimal" data-hk="${m.k}" placeholder="0" value="${(cur.n||{})[m.k]??""}"></label>`).join("");
+    $("hrd-done").value=cur.done||""; $("hrd-pending").value=cur.pending||""; $("hrd-problem").value=cur.problem||""; $("hrd-help").value=cur.help||"";
+    $("hrd-msg").textContent = cur.at ? `บันทึกล่าสุด ${cur.at}${cur.by?" · โดย คุณ"+cur.by:""}` : "ยังไม่มีรายงานของวันนี้";
+  }
+  // ตารางของฉัน
+  const list=hrdEntriesOf(name);
+  $("hrd-myhead").innerHTML=`<tr><th class="l">วันที่</th>${role.metrics.map(m=>`<th>${esc(m.l)}</th>`).join("")}<th class="l">ทำแล้ว</th><th class="l">ปัญหา / ขอความช่วยเหลือ</th></tr>`;
+  $("hrd-mybody").innerHTML = list.slice().reverse().map(e=>`<tr class="rowhl" data-hrdedit="${esc(e.date)}"><td class="l">${esc(mdBE(new Date(e.date+"T00:00:00")))}</td>${role.metrics.map(m=>`<td>${(e.n||{})[m.k]!==undefined&&(e.n||{})[m.k]!==""?fmt(num(e.n[m.k])):'<span style="color:var(--muted)">—</span>'}</td>`).join("")}<td class="l" style="max-width:260px;white-space:normal">${esc((e.done||"").slice(0,120))}</td><td class="l" style="max-width:260px;white-space:normal">${esc([e.problem,e.help].filter(Boolean).join(" · ").slice(0,120))}</td></tr>`).join("") || `<tr><td class="l" colspan="${role.metrics.length+3}" style="color:var(--muted)">ยังไม่มีรายงานเดือนนี้</td></tr>`;
+}
+function renderHrdSheet(){
+  const who=$("hrd-sheet-who").value, q=($("hrd-sheet-q").value||"").trim().toLowerCase();
+  const rows=Object.values(HRD.entries||{}).filter(e=>String(e.date||"").startsWith(hrdYm())).filter(e=>!who||e.name===who)
+    .filter(e=>!q || [e.done,e.pending,e.problem,e.help].join(" ").toLowerCase().includes(q))
+    .sort((a,b)=>b.date.localeCompare(a.date) || a.name.localeCompare(b.name,"th"));
+  $("hrd-sheethead").innerHTML=`<tr><th class="l">วันที่</th><th class="l">คน</th><th class="l">บทบาท</th><th class="l">ตัวเลข</th><th class="l">✅ ทำแล้ว</th><th class="l">⏳ ค้าง</th><th class="l">⚠️ ปัญหา</th><th class="l">🙋 ขอความช่วยเหลือ</th><th class="l">บันทึก</th></tr>`;
+  $("hrd-sheetbody").innerHTML = rows.map(e=>{ const role=HRD_ROLES[hrdRoleOf(e.name)];
+    return `<tr><td class="l" style="white-space:nowrap">${esc(mdBE(new Date(e.date+"T00:00:00")))}</td><td class="l"><strong>${esc(e.name)}</strong></td><td class="l">${esc(role.label)}</td>
+      <td class="l" style="white-space:normal;max-width:260px">${role.metrics.filter(m=>(e.n||{})[m.k]!==undefined&&(e.n||{})[m.k]!=="").map(m=>`<span class="hrd-chip">${esc(m.l.split(" (")[0])} ${fmt(num(e.n[m.k]))}</span>`).join("")||"—"}</td>
+      <td class="l" style="white-space:normal;max-width:240px">${esc(e.done||"")}</td><td class="l" style="white-space:normal;max-width:200px">${esc(e.pending||"")}</td><td class="l" style="white-space:normal;max-width:200px">${esc(e.problem||"")}</td><td class="l" style="white-space:normal;max-width:200px">${esc(e.help||"")}</td>
+      <td class="l" style="font-size:.74rem;color:var(--muted)">${esc(e.at||"")}</td></tr>`; }).join("") || `<tr><td class="l" colspan="9" style="color:var(--muted)">ยังไม่มีรายงาน</td></tr>`;
+  $("hrd-sheet-count").textContent=`${rows.length} รายการ`;
+}
+function renderHrdDash(){
+  const team=hrdTeam(); const today=hrdToday();
+  let totalScore=0, nScore=0, sentToday=0, needDecide=0;
+  const trs=team.map(t=>{ const sc=hrdScore(t.name); const role=HRD_ROLES[hrdRoleOf(t.name)];
+    if(sc.score!==null){ totalScore+=sc.score; nScore++; }
+    if(HRD.entries[hrdKey(t.name,today)]) sentToday++;
+    const lastHelp=[...sc.list].reverse().find(e=>e.help&&e.help.trim()); if(lastHelp) needDecide++;
+    const bar=(p)=>p===null?'<span style="color:var(--muted)">—</span>':`<span class="hrd-bar ${p>=100?'':p>=80?'warn':'bad'}"><i style="width:${Math.min(100,p)}%"></i></span> ${p}%`;
+    const sentPct=sc.days?Math.round(sc.sent/sc.days*100):0;
+    return `<tr><td class="l"><strong>${esc(t.name)}</strong></td><td class="l">${esc(role.label)}<br><span style="font-size:.72rem;color:var(--muted)">${esc(t.note||"")}</span></td>
+      <td>${sc.sent}/${sc.days} วัน<br>${bar(sentPct)}</td>
+      <td>${sc.score===null?'<span style="color:var(--muted)">ยังไม่มีข้อมูล</span>':`<strong style="font-size:1.1rem;color:${sc.score>=80?'var(--money)':sc.score>=60?'#8A6100':'var(--deduct)'}">${sc.score}</strong>`}</td>
+      <td class="l" style="white-space:normal;max-width:420px">${sc.items.map(i=>`<span class="hrd-chip ${i.pct===null?'':i.pct>=100?'ok':i.pct>=80?'warn':'bad'}" title="${esc(i.m.l)} · ${i.m.agg==='sum'?'รวม':i.m.agg==='avg'?'เฉลี่ย':i.m.agg==='max'?'สูงสุด':'ล่าสุด'}${i.m.dir==='down'?' · ยิ่งน้อยยิ่งดี':''}">${esc(i.m.l.split(" (")[0])} ${i.actual===null?"—":fmt(Math.round(i.actual*10)/10)}${i.m.dir!=="info"&&i.target?" / "+fmt(i.target):""}</span>`).join("")}</td>
+      <td class="l" style="white-space:normal;max-width:260px">${lastHelp?`<span style="font-size:.8rem">${esc(mdBE(new Date(lastHelp.date+"T00:00:00")))}: ${esc(lastHelp.help.slice(0,140))}</span>`:'<span style="color:var(--muted)">—</span>'}</td></tr>`; });
+  $("hrd-dashbody").innerHTML=trs.join("");
+  const days=hrdWorkdaysSoFar(hrdYm()).length;
+  $("hrd-cards").innerHTML=`
+    <div class="stat"><div class="k">คะแนนเฉลี่ยทีม (เดือนนี้)</div><div class="v">${nScore?Math.round(totalScore/nScore):"—"}</div><div class="d">จาก ${nScore} คนที่มีข้อมูล</div></div>
+    <div class="stat"><div class="k">ส่งรายงานวันนี้</div><div class="v ${sentToday<team.length?'red':''}">${sentToday}/${team.length} คน</div></div>
+    <div class="stat"><div class="k">วันทำงานที่ผ่านมาเดือนนี้</div><div class="v">${days} วัน</div></div>
+    <div class="stat"><div class="k">มีเรื่องรอตัดสินใจ</div><div class="v ${needDecide?'red':''}">${needDecide} คน</div></div>`;
+  const missing=team.filter(t=>!HRD.entries[hrdKey(t.name,today)]).map(t=>t.name);
+  $("hrd-missing").innerHTML = missing.length ? missing.map(n=>`<span class="hrd-chip bad">${esc(n)}</span>`).join(" ") : '<span class="hrd-chip ok">ส่งครบทุกคนแล้ว ✓</span>';
+}
+function renderHrdTarget(){
+  const team=hrdTeam(); const label=new Date(hrdYm()+"-01").toLocaleDateString("th-TH",{month:"long",year:"numeric"});
+  $("hrd-target-label").textContent=label;
+  $("hrd-targethead").innerHTML=`<tr><th class="l">คน</th><th class="l">บทบาท</th><th class="l">ตัวชี้วัด → เป้าเดือนนี้ (ว่าง = ค่าเริ่มต้น)</th></tr>`;
+  $("hrd-targetbody").innerHTML = team.map(t=>{ const role=HRD_ROLES[hrdRoleOf(t.name)]; const tt=HRD_T[t.name]||{};
+    return `<tr><td class="l"><strong>${esc(t.name)}</strong></td><td class="l">${esc(role.label)}</td><td class="l" style="white-space:normal"><div style="display:flex;flex-wrap:wrap;gap:.4rem .8rem">${role.metrics.filter(m=>m.dir!=="info").map(m=>`<label style="display:inline-flex;flex-direction:column;font-size:.74rem;color:var(--muted)">${esc(m.l)} <span style="font-size:.68rem">(${m.agg==='sum'?'รวม/เดือน':m.agg==='avg'?'เฉลี่ย':m.agg==='max'?'สูงสุด':'ล่าสุด'}${m.dir==='down'?' · ไม่เกิน':''} · ค่าเริ่มต้น ${fmt(m.t)})</span><input type="text" inputmode="decimal" data-tname="${esc(t.name)}" data-tk="${m.k}" value="${tt[m.k]??""}" placeholder="${fmt(m.t)}" style="width:110px" ${IS_ADMIN?"":"disabled"}></label>`).join("")}</div></td></tr>`; }).join("");
+}
+$("hrd-tabs").addEventListener("click",e=>{ const b=e.target.closest("[data-hv]"); if(!b) return; $("hrd-view").value=b.dataset.hv; renderHrd(); });
+$("hrd-view").addEventListener("input",renderHrd);
+$("hrd-month").addEventListener("input",()=>{ $("hrd-nums").dataset.role=""; subscribeHrd(); });
+["hrd-sheet-who","hrd-sheet-q"].forEach(id=>$(id).addEventListener("input",renderHrdSheet));
+$("hrd-who").addEventListener("input",()=>{ $("hrd-who").dataset.user="1"; $("hrd-nums").dataset.role=""; renderHrdEntry(); });
+$("hrd-date").addEventListener("change",()=>{ $("hrd-nums").dataset.role=""; renderHrdEntry(); });
+$("hrd-save").addEventListener("click",()=>{
+  const name=$("hrd-who").value; if(!name) return alert("เลือกชื่อก่อน");
+  const d=parseBE($("hrd-date").value); if(!d) return alert("วันที่ไม่ถูกต้อง ใส่เป็น ว/ด/ปปปป เช่น 5/11/2569");
+  const iso=hrdIso(d); if(!iso.startsWith(hrdYm())) return alert("วันที่ไม่อยู่ในเดือนที่เลือกด้านบน — เปลี่ยนเดือนก่อน");
+  const by=ensureEditor(); const n={};
+  document.querySelectorAll("#hrd-nums input[data-hk]").forEach(i=>{ const v=i.value.trim(); if(v!=="") n[i.dataset.hk]=num(v); });
+  const entry={name, date:iso, n, done:$("hrd-done").value.trim(), pending:$("hrd-pending").value.trim(), problem:$("hrd-problem").value.trim(), help:$("hrd-help").value.trim(), by, at:nowTH()};
+  saveHrdEntry(hrdKey(name,iso), entry);
+  $("hrd-nums").dataset.role=""; renderHrd();
+  $("hrd-msg").textContent="บันทึกแล้ว ✓ "+entry.at;
+});
+$("hrd-copyprev").addEventListener("click",()=>{
+  const name=$("hrd-who").value; const list=hrdEntriesOf(name); const iso=hrdCurIso();
+  const prev=[...list].reverse().find(e=>e.date<iso); if(!prev) return alert("ยังไม่มีรายงานก่อนหน้าในเดือนนี้");
+  document.querySelectorAll("#hrd-nums input[data-hk]").forEach(i=>{ i.value=(prev.n||{})[i.dataset.hk]??""; });
+  $("hrd-done").value=prev.done||""; $("hrd-pending").value=prev.pending||""; $("hrd-problem").value=prev.problem||""; $("hrd-help").value=prev.help||"";
+  $("hrd-msg").textContent="ดึงจาก "+mdBE(new Date(prev.date+"T00:00:00"))+" แล้ว — แก้แล้วกดบันทึก";
+});
+$("hrd-mybody").addEventListener("click",e=>{ const tr=e.target.closest("tr[data-hrdedit]"); if(!tr) return; $("hrd-date").value=mdBE(new Date(tr.dataset.hrdedit+"T00:00:00")); $("hrd-nums").dataset.role=""; renderHrdEntry(); window.scrollTo({top:0,behavior:"smooth"}); });
+$("hrd-target-save").addEventListener("click",()=>{
+  if(!IS_ADMIN) return alert("ต้องเป็นแอดมิน");
+  const t={}; document.querySelectorAll("#hrd-targetbody input[data-tname]").forEach(i=>{ const v=i.value.trim(); if(v==="") return; (t[i.dataset.tname]=t[i.dataset.tname]||{})[i.dataset.tk]=num(v); });
+  HRD_T=t; saveHrdTargets(); $("hrd-target-msg").textContent="บันทึกเป้าแล้ว ✓ "+nowTH();
+});
+$("hrd-target-copy").addEventListener("click", async ()=>{
+  if(!IS_ADMIN) return alert("ต้องเป็นแอดมิน");
+  const pv=prevYmOf(hrdYm()); let data={};
+  if(CLOUD && AUTHED){ try{ const sn=await fdb.collection("hrtargets").doc(pv).get(); data=sn.exists?(sn.data()||{}):{}; }catch(e){} }
+  else { try{ data=JSON.parse(lsGet("uo-hrdt-"+pv)||"{}"); }catch(e){} }
+  if(!Object.keys(data).length) return alert("เดือนก่อนยังไม่ได้ตั้งเป้า");
+  HRD_T=data; saveHrdTargets(); renderHrdTarget(); $("hrd-target-msg").textContent="คัดลอกจากเดือนก่อนแล้ว ✓";
+});
+$("hrd-csv").addEventListener("click",()=>{
+  const rows=Object.values(HRD.entries||{}).filter(e=>String(e.date||"").startsWith(hrdYm())).sort((a,b)=>a.date.localeCompare(b.date)||a.name.localeCompare(b.name,"th"));
+  if(!rows.length) return alert("ไม่มีข้อมูล");
+  const allM=[]; Object.values(HRD_ROLES).forEach(r=>r.metrics.forEach(m=>{ if(!allM.find(x=>x.k===m.k&&x.l===m.l)) allM.push(m); }));
+  const head=["วันที่","คน","บทบาท",...allM.map(m=>m.l),"ทำแล้ว","ค้าง","ปัญหา","ขอความช่วยเหลือ","บันทึกโดย","เวลา"];
+  const out=rows.map(e=>[mdBE(new Date(e.date+"T00:00:00")),e.name,HRD_ROLES[hrdRoleOf(e.name)].label,...allM.map(m=>{ const v=(e.n||{})[m.k]; return v===undefined?"":v; }),e.done||"",e.pending||"",e.problem||"",e.help||"",e.by||"",e.at||""]);
+  const csv="\uFEFF"+[head,...out].map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"})); a.download=`hr-daily-${hrdYm()}.csv`; a.click(); URL.revokeObjectURL(a.href);
+});
+numInputBehavior($("hrd-nums"));
+/* ตั้งค่า: ทีม HR */
+function hrTeamRow(name, role, note){
+  $("hrteambody").insertAdjacentHTML("beforeend",`<tr><td><input type="text" class="ht-name" value="${esc(name||"")}" placeholder="ชื่อเล่น" style="max-width:120px"></td>
+    <td><select class="ht-role">${Object.entries(HRD_ROLES).map(([k,r])=>`<option value="${k}" ${k===role?"selected":""}>${esc(r.label)}</option>`).join("")}</select></td>
+    <td><input type="text" class="ht-note" value="${esc(note||"")}" placeholder="สาขา" style="max-width:160px"></td><td><button type="button" class="t-del" title="ลบ">✕</button></td></tr>`);
+}
+$("btn-addhrteam").addEventListener("click",()=>hrTeamRow("","branch",""));
+
 /* ================= เรียงตาราง: คลิกหัวคอลัมน์ (▲ น้อย→มาก · ▼ มาก→น้อย · คลิกอีกครั้ง = เรียงแบบเดิม) ================= */
 const SORT_ST = {};
 const SORT_RERENDER = {commtable:()=>renderComm(), leadtable:()=>renderLead(), emptable:()=>renderEmp(), kpitable:()=>renderKPI(), mdpaytable:()=>renderMDPay(), tstable:()=>renderMD()};
@@ -4212,6 +4683,8 @@ $("editor-chip").addEventListener("click",()=>ensureEditor(true));
   subscribeTrash();
   if(!$("sub-month").value) $("sub-month").value = mdYm();
   if(!(CLOUD && AUTHED)) subscribeSub();
+  if(!$("hrd-month").value) $("hrd-month").value = ym();
+  if(!(CLOUD && AUTHED)) subscribeHrd();
   function onMonthChange(){
     syncMonthMirrors();
     if(CLOUD && AUTHED) subscribeMonth();
