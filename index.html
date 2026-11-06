@@ -10,6 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
 <style>
 :root{
   --paper:#F6F8F4; --card:#FFFFFF; --ink:#1A2A22; --muted:#5C6E63;
@@ -78,7 +79,9 @@ section.panel.active{display:block}
 fieldset{border:none;margin-bottom:1rem}
 legend{font-size:.85rem;font-weight:700;color:var(--money);margin-bottom:.5rem;padding-top:.25rem}
 .frow{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.6rem .8rem}
+[hidden]{display:none !important}
 label.f{display:block;font-size:.8rem;color:var(--muted)}
+.pgbox>label{white-space:nowrap}
 label.f span{display:block;margin-bottom:.15rem}
 input,textarea,select{font-family:inherit;font-size:.95rem;width:100%;border:1px solid var(--line);border-radius:6px;padding:.4rem .55rem;background:#FCFDFB;color:var(--ink)}
 input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
@@ -279,10 +282,37 @@ details.imp summary{cursor:pointer;font-size:.85rem;font-weight:600;color:var(--
 .warnbar{background:#FFF3DC;border:1px solid #EAD59A;color:#6B4E00;border-radius:8px;padding:.5rem .8rem;font-size:.82rem;margin-bottom:1rem}
 
 /* login overlay */
-#login-overlay{position:fixed;inset:0;background:rgba(26,42,34,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:1rem}
+/* ---------- หน้าเข้าสู่ระบบ: พื้นเทา · การ์ดสองฝั่ง ---------- */
+#login-overlay{position:fixed;inset:0;background:#E6E8EB;display:flex;align-items:center;justify-content:center;z-index:50;padding:1rem}
 #login-overlay[hidden]{display:none}
-#login-overlay .card{max-width:360px;width:100%}
-#login-err{color:var(--deduct);font-size:.82rem;margin-top:.4rem;min-height:1.2em}
+.lg-card{display:grid;grid-template-columns:1fr 1fr;width:100%;max-width:960px;min-height:520px;background:#fff;border-radius:28px;overflow:hidden;box-shadow:0 24px 60px rgba(20,40,30,.18)}
+.lg-left{position:relative;padding:3rem 3rem 2.4rem;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.lg-left::before{content:"";position:absolute;inset:-40% -30% auto -30%;height:120%;background:radial-gradient(closest-side,rgba(14,122,95,.10),transparent 70%),radial-gradient(closest-side at 20% 80%,rgba(14,122,95,.08),transparent 70%);pointer-events:none}
+.lg-left>*{position:relative}
+.lg-brand{margin-bottom:1.6rem}
+.lg-brand .mark{display:flex;align-items:center;gap:.55rem;font-size:2rem;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1}
+.lg-brand .mark i{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;background:var(--money);color:#fff;font-style:normal;font-size:1.25rem;font-weight:800}
+.lg-brand .mark b{color:var(--money)}
+.lg-brand .co{margin-top:.5rem;font-size:.9rem;color:var(--muted);font-weight:600}
+.lg-brand .co small{display:block;font-weight:400;font-size:.78rem}
+.lg-left h2{font-size:1.25rem;margin:0 0 .9rem}
+.lg-field{display:flex;align-items:center;gap:.6rem;background:#F3F5F4;border:1.5px solid transparent;border-radius:14px;padding:.3rem .55rem .3rem .8rem;margin-bottom:.7rem}
+.lg-field:focus-within{border-color:var(--money);background:#fff}
+.lg-field svg{width:22px;height:22px;flex:0 0 22px;color:var(--ink);opacity:.8}
+.lg-field input{border:0;background:transparent;padding:.65rem .2rem;font-size:.98rem}
+.lg-field input:focus-visible{outline:none}
+.lg-eye{border:0;background:transparent;cursor:pointer;padding:.3rem;min-height:auto;color:var(--ink);opacity:.7;border-radius:8px}
+.lg-eye:hover{background:#E8ECEA;opacity:1}
+#login-btn{width:100%;border-radius:14px;font-size:1.05rem;padding:.8rem;margin-top:.3rem}
+#login-err{color:var(--deduct);font-size:.82rem;margin-top:.6rem;min-height:1.2em;text-align:center}
+.lg-foot{text-align:center;font-size:.8rem;color:var(--muted);margin-top:.6rem}
+.lg-foot b{color:var(--money);font-weight:600}
+.lg-right{background:linear-gradient(160deg,#0F3B2E 0%,#0E7A5F 100%);color:#fff;padding:3rem 2.4rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.lg-right h3{font-size:1.7rem;margin:0 0 .3rem;font-weight:800}
+.lg-right p{margin:0 0 2rem;opacity:.9;font-size:1.05rem}
+.lg-art{width:100%;max-width:330px;height:auto}
+.lg-ver{margin-top:2rem;font-size:.72rem;opacity:.65;font-family:monospace}
+@media(max-width:760px){.lg-card{grid-template-columns:1fr;min-height:auto;border-radius:20px}.lg-right{display:none}.lg-left{padding:2rem 1.4rem}}
 
 /* ================= Manday (ต้นแบบ) ================= */
 :root{--warn:#8A6100;--warn-soft:#FFF3DC}
@@ -364,22 +394,54 @@ table.sum td.l,table.sum th.l{text-align:left}
 <body>
 
 <div id="login-overlay" hidden>
-  <div class="card">
-    <h2 style="margin-bottom:.2rem">เข้าสู่ระบบทีม</h2>
-    <p class="hint">ใช้อีเมลและรหัสผ่านที่ตั้งไว้ใน Firebase (ทีมใช้ร่วมกันได้)</p>
-    <div class="frow" style="grid-template-columns:1fr">
-      <label class="f"><span>อีเมล</span><input type="email" id="login-email" autocomplete="username"></label>
-      <label class="f"><span>รหัสผ่าน</span><input type="password" id="login-pass" autocomplete="current-password"></label>
+  <div class="lg-card">
+    <div class="lg-left">
+      <div class="lg-brand">
+        <div class="mark"><i>HR</i><span>GGL<b>×</b>UO</span></div>
+        <div class="co">บริษัท กู๊ดกู๊ดไลฟ์ จำกัด (GGL) · บริษัท อัลติเมท เอ้าพุ้ท จำกัด (UO)<small>ระบบ HR · ค่าคอม · เงินเดือน · ลงเวลา · ทะเบียนพนักงาน</small></div>
+      </div>
+      <h2>เข้าสู่ระบบ</h2>
+      <label class="lg-field" for="login-email">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3.2"/><path d="M6.2 18.4c1.3-2.2 3.4-3.4 5.8-3.4s4.5 1.2 5.8 3.4"/></svg>
+        <input type="email" id="login-email" autocomplete="username" placeholder="กรอกอีเมลผู้ใช้" aria-label="อีเมล">
+      </label>
+      <label class="lg-field" for="login-pass">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V7.8a4 4 0 0 1 8 0v2.7"/><circle cx="12" cy="15.5" r="1.3"/></svg>
+        <input type="password" id="login-pass" autocomplete="current-password" placeholder="กรอกรหัสผ่าน" aria-label="รหัสผ่าน">
+        <button type="button" class="lg-eye" id="login-eye" title="แสดง/ซ่อนรหัสผ่าน" aria-label="แสดงรหัสผ่าน"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12s-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </label>
+      <button class="primary" id="login-btn">เข้าสู่ระบบ</button>
+      <div id="login-err"></div>
+      <div class="lg-foot">ยังไม่มีแอคเคาท์? <b>ติดต่อแอดมิน HR</b> ให้สร้างบัญชีและเปิดสิทธิ์ให้</div>
     </div>
-    <div class="btnrow"><button class="primary" id="login-btn" style="width:100%">เข้าสู่ระบบ</button></div>
-    <div id="login-err"></div>
+    <div class="lg-right">
+      <h3>ยินดีต้อนรับสู่ระบบ HR</h3>
+      <p>Good Good Life × Ultimate Output · All-in-One</p>
+      <svg class="lg-art" viewBox="0 0 330 260" aria-hidden="true">
+        <defs><linearGradient id="lgA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".06"/></linearGradient></defs>
+        <circle cx="165" cy="130" r="118" fill="url(#lgA)"/>
+        <g fill="#fff" fill-opacity=".92">
+          <rect x="112" y="46" width="176" height="150" rx="14" fill="#fff" fill-opacity=".16"/>
+          <rect x="112" y="46" width="176" height="26" rx="14" fill="#fff" fill-opacity=".28"/>
+          <rect x="128" y="86" width="144" height="22" rx="7"/><rect x="128" y="116" width="144" height="22" rx="7"/><rect x="128" y="146" width="144" height="22" rx="7"/>
+          <circle cx="140" cy="97" r="7" fill="#0E7A5F"/><rect x="152" y="93" width="70" height="8" rx="4" fill="#0E7A5F" fill-opacity=".55"/>
+          <circle cx="140" cy="127" r="7" fill="#0E7A5F"/><rect x="152" y="123" width="90" height="8" rx="4" fill="#0E7A5F" fill-opacity=".55"/>
+          <circle cx="140" cy="157" r="7" fill="#0E7A5F"/><rect x="152" y="153" width="56" height="8" rx="4" fill="#0E7A5F" fill-opacity=".55"/>
+        </g>
+        <g stroke="#fff" stroke-opacity=".7" stroke-width="5" stroke-linecap="round"><line x1="78" y1="80" x2="112" y2="80"/><line x1="78" y1="130" x2="112" y2="130"/><line x1="78" y1="180" x2="112" y2="180"/></g>
+        <g><circle cx="52" cy="80" r="26" fill="#fff"/><text x="52" y="86" text-anchor="middle" font-size="16" font-weight="800" fill="#0E7A5F" font-family="sans-serif">฿</text></g>
+        <g><circle cx="52" cy="130" r="26" fill="#fff"/><rect x="40" y="120" width="24" height="20" rx="3" fill="#0E7A5F"/><rect x="40" y="120" width="24" height="5" rx="2" fill="#0F3B2E"/><rect x="45" y="128" width="4" height="4" fill="#fff"/><rect x="52" y="128" width="4" height="4" fill="#fff"/><rect x="45" y="134" width="4" height="4" fill="#fff"/></g>
+        <g><circle cx="52" cy="180" r="26" fill="#fff"/><circle cx="52" cy="174" r="6" fill="#0E7A5F"/><path d="M40 193c1.5-6 6-9 12-9s10.5 3 12 9" fill="#0E7A5F"/></g>
+      </svg>
+      <div class="lg-ver" id="login-ver"></div>
+    </div>
   </div>
 </div>
 
 <header class="site">
   <div class="wrap">
     <h1>ระบบ HR GGLxUO
-      <span class="sub">ค่าคอม · เงินเดือน · ลงเวลา · ทะเบียนพนักงาน · รายงานทีม HR</span>
+      <span class="sub">ค่าคอม · เงินเดือน · ลงเวลา · ทะเบียนพนักงาน · รายงานทีม HR <span id="app-ver" style="opacity:.6;font-size:.72rem;margin-left:.4rem"></span></span>
     </h1>
     <div class="hd-right">
       <button id="editor-chip" class="bellbtn" title="ลงชื่อผู้ใช้งานเครื่องนี้ (คลิกเพื่อเปลี่ยน)" style="font-size:.85rem;white-space:nowrap">👤 <span id="editor-name">ลงชื่อผู้ใช้</span></button>
@@ -400,6 +462,10 @@ table.sum td.l,table.sum th.l{text-align:left}
 
 <div class="wrap">
 
+<div class="warnbar" id="permwarn" hidden>
+  ⚠ <strong>อ่านข้อมูลจากระบบไม่ได้ — สิทธิ์ถูกปฏิเสธ (permission-denied)</strong> ส่วนใหญ่เกิดจาก Firestore Rules ที่เพิ่ง Publish ผิด หรือบัญชีนี้ถูกปิดใช้งาน ·
+  แอดมินแก้ที่ Firebase Console → Firestore Database → Rules (ดูชุด Rules ที่ถูกต้องในแท็บตั้งค่าเรต) แล้วทุกคน Cmd+Shift+R
+</div>
 <div class="warnbar" id="setupwarn" hidden>
   ยังไม่ได้ตั้งค่า Firebase — ตอนนี้ข้อมูลเก็บในเครื่องนี้เครื่องเดียว ทีมจะไม่เห็นข้อมูลเดียวกัน
   ทำตามขั้นตอนใน README (หัวข้อ "ตั้งค่า Firebase") แล้ววางค่า config ในไฟล์นี้ตรงบรรทัด <code>FIREBASE_CONFIG</code>
@@ -644,6 +710,8 @@ table.sum td.l,table.sum th.l{text-align:left}
       <label class="f"><span>ตำแหน่ง</span><input type="text" id="e-pos" list="pos-list"><datalist id="pos-list"></datalist></label>
       <label class="f"><span>สาขา</span><input type="text" id="e-branch" list="branch-list"><datalist id="branch-list"></datalist></label>
       <label class="f"><span>หัวหน้า</span><input type="text" id="e-sup" list="sup-list"><datalist id="sup-list"></datalist></label>
+      <label class="f"><span>ฝ่าย</span><input type="text" id="e-division" list="division-list" placeholder="เช่น ฝ่ายขาย / ฝ่ายสนับสนุน"><datalist id="division-list"></datalist></label>
+      <label class="f"><span>เวลาเข้างาน</span><input type="text" id="e-worktime" placeholder="เช่น 9.00-18.00"></label>
       <label class="f"><span>อีเมลพนักงาน</span><input type="email" id="e-email" placeholder="สำหรับส่งสลิป"></label>
       <label class="f"><span>เบอร์โทร</span><input type="tel" id="e-phone" placeholder="08x-xxx-xxxx"></label>
       <label class="f"><span>บัญชีที่ใช้จ่ายเงิน</span><select id="e-accttype"><option value="">— ไม่ระบุ —</option><option>UO</option><option>GGL</option><option>บัญชีนอก</option></select></label>
@@ -654,6 +722,8 @@ table.sum td.l,table.sum th.l{text-align:left}
         <option>กสิกรไทย</option><option>ไทยพาณิชย์</option><option>กรุงเทพ</option><option>กรุงไทย</option><option>กรุงศรีอยุธยา</option><option>ทหารไทยธนชาต (ttb)</option><option>ออมสิน</option><option>ธ.ก.ส.</option><option>เกียรตินาคินภัทร</option><option>CIMB Thai</option><option>UOB</option><option>LH Bank</option><option>พร้อมเพย์</option>
       </datalist></label>
       <label class="f" id="acct-label"><span>เลขบัญชีโอนเงิน — เฉพาะแอดมิน</span><input type="text" id="e-acct" placeholder="xxx-x-xxxxx-x"></label>
+      <label class="f" id="acct-mask-label" hidden><span>เลขบัญชีโอนเงิน (แสดงบางส่วน)</span><input type="text" id="e-acct-mask" readonly style="background:var(--bg2,#f6f6f6)"></label>
+      <label class="f" id="idno-label" hidden><span>เลขบัตรประชาชน — เฉพาะแอดมิน (เก็บแยกในส่วนที่แอดมินอ่านได้คนเดียว)</span><input type="text" id="e-idno" inputmode="numeric" placeholder="13 หลัก" maxlength="17"></label>
       <label class="f" style="grid-column:1/-1"><span>เข้าร่วม (ติ๊กได้หลายรายการ — ตั้งรายการได้ในแท็บตั้งค่าเรต)</span>
         <span id="e-progs" style="display:grid;gap:.5rem;padding:.3rem 0"></span>
       </label>
@@ -673,7 +743,13 @@ table.sum td.l,table.sum th.l{text-align:left}
       <label class="f"><span>วันเริ่มงาน (ว/ด/ปปปป พ.ศ.)</span><input type="text" id="e-start" placeholder="เช่น 15/6/2569"></label>
       <label class="f"><span>วันผ่านงาน (ว/ด/ปปปป พ.ศ.)</span><input type="text" id="e-pass" placeholder="เว้นว่างถ้ายังไม่ผ่าน"></label>
       <label class="f"><span>วันที่ลาออก (ว/ด/ปปปป พ.ศ.)</span><input type="text" id="e-resign"></label>
+      <label class="f" style="grid-column:1/-1"><span>หมายเหตุ</span><input type="text" id="e-note" placeholder="บันทึกเพิ่มเติมเกี่ยวกับพนักงาน"></label>
       <label class="f" id="sal-label"><span>ฐานเงินเดือน (บาท)</span><input type="number" id="e-salary" min="0"></label>
+      <label class="f" id="saleff-label" hidden><span>วันที่มีผลของเงินเดือนใหม่ (ว/ด/ปปปป) — ว่าง = วันนี้</span><input type="text" id="e-saleff" placeholder="เช่น 1/12/2569 · ปรับกลางรอบระบบคิดสัดส่วนวันให้"></label>
+      <label class="f" id="deds-label" style="grid-column:1/-1" hidden><span>รายการหักแบบผ่อนงวด — เฉพาะแอดมิน (เงินกู้ / ค่าอบรม · ระบบหักอัตโนมัติทุกรอบจนครบ แล้วบอกว่าเหลืออีกกี่งวด)</span>
+        <table class="tiers" style="max-width:100%"><thead><tr><th class="l">ประเภท</th><th class="l">ชื่อรายการ</th><th>ยอดรวม</th><th>หักต่องวด</th><th class="l">เริ่มหักรอบเดือน (ด/ปปปป พ.ศ.)</th><th class="l">สถานะรอบที่เลือกใน Manday</th><th></th></tr></thead><tbody id="dedsbody"></tbody></table>
+        <span class="btnrow" style="margin-top:.4rem"><button type="button" class="ghost" id="btn-addded">+ เพิ่มรายการผ่อนหัก</button></span>
+      </label>
     </div>
     <div class="btnrow">
       <button class="primary" id="e-save">บันทึก</button>
@@ -682,6 +758,15 @@ table.sum td.l,table.sum th.l{text-align:left}
     </div>
   </div>
 
+  <details class="imp" id="empimport-wrap" style="margin-bottom:1rem" hidden>
+    <summary>📥 นำเข้าทะเบียนพนักงานจาก Excel / Google Sheets / CSV (แอดมิน)</summary>
+    <p class="hint"><strong>วิธีทำ:</strong> ในชีทให้แถวแรกเป็นหัวคอลัมน์ภาษาไทย เช่น <code>รหัสพนักงาน, คำนำหน้า, ชื่อ, นามสกุล, ชื่อเล่น, ฝ่าย, แผนก, ตำแหน่ง, สาขา, บริษัท, หัวหน้า, ธนาคาร, เลขบัญชี, เลขบัตรประชาชน, สถานะ, เวลาเข้างาน, เบอร์โทร, อีเมล, วันที่เริ่มงาน, วันที่ลาออก, ประเภทการจ่าย, อัตราต่อวัน, ฐานเงินเดือน, หมายเหตุ</code> (มีไม่ครบก็ได้ ระบบจับจากชื่อหัวคอลัมน์) → คัดลอกทั้งตารางมาวาง หรือแนบ .csv → กดนำเข้า · รหัสที่มีอยู่แล้ว = อัปเดตเฉพาะช่องที่มีค่า · รหัสใหม่/ไม่มีรหัส = เพิ่มพนักงานใหม่ (รันรหัสให้)</p>
+    <div class="frow" style="max-width:900px">
+      <label class="f" style="grid-column:1/-1"><span>วางตาราง (รวมหัวคอลัมน์)</span><textarea id="emp-paste" rows="5" style="width:100%;font-family:monospace;font-size:.8rem"></textarea></label>
+      <label class="f"><span>แนบไฟล์ CSV</span><input type="file" id="emp-file" accept=".csv,text/csv,.txt"></label>
+    </div>
+    <div class="btnrow"><button class="ghost" id="btn-empimport">นำเข้าทะเบียนพนักงาน (ใส่ PIN)</button><span class="hint" id="emp-import-msg" style="margin:0"></span></div>
+  </details>
   <div class="card" style="margin-bottom:1rem">
     <h2>ทะเบียนพนักงาน <small>คลิกแถวเพื่อแก้ไข · ทุกการแก้ไขถูกบันทึกลงประวัติ</small></h2>
     <div class="frow" style="max-width:960px">
@@ -882,6 +967,21 @@ table.sum td.l,table.sum th.l{text-align:left}
     <div class="legend" id="md-legend" style="margin-top:.6rem"></div>
     <p class="hint" style="margin-bottom:0">หน้านี้สำหรับลงเวลาอย่างเดียว · ยอดเงินและการอนุมัติอยู่ที่เมนู <strong>✅ อนุมัติเงินเดือน & ค่าคอม</strong> · วันลา/สาย ลิงก์ไปหักในหน้าคำนวณค่าคอมอัตโนมัติ</p>
   </div>
+  <details class="imp" style="margin-bottom:1rem">
+    <summary>📥 นำเข้าตารางลงเวลาจากชีท/CSV (ข้อมูลรอบเก่า)</summary>
+    <p class="hint"><strong>รูปแบบ:</strong> แถวแรกเป็นหัวตาราง — คอลัมน์แรก "รหัส" หรือ "ชื่อเล่น" แล้วตามด้วยวันที่ (เช่น 26/8/2569 หรือ 26/8 หรือแค่เลขวัน 26, 27, …, 25) · ช่องใส่รหัส OFF S PL LP HF AL L HD AA LO ML W WFH (สาย ใส่ L30 = สาย 30 นาที · ครึ่งวัน ใส่ HF-S / HF-PL / HF-LP) · ช่องว่าง = มาทำงาน ไม่เปลี่ยนค่าเดิม · นำเข้าเข้ารอบที่เลือกอยู่ด้านบน</p>
+    <div class="frow" style="max-width:900px">
+      <label class="f" style="grid-column:1/-1"><span>วางจาก Excel/Google Sheets (คัดลอกทั้งตารางรวมหัว) หรือแนบไฟล์ .csv</span><textarea id="md-paste" rows="5" style="width:100%;font-family:monospace;font-size:.8rem" placeholder="รหัส,26/8/2569,27/8/2569,...
+00012,,S,,L30,OFF,..."></textarea></label>
+      <label class="f"><span>แนบไฟล์ CSV</span><input type="file" id="md-file" accept=".csv,text/csv,.txt"></label>
+    </div>
+    <div class="btnrow"><button class="ghost" id="btn-mdimport">นำเข้าเข้ารอบที่เลือก (ใส่ PIN)</button><span class="hint" id="md-import-msg" style="margin:0"></span></div>
+  </details>
+  <details class="imp" id="md-log-wrap" style="margin-bottom:1rem">
+    <summary>📝 ประวัติการแก้ไขรอบนี้ — ใครแก้ อะไร เมื่อไร ค่าเดิม → ค่าใหม่ <span id="mdlog-count" style="color:var(--muted);font-weight:400"></span></summary>
+    <div class="frow" style="max-width:420px;margin:.5rem 0"><label class="f"><span>ค้นหา</span><input type="text" id="mdlog-q" placeholder="รหัส / ชื่อผู้แก้ / รายการ"></label></div>
+    <div class="tablewrap"><table class="tiers" style="max-width:100%"><thead><tr><th class="l">เวลา</th><th class="l">ผู้แก้</th><th class="l">พนักงาน</th><th class="l">รายการ</th><th class="l">ค่าเดิม</th><th class="l">ค่าใหม่</th></tr></thead><tbody id="mdlogbody"></tbody></table></div>
+  </details>
   <details class="imp" id="md-dash-wrap" open style="margin-bottom:1rem">
     <summary>📈 แดชบอร์ดสรุปการมาทำงานรอบนี้ (ตามฟิลเตอร์ด้านบน)</summary>
     <div class="mdcards" id="md-dash" style="margin-top:.6rem"></div>
@@ -939,7 +1039,9 @@ table.sum td.l,table.sum th.l{text-align:left}
         <label class="f"><span>ป้ายเตือน</span><select id="mp-flag">
           <option value="">ทั้งหมด</option><option value="warn">มีป้ายเตือน</option><option value="unchk">ยังตรวจไม่ครบ 2 คน</option><option value="chk">ตรวจครบแล้ว</option></select></label>
       </div>
-      <div class="btnrow" style="margin-top:.5rem"><button class="ghost" id="btn-mpcsv">ดาวน์โหลด CSV ตารางเงินเดือน</button><span class="hint" style="margin:0">🟩 ช่องเขียว = กรอกมือ · 🔗 สีเทา = หักอัตโนมัติตามรายการที่เข้าร่วม · ☑ ช่องท้ายแถว = HR 2 คนติ๊กตรวจ แล้วแอดมินกดอนุมัติด้านล่าง</span></div>
+      <div class="btnrow" style="margin-top:.5rem"><button class="ghost" id="btn-mpxlsx">📗 ดาวน์โหลด Excel (เงินเดือน + สรุป + ไฟล์โอนเงิน)</button><button class="ghost" id="btn-mpcsv">ดาวน์โหลด CSV ตารางเงินเดือน</button>
+        <select id="mp-bankfmt" style="width:auto"><option value="csv">ไฟล์โอนเงิน CSV (ลำดับ · รหัสธนาคาร · เลขบัญชี · ชื่อ · จำนวนเงิน)</option><option value="txt">ไฟล์โอนเงิน TXT คั่นด้วย | (รหัสธนาคาร|เลขบัญชี|ชื่อ|จำนวนเงิน|รหัสพนักงาน)</option></select><button class="ghost" id="btn-mpbank">🏦 ออกไฟล์โอนเงิน</button></div>
+      <p class="hint" style="margin:.4rem 0 0">🟩 ช่องเขียว = กรอกมือ · 🔗 สีเทา = หักอัตโนมัติ (รายการที่เข้าร่วม · ค่าอบรม/เงินกู้ผ่อนงวดตั้งในฟอร์มพนักงาน) · ☑ ช่องท้ายแถว = HR 2 คนติ๊กตรวจ แล้วแอดมินกดอนุมัติด้านล่าง · ไฟล์โอนเงินออกตามฟิลเตอร์บริษัท/บัญชีจ่าย ถ้าธนาคารต้องการรูปแบบเฉพาะ ส่งตัวอย่างไฟล์ของธนาคารมาปรับได้</p>
     </div>
     <div class="mdcards" id="apcards"></div>
     <div class="card" style="margin-bottom:1rem">
@@ -1123,6 +1225,13 @@ table.sum td.l,table.sum th.l{text-align:left}
     </table>
     <div class="btnrow"><button class="ghost" id="btn-addhol">เพิ่มวันหยุด</button></div>
     <p class="hint">เช่น 23 ต.ค. วันปิยมหาราช · 5 ธ.ค. วันพ่อ — ถ้าใครมาทำงานวันนั้นจริง คลิกช่องแล้วเลือกรหัส W</p>
+    <h2 style="margin-top:1rem">เกณฑ์ป้ายเตือนหน้าอนุมัติเงินเดือน (Manday)</h2>
+    <div class="frow" style="max-width:720px">
+      <label class="f"><span>ยอดต่างจากรอบก่อนเกิน (%)</span><input type="number" id="s-mddiffpct" min="0" step="any" placeholder="20"></label>
+      <label class="f"><span>หรือต่างเกิน (บาท)</span><input type="number" id="s-mddiffamt" min="0" placeholder="5000"></label>
+      <label class="f"><span>ลาป่วยสะสมทั้งปีเกิน (วัน)</span><input type="number" id="s-mdsickmax" min="0" placeholder="30"></label>
+    </div>
+    <p class="hint">ป้ายเตือนอื่นที่ระบบเช็กให้เอง: เริ่มงานกลางรอบแต่ได้เต็มรอบ · ปรับเงินเดือนกลางรอบ (คิดสัดส่วนวันอัตโนมัติ) · ออกระหว่างรอบแต่เงิน 0 · ป่วยต่อเนื่องเกิน 3 วันไม่มีใบรับรอง · ยังไม่กรอกธนาคาร/เลขบัญชี · หักเงินกู้/อบรมงวดสุดท้าย</p>
   </div>
 
   <div class="card" style="margin-bottom:1rem">
@@ -1313,6 +1422,7 @@ const FIREBASE_CONFIG = {
 /* ============================================================ */
 
 const $ = id => document.getElementById(id);
+const APP_VERSION = "v5.11.2569-8";
 const fmt = n => (isFinite(n)?n:0).toLocaleString("th-TH",{maximumFractionDigits:2});
 const num = v => { const n = parseFloat(String(v??"").replace(/[, ]/g,"")); return isFinite(n)?n:0; };
 const fmt2 = n => (isFinite(n)?n:0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -1476,6 +1586,76 @@ let IS_ADMIN = false;
 let SAL = {};      // {code: เงินเดือน}
 let SALHIST = [];  // ประวัติปรับเงินเดือน (เฉพาะแอดมิน)
 const getSalary = code => num(SAL[code]);
+/* ซ่อนเลขบัตร/เลขบัญชี: โชว์แค่ 4 หลักท้าย */
+function maskNo(s){
+  s=String(s||""); if(!s) return "";
+  const digits=s.replace(/[^0-9]/g,""); if(digits.length<=4) return "••••";
+  let left=digits.length-4, out="";
+  for(const ch of s){ if(/[0-9]/.test(ch)){ if(left>0){ out+="•"; left--; } else out+=ch; } else out+=ch; }
+  return out;
+}
+/* เงินเดือนที่มีผล ณ วันที่ d (ใช้ประวัติปรับเงินเดือนที่มีวันที่มีผล) */
+function salaryAt(code, d){
+  const cur=getSalary(code);
+  if(!d) return cur;
+  const ent=(SALHIST||[]).filter(h=>h.code===code && h.action==="ปรับเงินเดือน" && (h.changes||[])[0] && h.changes[0].f==="salary")
+    .map(h=>{ let eff=h.eff?parseBE(h.eff):null; if(!eff||isNaN(eff)) eff=new Date(h.ts2||0); eff=new Date(eff); eff.setHours(0,0,0,0);
+      return {eff, from:num(h.changes[0].from), to:num(h.changes[0].to)}; })
+    .sort((a,b)=>a.eff-b.eff);
+  if(!ent.length) return cur;
+  const t=new Date(d); t.setHours(0,0,0,0);
+  if(ent[ent.length-1].eff<=t) return cur;
+  let v=ent[0].from;
+  for(const x of ent){ if(x.eff<=t) v=x.to; else break; }
+  return v;
+}
+/* รายการหักแบบผ่อนงวด (เงินกู้/อบรม) — เก็บในทะเบียนพนักงาน e.deds = [{id,kind,name,total,per,startYm}] */
+function monthsDiffYm(fromYm, toYm){ return (Number(toYm.slice(0,4))-Number(fromYm.slice(0,4)))*12 + (Number(toYm.slice(5,7))-Number(fromYm.slice(5,7))); }
+function dedItemsOf(e, ymv){
+  const out=[];
+  for(const it of (e&&Array.isArray(e.deds)?e.deds:[])){
+    const total=num(it.total), per=num(it.per)||total;
+    if(!total||!per||!/^\d{4}-\d{2}$/.test(it.startYm||"")) continue;
+    const n=Math.ceil(total/per - 1e-9); const idx=ymv?monthsDiffYm(it.startYm, ymv):-1;
+    let amt=0, status="", left=n;
+    if(idx<0){ status="ยังไม่ถึงรอบเริ่มหัก"; left=n; }
+    else if(idx>=n){ status="หักครบแล้ว ✓"; left=0; }
+    else { amt=Math.min(per, total-per*idx); left=n-idx-1; status=`งวดที่ ${idx+1}/${n} · เหลืออีก ${left} งวด`; }
+    out.push({id:it.id||"", kind:it.kind==="loan"?"loan":"train", name:it.name||(it.kind==="loan"?"เงินกู้":"อบรม"), total, per, n, idx, amt, left, status, startYm:it.startYm});
+  }
+  return out;
+}
+function dedsSummary(list){ return (Array.isArray(list)?list:[]).map(d=>`${d.kind==="loan"?"กู้":"อบรม"} ${d.name||""} ${fmt(num(d.total))}/${fmt(num(d.per))} เริ่ม ${ymToBE(d.startYm)}`).join(" · ")||"—"; }
+function ymToBE(ymv){ if(!/^\d{4}-\d{2}$/.test(ymv||"")) return "—"; return `${Number(ymv.slice(5,7))}/${Number(ymv.slice(0,4))+543}`; }
+function beToYm(txt){ // "11/2569" หรือ "11/2026" → "2026-11"
+  const m=String(txt||"").trim().match(/^(\d{1,2})\s*[\/\-.]\s*(\d{2,4})$/); if(!m) return "";
+  let mo=Number(m[1]), y=Number(m[2]); if(mo<1||mo>12) return "";
+  if(y<100) y+=2500; if(y>2400) y-=543; return `${y}-${String(mo).padStart(2,"0")}`;
+}
+function renderDedsForm(list){
+  const tb=$("dedsbody"); if(!tb) return;
+  const ymv=(typeof mdYm==="function" && $("md-month")) ? mdYm() : "";
+  const tmp={deds:list};
+  const st=dedItemsOf(tmp, ymv);
+  tb.innerHTML=(list||[]).map((d,i)=>{ const x=st.find(z=>z.id===(d.id||"")) || {};
+    return `<tr data-i="${i}"><td><select class="dd-kind"><option value="train" ${d.kind!=="loan"?"selected":""}>ค่าอบรม</option><option value="loan" ${d.kind==="loan"?"selected":""}>เงินกู้</option></select></td>
+      <td><input type="text" class="dd-name" value="${esc(d.name||"")}" placeholder="เช่น อบรมมหิดล"></td>
+      <td><input type="number" class="dd-total" min="0" value="${num(d.total)||""}" style="width:110px"></td>
+      <td><input type="number" class="dd-per" min="0" value="${num(d.per)||""}" style="width:100px"></td>
+      <td><input type="text" class="dd-start" value="${esc(ymToBE(d.startYm))}" placeholder="11/2569" style="width:100px"><input type="hidden" class="dd-id" value="${esc(d.id||"")}"></td>
+      <td class="l" style="font-size:.8rem;color:var(--muted)">${esc(x.status||"กรอกให้ครบ")}${x.amt?` · รอบนี้หัก ${fmt(x.amt)}`:""}</td>
+      <td><button type="button" class="danger dd-del" style="min-height:28px;padding:.1rem .5rem;font-size:.75rem">ลบ</button></td></tr>`; }).join("")
+    || `<tr><td class="l" colspan="7" style="color:var(--muted)">ยังไม่มีรายการผ่อนหัก</td></tr>`;
+}
+function readDedsForm(){
+  if(!IS_ADMIN || !$("dedsbody")) return undefined;
+  return [...$("dedsbody").querySelectorAll("tr[data-i]")].map(tr=>({
+    id: tr.querySelector(".dd-id").value || ("d"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)),
+    kind: tr.querySelector(".dd-kind").value, name: tr.querySelector(".dd-name").value.trim(),
+    total: num(tr.querySelector(".dd-total").value), per: num(tr.querySelector(".dd-per").value),
+    startYm: beToYm(tr.querySelector(".dd-start").value)
+  })).filter(d=>d.total>0);
+}
 function saveSAL(){
   if(CLOUD && AUTHED) DOC("salaries").set(SAL).catch(cloudErr);
   else lsSet("uo-sal-v1", JSON.stringify(SAL));
@@ -1492,6 +1672,10 @@ function applyAdminUI(){
   $("mdpay-noaccess").hidden = IS_ADMIN;
   $("bank-label").hidden = !IS_ADMIN;
   $("acct-label").hidden = !IS_ADMIN;
+  if($("acct-mask-label")) $("acct-mask-label").hidden = IS_ADMIN;
+  if($("idno-label")) $("idno-label").hidden = !IS_ADMIN;
+  if($("saleff-label")) $("saleff-label").hidden = !IS_ADMIN;
+  if($("deds-label")) $("deds-label").hidden = !IS_ADMIN;
   $("app-label").hidden = !IS_ADMIN;
   $("emptable").classList.toggle("noadmin", !IS_ADMIN);
   $("sal-label").hidden = !IS_ADMIN;
@@ -1505,6 +1689,7 @@ function applyAdminUI(){
   { const nb=document.querySelector('nav.tabs button[data-panel="p-set"]'); if(nb) nb.hidden = !IS_ADMIN;
     if(!IS_ADMIN && $("p-set").classList.contains("active")){ const b0=document.querySelector('nav.tabs button[data-panel="p-comm"]'); if(b0) b0.click(); } }
   if($("bulk-card")) $("bulk-card").hidden = !IS_ADMIN;
+  if($("empimport-wrap")) $("empimport-wrap").hidden = !IS_ADMIN;
   if($("emptable")) $("emptable").classList.toggle("nobulk", !IS_ADMIN);
 }
 
@@ -1515,7 +1700,7 @@ const DEFAULTS = {
   commTiersUP:[{min:0,pct:3}],
   leadTiers:[{ach:80,pct:0.6},{ach:100,pct:1},{ach:120,pct:1.5}],
   tiers:[{min:600000,pay:4500},{min:350000,pay:4000},{min:300000,pay:3500},{min:250000,pay:2500},{min:130000,pay:1500},{min:100000,pay:1000}],
-  qtiers:[], qPay:"quarter", pin:"1234", mdDivisor:30,
+  qtiers:[], qPay:"quarter", pin:"1234", mdDivisor:30, mdDiffPct:20, mdDiffAmt:5000, mdSickYearMax:30,
   kpi:{call:120, talk:60, tt:150, sales:100000, retMax:5, avgOrder:690, kd1min:150000, kd1:2000, kd2min:175000, kd2:4000},
   programs:[{name:"ประกันสังคม",pct:5,cap:875},{name:"กองทุนสำรองเลี้ยงชีพ",pct:0,cap:0},{name:"กยศ.",pct:0,cap:0}],
   channels:[{name:"Upsell"},{name:"Facebook"},{name:"Incall"},{name:"Line"}],
@@ -1616,7 +1801,7 @@ function compRow(name){
   const inf=((S.compInfo||{})[name])||{};
   $("compbody").insertAdjacentHTML("beforeend",
     `<tr><td><input type="text" class="comp-name" value="${esc(name||"")}" placeholder="UO" style="max-width:90px"></td>
-     <td><input type="text" class="comp-full" value="${esc(inf.full||(name==="UO"?"บริษัท อัลติเมท เอ้าท์พุท จำกัด":""))}" placeholder="บริษัท ... จำกัด" style="max-width:260px"></td>
+     <td><input type="text" class="comp-full" value="${esc(inf.full||(name==="UO"?"บริษัท อัลติเมท เอ้าพุ้ท จำกัด":""))}" placeholder="บริษัท ... จำกัด" style="max-width:260px"></td>
      <td><input type="text" class="comp-addr" value="${esc(inf.addr||"")}" placeholder="ที่อยู่ · เลขผู้เสียภาษี" style="max-width:340px"></td>
      <td><button type="button" class="t-del" title="ลบ">✕</button></td></tr>`);
 }
@@ -2653,7 +2838,7 @@ $("c-clear").addEventListener("click",()=>{
 /* ================= พนักงาน ================= */
 const EMP_FIELDS = [
   ["code","รหัสพนักงาน"],["name","ชื่อ-นามสกุล"],["nick","ชื่อเล่น"],["dept","แผนก"],["pos","ตำแหน่ง"],
-  ["branch","สาขา"],["sup","หัวหน้า"],["email","อีเมล"],["phone","เบอร์โทร"],["acctType","บัญชีที่ใช้จ่าย"],["company","บริษัท"],["payType","ประเภทการจ่าย"],["dayRate","อัตราต่อวัน"],["bank","ธนาคาร"],["acct","เลขบัญชี"],["programs","เข้าร่วม"],["progInfo","ข้อมูลรายการเข้าร่วม"],["applink","ลิงก์ใบสมัคร"],["appfile","ไฟล์ใบสมัคร"],["status","สถานะ"],["start","วันเริ่มงาน"],["pass","วันผ่านงาน"],
+  ["branch","สาขา"],["sup","หัวหน้า"],["division","ฝ่าย"],["workTime","เวลาเข้างาน"],["note","หมายเหตุ"],["deds","รายการผ่อนหัก"],["email","อีเมล"],["phone","เบอร์โทร"],["acctType","บัญชีที่ใช้จ่าย"],["company","บริษัท"],["payType","ประเภทการจ่าย"],["dayRate","อัตราต่อวัน"],["bank","ธนาคาร"],["acct","เลขบัญชี"],["programs","เข้าร่วม"],["progInfo","ข้อมูลรายการเข้าร่วม"],["applink","ลิงก์ใบสมัคร"],["appfile","ไฟล์ใบสมัคร"],["status","สถานะ"],["start","วันเริ่มงาน"],["pass","วันผ่านงาน"],
   ["resign","วันที่ลาออก"]
 ];
 let editingCode = null;
@@ -2711,7 +2896,7 @@ function fillFilters(){
     $("md-company").innerHTML = `<option value="">ทุกบริษัท</option>` + comps.map(c=>`<option>${esc(c)}</option>`).join("");
     if(comps.includes(cur)) $("md-company").value = cur;
   }
-  const dls = {"dept-list":uniqDept(),"pos-list":uniqPos(),"branch-list":uniqBranch(),
+  const dls = {"dept-list":uniqDept(),"pos-list":uniqPos(),"branch-list":uniqBranch(),"division-list":uniq("division"),
     "sup-list":[...new Set(DB.emp.filter(isWorking).map(e=>e.nick).filter(Boolean))].sort()};
   for(const [id,items] of Object.entries(dls))
     $(id).innerHTML = items.map(v=>`<option value="${esc(v)}">`).join("");
@@ -2813,14 +2998,19 @@ function openForm(code){
   $("e-photo-preview").src = (e && PHOTOS[e.code]) ? PHOTOS[e.code] : "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
   $("e-name").value=e?e.name:""; $("e-nick").value=e?e.nick:"";
   $("e-dept").value=e?e.dept:""; $("e-pos").value=e?e.pos:"เจ้าหน้าที่"; $("e-branch").value=e?e.branch:"";
-  $("e-sup").value=e?e.sup:""; $("e-email").value=e?(e.email||""):""; $("e-phone").value=e?(e.phone||""):""; $("e-accttype").value=e?(e.acctType||""):""; $("e-status").value=e?e.status:"ทดลองงาน";
+  $("e-sup").value=e?e.sup:""; $("e-division").value=e?(e.division||""):""; $("e-worktime").value=e?(e.workTime||""):""; $("e-note").value=e?(e.note||""):"";
+  $("e-idno").value = (IS_ADMIN && e) ? ((SAL.__idno||{})[e.code]||"") : "";
+  $("e-saleff").value = "";
+  $("e-acct-mask").value = e ? (e.acct ? maskNo(e.acct) : "—") : "—";
+  renderDedsForm(e ? (e.deds||[]) : []);
+  $("e-email").value=e?(e.email||""):""; $("e-phone").value=e?(e.phone||""):""; $("e-accttype").value=e?(e.acctType||""):""; $("e-status").value=e?e.status:"ทดลองงาน";
   const comps = S.companies && S.companies.length ? S.companies : ["UO","GGL"];
   $("e-company").innerHTML = comps.map(c=>`<option>${esc(c)}</option>`).join("");
   const curComp = e ? (e.company||comps[0]) : comps[0];
   if(!comps.includes(curComp)) $("e-company").insertAdjacentHTML("beforeend", `<option>${esc(curComp)}</option>`);
   $("e-company").value=curComp;
   $("e-paytype").value=e?(e.payType||"monthly"):"monthly"; $("e-dayrate").value=e?(e.dayRate||0):0;
-  $("e-bank").value=e?(e.bank||""):""; $("e-acct").value=e?(e.acct||""):""; $("e-applink").value=e?(e.applink||""):"";
+  $("e-bank").value=(IS_ADMIN&&e)?(e.bank||""):""; $("e-acct").value=(IS_ADMIN&&e)?(e.acct||""):""; $("e-applink").value=(IS_ADMIN&&e)?(e.applink||""):"";
   const joined = e ? progsOf(e) : [];
   const pgNames = progCfg().map(p=>p.name);
   $("e-progs").innerHTML = pgNames.length
@@ -2846,6 +3036,60 @@ function openForm(code){
   $("empform-card").scrollIntoView({block:"nearest"});
 }
 $("btn-addemp").addEventListener("click",()=>openForm(null));
+/* ---------- นำเข้าทะเบียนพนักงานจาก CSV/ชีท (แอดมิน) ---------- */
+$("emp-file").addEventListener("change",ev=>{ const f=ev.target.files[0]; if(!f) return; const fr=new FileReader();
+  fr.onload=()=>{ $("emp-paste").value=String(fr.result||"").replace(/^\uFEFF/,""); $("emp-import-msg").textContent=`โหลดไฟล์ ${f.name} แล้ว — กดนำเข้า`; }; fr.readAsText(f); ev.target.value=""; });
+const EMP_IMPORT_COLS=[
+  ["code",/^(รหัส|รหัสพนักงาน|code|id|emp ?id)$/],["title",/^(คำนำหน้า|title)$/],["name",/^(ชื่อ-?นามสกุล|ชื่อ-?สกุล|ชื่อจริง|ชื่อ|name|fullname)$/],["last",/^(นามสกุล|สกุล|surname|lastname)$/],["nick",/^(ชื่อเล่น|nick|nickname)$/],
+  ["division",/^(ฝ่าย|division)$/],["dept",/^(แผนก|dept|department)$/],["pos",/^(ตำแหน่ง|ตำแหน่ง\/ทีม|ทีม|position)$/],["branch",/^(สาขา|branch)$/],["company",/^(บริษัท|company)$/],["sup",/^(หัวหน้า|supervisor|manager)$/],
+  ["bank",/^(ธนาคาร|bank)$/],["acct",/^(เลขบัญชี|เลขที่บัญชี|บัญชี|account|acct)$/],["idno",/^(เลขบัตรประชาชน|เลขบัตร|บัตรประชาชน|idcard|citizenid)$/],["status",/^(สถานะ|status)$/],["workTime",/^(เวลาเข้างาน|เวลางาน|worktime)$/],
+  ["phone",/^(เบอร์โทร|โทร|เบอร์|phone|tel)$/],["email",/^(อีเมล|อีเมล์|email)$/],["start",/^(วันที่เริ่มงาน|วันเริ่มงาน|เริ่มงาน|start)$/],["resign",/^(วันที่ลาออก|วันลาออก|ลาออก|resign)$/],["pass",/^(วันผ่านงาน|วันที่ผ่านงาน|ผ่านงาน)$/],
+  ["payType",/^(ประเภทการจ่าย|ประเภท|paytype)$/],["dayRate",/^(อัตราต่อวัน|ค่าแรงต่อวัน|รายวัน|dayrate)$/],["salary",/^(ฐานเงินเดือน|เงินเดือน|salary)$/],["note",/^(หมายเหตุ|note|remark)$/]];
+$("btn-empimport").addEventListener("click",()=>{
+  if(!IS_ADMIN){ alert("ต้องเป็นแอดมิน"); return; }
+  const txt=$("emp-paste").value.replace(/^\uFEFF/,""); const lines=txt.split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<2){ $("emp-import-msg").textContent="วางข้อมูลก่อน (ต้องมีแถวหัวคอลัมน์ + อย่างน้อย 1 คน)"; return; }
+  const head=splitCells(lines[0]); const map={};
+  head.forEach((h,i)=>{ const t=String(h||"").trim().toLowerCase().replace(/[\s().:*]/g,""); for(const [k,re] of EMP_IMPORT_COLS){ if(map[k]===undefined && re.test(t)){ map[k]=i; break; } } });
+  if(map.code===undefined && map.name===undefined && map.nick===undefined){ $("emp-import-msg").textContent="อ่านหัวคอลัมน์ไม่ได้ — ต้องมีอย่างน้อย รหัสพนักงาน หรือ ชื่อ"; return; }
+  const rowsIn=lines.slice(1).map(l=>splitCells(l)).filter(c=>c.some(x=>x));
+  if(!askPin(`นำเข้าทะเบียนพนักงาน ${rowsIn.length} แถว (คอลัมน์ที่อ่านได้: ${Object.keys(map).length})`)) return;
+  const EDT=ensureEditor(); let added=0, updated=0, skipped=0; const labels=Object.fromEntries(EMP_FIELDS);
+  const sts=v=>{ v=String(v||"").trim(); if(!v) return ""; if(/ลาออก|resign|พ้น/i.test(v)) return "ลาออก"; if(/ทดลอง|prob/i.test(v)) return "ทดลองงาน"; return "ปัจจุบัน"; };
+  for(const c of rowsIn){
+    const get=k=>map[k]===undefined?"":String(c[map[k]]??"").trim();
+    let code=get("code"); let name=get("name"); const last=get("last"), title=get("title");
+    if(name && last && !name.includes(last)) name=name+" "+last;
+    if(title && name && !name.startsWith(title)) name=title+name;
+    const nick=get("nick");
+    let e = code ? DB.emp.find(z=>String(z.code)===code) : null;
+    if(!e && !code && nick) e=DB.emp.find(z=>z.nick===nick && (!name||z.name===name));
+    if(!e && !name && !nick){ skipped++; continue; }
+    const v={};
+    if(name) v.name=name; if(nick) v.nick=nick;
+    for(const k of ["division","dept","pos","branch","company","sup","bank","acct","workTime","phone","email","note"]){ const x=get(k); if(x) v[k]=x; }
+    for(const k of ["start","resign","pass"]){ const x=get(k); if(x){ const b=toBE(x); if(b) v[k]=b; } }
+    { const x=get("status"); if(x) v.status=sts(x); }
+    { const x=get("payType"); if(x) v.payType=/รายวัน|daily/i.test(x)?"daily":"monthly"; }
+    { const x=get("dayRate"); if(x) v.dayRate=num(x); }
+    if(e){
+      const changes=[];
+      for(const [k,val] of Object.entries(v)){ if(String(e[k]??"")!==String(val)){ changes.push({f:k,label:labels[k]||k,from:String(e[k]??""),to:String(val)}); e[k]=val; } }
+      if(changes.length){ updated++; DB.hist.unshift({ts:nowTH(), ts2:Date.now(), by:EDT, code:e.code, nick:e.nick||e.name, action:"นำเข้าจากชีท (อัปเดต)", changes}); }
+    }else{
+      if(!code) code=nextEmpCode();
+      if(DB.emp.some(z=>z.code===code)) code=nextEmpCode();
+      e=Object.assign({code, name:name||nick, nick:nick||"", dept:"", pos:"เจ้าหน้าที่", branch:"", sup:"", email:"", phone:"", company:(S.companies||["UO"])[0], payType:"monthly", dayRate:0, bank:"", acct:"", programs:[], progInfo:{}, status:"ทดลองงาน", start:"", pass:"", resign:""}, v);
+      DB.emp.unshift(e); added++;
+      DB.hist.unshift({ts:nowTH(), ts2:Date.now(), by:EDT, code:e.code, nick:e.nick||e.name, action:"นำเข้าจากชีท (เพิ่มใหม่)", changes:[{f:"status",label:"สถานะ",from:"",to:e.status}]});
+    }
+    { const x=get("salary"); if(x && num(x)!==getSalary(e.code)){ const sOld=getSalary(e.code); SAL[e.code]=num(x); SALHIST.unshift({ts:nowTH(), ts2:Date.now(), by:EDT, code:e.code, nick:e.nick||e.name, eff:e.start||toBE(mdBE(new Date())), action:"ปรับเงินเดือน", changes:[{f:"salary",label:"ฐานเงินเดือน",from:String(sOld),to:String(num(x))}]}); } }
+    { const x=get("idno").replace(/[^0-9]/g,""); if(x){ SAL.__idno=SAL.__idno||{}; SAL.__idno[e.code]=x; } }
+  }
+  saveDB(); saveSAL(); saveSalHist();
+  fillFilters(); renderEmp(); renderComm(); renderHist(); fillEmpPicker(); if(typeof renderMD==="function") renderMD();
+  $("emp-import-msg").textContent=`✅ เพิ่มใหม่ ${added} คน · อัปเดต ${updated} คน`+(skipped?` · ข้าม ${skipped} แถว (ไม่มีชื่อ/รหัส)`:"");
+});
 $("e-photo").addEventListener("change",e=>{
   const f = e.target.files[0]; if(!f) return;
   fileToAvatar(f, b64=>{ pendingPhoto = b64; $("e-photo-preview").src = b64; });
@@ -2871,6 +3115,9 @@ $("e-app-dl").addEventListener("click",async ()=>{
   const a=document.createElement("a"); a.href=v.b64; a.download=v.name||"application.pdf"; a.click();
 });
 $("e-cancel").addEventListener("click",()=>{ $("empform-card").hidden = true; editingCode = null; });
+function readDedsRaw(){ return [...$("dedsbody").querySelectorAll("tr[data-i]")].map(tr=>({ id: tr.querySelector(".dd-id").value, kind: tr.querySelector(".dd-kind").value, name: tr.querySelector(".dd-name").value.trim(), total: num(tr.querySelector(".dd-total").value), per: num(tr.querySelector(".dd-per").value), startYm: beToYm(tr.querySelector(".dd-start").value) })); }
+$("btn-addded").addEventListener("click",()=>{ const cur=readDedsRaw(); cur.push({id:"d"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), kind:"train", name:"", total:0, per:0, startYm:mdYm()}); renderDedsForm(cur); });
+$("dedsbody").addEventListener("click",e=>{ const b=e.target.closest(".dd-del"); if(!b) return; const tr=b.closest("tr"); if(tr) tr.remove(); if(!$("dedsbody").querySelector("tr[data-i]")) renderDedsForm([]); });
 $("e-progs").addEventListener("change",e=>{ const c=e.target; if(c.classList&&c.classList.contains("e-prog")){ const box=c.closest(".pgbox"); if(box) box.classList.toggle("off", !c.checked); } });
 function readProgInfoForm(prev){
   const out = JSON.parse(JSON.stringify((prev&&prev.progInfo&&typeof prev.progInfo==="object")?prev.progInfo:{}));
@@ -2890,6 +3137,8 @@ $("e-save").addEventListener("click",()=>{
     code:$("e-code").value.trim(), name:$("e-name").value.trim(), nick:$("e-nick").value.trim(),
     dept:$("e-dept").value.trim(), pos:$("e-pos").value.trim(), branch:$("e-branch").value.trim(),
     sup:$("e-sup").value.trim(), email:$("e-email").value.trim(), phone:$("e-phone").value.trim(), acctType:$("e-accttype").value,
+    division:$("e-division").value.trim(), workTime:$("e-worktime").value.trim(), note:$("e-note").value.trim(),
+    deds:readDedsForm(),
     company:$("e-company").value, payType:$("e-paytype").value, dayRate:num($("e-dayrate").value),
     bank:$("e-bank").value.trim(), acct:$("e-acct").value.trim(), applink:$("e-applink").value.trim(),
     programs:[...document.querySelectorAll("#e-progs .e-prog")].filter(c=>c.checked).map(c=>c.value),
@@ -2905,6 +3154,7 @@ $("e-save").addEventListener("click",()=>{
     v.appfile = pendingAppFile===null ? "" : (pendingAppFile ? pendingAppFile.name : (prev.appfile||""));
     if(!IS_ADMIN){ // ช่องที่ถูกซ่อน ห้ามถูกล้างค่า
       v.bank = prev.bank||""; v.acct = prev.acct||""; v.applink = prev.applink||""; v.appfile = prev.appfile||"";
+      v.deds = prev.deds||[];
     }
   }
   let codeKey;
@@ -2916,7 +3166,7 @@ $("e-save").addEventListener("click",()=>{
       changes.push({f:"code",label:"รหัสพนักงาน",from:editingCode,to:v.code});
       // ย้ายข้อมูลที่ผูกกับรหัสเดิม (ยอดเดือนนี้ เงินเดือน รูป)
       if(M[editingCode]){ M[v.code] = M[editingCode]; delete M[editingCode]; writeWholeMonth(); }
-      if(SAL[editingCode] !== undefined){ SAL[v.code] = SAL[editingCode]; delete SAL[editingCode]; saveSAL(); }
+      if(SAL[editingCode] !== undefined || (SAL.__idno&&SAL.__idno[editingCode])){ if(SAL[editingCode]!==undefined){ SAL[v.code] = SAL[editingCode]; delete SAL[editingCode]; } if(SAL.__idno&&SAL.__idno[editingCode]){ SAL.__idno[v.code]=SAL.__idno[editingCode]; delete SAL.__idno[editingCode]; } saveSAL(); }
       if(PHOTOS[editingCode]){ const b = PHOTOS[editingCode]; savePhoto(v.code, b); savePhoto(editingCode, null); }
       (async ()=>{ const f0=await getAppFile(editingCode); if(f0){ saveAppFile(v.code, f0); saveAppFile(editingCode, null); } })();
     }
@@ -2925,6 +3175,7 @@ $("e-save").addEventListener("click",()=>{
       if(f==="code") continue;
       let from = e[f], to = v[f];
       if(f==="progInfo"){ from = JSON.stringify(from||{}); to = JSON.stringify(to||{}); if(from!==to) changes.push({f,label,from:"(แก้ไข)",to:"(แก้ไขข้อมูลรายการเข้าร่วม)"}); continue; }
+      if(f==="deds"){ from = JSON.stringify(from||[]); to = JSON.stringify(to||[]); if(from!==to) changes.push({f,label,from:dedsSummary(e.deds),to:dedsSummary(v.deds)}); continue; }
       if(String(from??"") !== String(to??"")) changes.push({f,label,from:String(from??""),to:String(to??"")});
     }
     if(changes.length){
@@ -2942,12 +3193,25 @@ $("e-save").addEventListener("click",()=>{
   }
   if(IS_ADMIN){
     const sNew = num($("e-salary").value), sOld = getSalary(codeKey);
+    let salDirty=false;
     if(sNew !== sOld){
       SAL[codeKey] = sNew;
-      SALHIST.unshift({ts:nowTH(), ts2:Date.now(), by:EDT, code:codeKey, nick:v.nick||v.name,
+      const effIn = toBE($("e-saleff").value.trim());
+      const eff = effIn || toBE(mdBE(new Date()));
+      SALHIST.unshift({ts:nowTH(), ts2:Date.now(), by:EDT, code:codeKey, nick:v.nick||v.name, eff,
         action:"ปรับเงินเดือน", changes:[{f:"salary",label:"ฐานเงินเดือน",from:String(sOld),to:String(sNew)}]});
-      saveSAL(); saveSalHist();
+      salDirty=true; saveSalHist();
     }
+    const idNew = $("e-idno").value.replace(/[^0-9]/g,"");
+    const idOld = (SAL.__idno||{})[codeKey]||"";
+    if(idNew !== idOld){
+      SAL.__idno = SAL.__idno || {};
+      if(idNew) SAL.__idno[codeKey]=idNew; else delete SAL.__idno[codeKey];
+      SALHIST.unshift({ts:nowTH(), ts2:Date.now(), by:EDT, code:codeKey, nick:v.nick||v.name,
+        action:"แก้ไขเลขบัตรประชาชน", changes:[{f:"idno",label:"เลขบัตรประชาชน",from:maskNo(idOld),to:maskNo(idNew)}]});
+      salDirty=true; saveSalHist();
+    }
+    if(salDirty) saveSAL();
   }
   if(pendingPhoto !== undefined){ savePhoto(codeKey, pendingPhoto); pendingPhoto = undefined; }
   if(pendingAppFile !== undefined){ saveAppFile(codeKey, pendingAppFile); pendingAppFile = undefined; }
@@ -3013,7 +3277,7 @@ function renderHist(){
         const a=num(c.from), b=num(c.to), diff=b-a;
         const cls = diff>0?"up":diff<0?"down":"";
         const arrow = diff>0?`▲ +${fmt(diff)}`:diff<0?`▼ −${fmt(Math.abs(diff))}`:"";
-        return `ปรับเงินเดือน ${fmt(a)} → ${fmt(b)} <span class="${cls}">${arrow}</span>`;
+        return `ปรับเงินเดือน ${fmt(a)} → ${fmt(b)} <span class="${cls}">${arrow}</span>${h.eff?` · มีผล ${esc(h.eff)}`:""}`;
       }
       if(c.f==="status") return `สถานะ: ${esc(c.from)||"—"} → <strong>${esc(c.to)}</strong>`;
       return `${esc(c.label)}: ${esc(c.from)||"—"} → ${esc(c.to)||"—"}`;
@@ -3120,7 +3384,7 @@ function slipRow(label, amt, sign){
   return `<tr><td>${label}</td><td class="amt ${cls}">${prefix}${fmt(Math.abs(amt))}</td></tr>`;
 }
 let lastSlip = null;
-function compInfoOf(code){ const inf=((S.compInfo||{})[code])||{}; return {full:inf.full||(code==="UO"?"บริษัท อัลติเมท เอ้าท์พุท จำกัด":(code||"")), addr:inf.addr||""}; }
+function compInfoOf(code){ const inf=((S.compInfo||{})[code])||{}; return {full:inf.full||(code==="UO"?"บริษัท อัลติเมท เอ้าพุ้ท จำกัด":(code||"")), addr:inf.addr||""}; }
 function bahtText(n){ return fmt2(n); }
 function makeSlip(){
   const p = {crm:num($("f-crm").value),ref:num($("f-ref").value),sub690:num($("f-sub690").value),
@@ -3256,6 +3520,7 @@ function fillSettings(){
   $("s-travel-th").value=S.travelTh; $("s-travel-amt").value=S.travelAmt;
   $("s-return").value=S.returnFee; $("s-late").value=S.lateFee;
   $("s-email-url").value=S.emailUrl||""; $("s-email-key").value=S.emailKey||""; $("s-email-from").value=S.emailFrom||"";
+  $("s-mddiffpct").value=num(S.mdDiffPct)||20; $("s-mddiffamt").value=num(S.mdDiffAmt)||5000; $("s-mdsickmax").value=num(S.mdSickYearMax)||30;
   $("s-hr1").value=(S.hrCheckers||["มิ้นท์","หวาน"])[0]||""; $("s-hr2").value=(S.hrCheckers||["มิ้นท์","หวาน"])[1]||""; $("s-probdays").value=num(S.probDays)||90;
   $("s-workdays").value=S.workdays; $("s-leave-deduct").value=String(S.leaveDeduct);
 }
@@ -3297,6 +3562,7 @@ $("btn-save").addEventListener("click",()=>{
   S.pin=String($("s-pin").value||"1234").trim() || "1234";
   S.hrCheckers=[$("s-hr1").value.trim()||"มิ้นท์", $("s-hr2").value.trim()||"หวาน"];
   S.probDays=num($("s-probdays").value)||90;
+  S.mdDiffPct=num($("s-mddiffpct").value)||20; S.mdDiffAmt=num($("s-mddiffamt").value)||5000; S.mdSickYearMax=num($("s-mdsickmax").value)||30;
   S.channels=[...document.querySelectorAll("#chbody .ch-name")].map(i=>({name:i.value.trim()})).filter(c=>c.name);
   S.companies=[...document.querySelectorAll("#compbody .comp-name")].map(i=>i.value.trim()).filter(Boolean);
   S.compInfo={}; document.querySelectorAll("#compbody tr").forEach(tr=>{ const n=tr.querySelector(".comp-name").value.trim(); if(n) S.compInfo[n]={full:tr.querySelector(".comp-full").value.trim(), addr:tr.querySelector(".comp-addr").value.trim()}; });
@@ -3327,7 +3593,15 @@ let AUTHED = false;
 let unsubs = [];
 function cloudErr(e){
   console.error(e);
-  $("synctext").textContent = "ซิงก์มีปัญหา — เช็คอินเทอร์เน็ต/สิทธิ์";
+  const code=(e&&e.code)||"";
+  if(/permission-denied/i.test(code)){
+    $("synctext").textContent = "สิทธิ์ถูกปฏิเสธ (Rules) — แจ้งแอดมิน";
+    if($("permwarn")) $("permwarn").hidden=false;
+  }else if(/unavailable|network/i.test(code)){
+    $("synctext").textContent = "ไม่มีอินเทอร์เน็ต — รอเชื่อมต่อใหม่";
+  }else{
+    $("synctext").textContent = "ซิงก์มีปัญหา — เช็คอินเทอร์เน็ต/สิทธิ์"+(code?" ["+code+"]":"");
+  }
   $("syncchip").classList.add("off");
 }
 function setSync(on, text){
@@ -3426,8 +3700,8 @@ async function cloudStart(){
   setSync(true, "ซิงก์ทีมแบบเรียลไทม์");
 }
 /* ================= ผู้ใช้และสิทธิ์ ================= */
-const ALL_TABS = [["p-comm","คำนวณค่าคอม"],["p-lead","หัวหน้าทีม"],["p-kpi","KPI/ใบเตือน"],["p-one","สลิปเงินเดือน"],["p-md","ลงเวลา (Manday)"],["p-mdpay","อนุมัติเงินเดือน & ค่าคอม"],["p-sub","นำส่ง ปกส./กองทุน/กยศ."],["p-emp","พนักงาน"],["p-prob","ทดลองงาน"],["p-hrd","รายงานรายวัน HR"],["p-hist","ประวัติการแก้ไข"]];
-const DEFAULT_USER_TABS = ["p-hrd","p-md","p-comm","p-kpi","p-emp","p-prob"];
+const ALL_TABS = [["p-comm","คำนวณค่าคอม"],["p-lead","หัวหน้าทีม"],["p-kpi","KPI/ใบเตือน"],["p-one","สลิปเงินเดือน"],["p-md","ลงเวลา (Manday)"],["p-mdpay","อนุมัติเงินเดือน & ค่าคอม"],["p-sub","นำส่ง ปกส./กองทุน/กยศ."],["p-emp","พนักงาน"],["p-prob","ทดลองงาน"],["p-hrd","รายงานรายวัน HR"],["p-hist","ประวัติการแก้ไข"],["p-help","คู่มือการใช้งาน"]];
+const DEFAULT_USER_TABS = ["p-hrd","p-md","p-comm","p-kpi","p-emp","p-prob","p-help"];
 let ME = null;      // {uid,email,name,role,tabs,active}
 let meUnsub = null;
 let USERS = [];     // รายการผู้ใช้ทั้งหมด (แอดมิน)
@@ -3470,15 +3744,16 @@ function applyTabPerms(){
   const allowed = myTabsAllowed();
   document.querySelectorAll('nav.tabs button[data-panel]').forEach(b=>{
     const pid=b.dataset.panel;
-    if(pid==="p-set"){ return; } // คุมโดย applyAdminUI
-    if(pid==="p-help"){ b.hidden=false; return; } // คู่มือเห็นทุกคน
+    if(pid==="p-set"){ b.hidden = !IS_ADMIN; return; } // ตั้งค่าเรต: แอดมินเท่านั้น
+    // คู่มือการใช้งาน: เห็นเฉพาะเมื่อติ๊กสิทธิ์ให้ (แอดมินเห็นเสมอ)
     if(pid==="p-mdpay" && !IS_ADMIN && !(ME && ME.role==="admin")) { b.hidden = true; return; }
     b.hidden = allowed ? !allowed.includes(pid) : false;
   });
   const cur = document.querySelector('nav.tabs button[aria-selected="true"]');
   if(cur && cur.hidden){ const first=[...document.querySelectorAll('nav.tabs button[data-panel]')].find(b=>!b.hidden); if(first) first.click(); }
   document.querySelectorAll("nav.tabs .navgroup").forEach(g=>{ let n=g.nextElementSibling, any=false; while(n && !n.classList.contains("navgroup")){ if(n.tagName==="BUTTON" && !n.hidden) any=true; n=n.nextElementSibling; } g.hidden=!any; });
-  const chip=$("editor-chip"); if(chip && ME && ME.name){ chip.title = `${ME.name} · ${ME.email} · ${ME.role==="admin"||IS_ADMIN?"แอดมิน":"ผู้ใช้ทั่วไป"}`; }
+  const chip=$("editor-chip"); if(chip && ME){ const lvl = (ME.role==="admin"||IS_ADMIN) ? "แอดมิน" : (ME.legacy ? "ยังไม่ตั้งสิทธิ์" : "ผู้ใช้ทั่วไป"); chip.title = `${ME.name||ME.email} · ${ME.email} · ${lvl}`;
+    const en=$("editor-name"); if(en) en.textContent = (ME.name?("คุณ"+ME.name):ME.email) + " · " + lvl; }
 }
 function subscribeUsers(){
   if(usersUnsub){ usersUnsub(); usersUnsub=null; }
@@ -3575,6 +3850,9 @@ if(CLOUD){
     }
   });
   $("login-pass").addEventListener("keydown",e=>{ if(e.key==="Enter") $("login-btn").click(); });
+  $("login-email").addEventListener("keydown",e=>{ if(e.key==="Enter") $("login-pass").focus(); });
+  $("login-eye").addEventListener("click",()=>{ const p=$("login-pass"); p.type = p.type==="password" ? "text" : "password"; $("login-eye").style.opacity = p.type==="text" ? "1" : ".7"; p.focus(); });
+  if($("login-ver")) $("login-ver").textContent = APP_VERSION;
   $("btn-logout").addEventListener("click",()=>firebase.auth().signOut());
   firebase.auth().onAuthStateChanged(user=>{
     AUTHED = !!user;
@@ -3616,7 +3894,23 @@ function mdCycleLabel(){
 let MD_ST={grid:{},inc:{},ded:{},mlPaid:{},locked:false,approvedAt:"",rejectNote:"",nets:{}};
 let MD_PREV_NETS={};
 let mdUnsub=null, mdTimer=null;
-function mdBlank(){ return {grid:{},inc:{},ded:{},mlPaid:{},checked:{},locked:false,approvedAt:"",rejectNote:"",nets:{}}; }
+function mdBlank(){ return {grid:{},inc:{},ded:{},mlPaid:{},mlRange:{},checked:{},locked:false,approvedAt:"",rejectNote:"",nets:{},log:[]}; }
+/* บันทึกประวัติการแก้ไขของรอบ (audit log): ใคร แก้อะไร เมื่อไร ค่าเดิม → ค่าใหม่ */
+function mdLog(code, what, from, to){
+  MD_ST.log = Array.isArray(MD_ST.log) ? MD_ST.log : [];
+  MD_ST.log.unshift({at:nowTH(), ts:Date.now(), by:EDITOR()||"", code:code||"—", what:what||"", from:String(from??""), to:String(to??"")});
+  if(MD_ST.log.length>800) MD_ST.log.length=800;
+}
+function mdCellText(cell){ if(!cell||!cell.c) return "ว่าง"; return `${cell.c}${cell.mins?" "+cell.mins+" นาที":""}${cell.hfType?" ("+cell.hfType+" "+(cell.hfHalf||"")+")":""}${cell.note?" — "+cell.note:""}`; }
+function renderMDLog(){
+  const tb=$("mdlogbody"); if(!tb) return;
+  const q=($("mdlog-q")&&$("mdlog-q").value||"").trim().toLowerCase();
+  const list=(MD_ST.log||[]).filter(l=>!q || (l.code||"").toLowerCase().includes(q) || (l.by||"").toLowerCase().includes(q) || (l.what||"").toLowerCase().includes(q) || (l.to||"").toLowerCase().includes(q) || (l.from||"").toLowerCase().includes(q));
+  const nm=c=>{ const e=DB.emp.find(z=>z.code===c); return e?`${e.name||e.nick} <span style="color:var(--muted);font-size:.76rem">(${esc(e.nick||"")} ${esc(c)})</span>`:esc(c||"—"); };
+  tb.innerHTML=list.slice(0,300).map(l=>`<tr><td class="l" style="white-space:nowrap">${esc(l.at)}</td><td class="l">${esc(l.by||"—")}</td><td class="l">${nm(l.code)}</td><td class="l">${esc(l.what)}</td><td class="l" style="color:var(--muted)">${esc(l.from)||"—"}</td><td class="l"><strong>${esc(l.to)||"—"}</strong></td></tr>`).join("")
+    || `<tr><td class="l" colspan="6" style="color:var(--muted)">ยังไม่มีการแก้ไขในรอบนี้</td></tr>`;
+  if($("mdlog-count")) $("mdlog-count").textContent = (MD_ST.log||[]).length ? `${(MD_ST.log||[]).length} รายการ` : "";
+}
 function mdLocalKey(){ return "uo-md-"+mdYm(); }
 function mdSave(now){
   clearTimeout(mdTimer);
@@ -3638,12 +3932,14 @@ async function subscribeMD(){
       if(snap.metadata.hasPendingWrites) return;
       applyRemoteMD(snap.exists ? Object.assign(mdBlank(), snap.data()) : mdBlank());
     }, cloudErr);
+    loadMdYear();
   }else{
     const raw=lsGet(mdLocalKey());
     MD_ST = raw ? (()=>{try{return Object.assign(mdBlank(),JSON.parse(raw))}catch(e){return mdBlank()}})() : mdBlank();
     const rp=lsGet("uo-md-"+prevYmOf(mdYm()));
     if(rp){ try{ MD_PREV_NETS=(JSON.parse(rp).nets)||{}; }catch(e){} }
     renderMD();
+    loadMdYear();
   }
 }
 function applyRemoteMD(data){
@@ -3705,39 +4001,77 @@ function mdCalc(x){
   const g=MD_ST.grid[e.code]||{};
   const mlPaid=num(MD_ST.mlPaid[e.code]);
   let workDays=0, leaveDays=0, unpaid=0, lateMins=0, mlUsed=0, employDays=0, offDays=0, hdDays=0;
+  const empD=[], unpaidL=[];
   for(const d of days){
     if(x.st && d < x.st) continue;
     if(x.rs && d > x.rs) continue;
-    employDays++;
+    employDays++; empD.push(d);
     let cell=g[mdIso(d)]; let c=cell?cell.c:"";
     if(!c && mdAutoOff(d)) c="OFF";
     if(c==="LO"){ offDays++; continue; }
     if(c==="HD") hdDays++;
     if(c===""||c==="L"||c==="HD"||c==="WFH"||c==="W"){ workDays++; if(c==="L") lateMins+=num(cell&&cell.mins); continue; }
     if(c==="OFF"){ offDays++; continue; }
-    if(c==="HF"){ workDays+=.5; leaveDays+=.5; if(cell.hfType==="LP") unpaid+=.5; continue; }
-    if(c==="ML"){ leaveDays++; mlUsed++; if(mlUsed>mlPaid) unpaid++; continue; }
+    if(c==="HF"){ workDays+=.5; leaveDays+=.5; if(cell.hfType==="LP"){ unpaid+=.5; unpaidL.push({d,w:.5}); } continue; }
+    if(c==="ML"){ leaveDays++; mlUsed++; if(mlUsed>mlPaid){ unpaid++; unpaidL.push({d,w:1}); } continue; }
     leaveDays++;
-    if(c==="LP"||c==="AA") unpaid++;
+    if(c==="LP"||c==="AA"){ unpaid++; unpaidL.push({d,w:1}); }
   }
-  let pay=0, base=0;
+  let pay=0, base=0, segs=[], prorated=false;
   if((e.payType||"monthly")==="daily"){
     base=num(e.dayRate); pay=base*workDays;
   }else{
     base=IS_ADMIN?getSalary(e.code):0;
-    const rate=base/div;
-    pay=(employDays>=days.length)?base:rate*employDays;
-    pay-=unpaid*rate;
+    if(IS_ADMIN && (SALHIST||[]).some(h=>h.code===e.code)){
+      // แบ่งช่วงตามเงินเดือนที่มีผลในแต่ละวัน (ปรับกลางรอบ → คิดสัดส่วนวันอัตโนมัติ)
+      for(const d of empD){ const sal=salaryAt(e.code, d); const last=segs[segs.length-1];
+        if(last && last.sal===sal) last.days++; else segs.push({sal, days:1, from:d}); }
+    }
+    if(!segs.length) segs=[{sal:base, days:employDays, from:empD[0]||days[0]}];
+    prorated = segs.length>1;
+    const full = employDays>=days.length;
+    if(prorated){
+      pay=0;
+      for(const sg of segs) pay += full ? sg.sal*sg.days/employDays : (sg.sal/div)*sg.days;
+      for(const u of unpaidL) pay -= (salaryAt(e.code,u.d)/div)*u.w;
+    }else{
+      const rate=base/div;
+      pay=full?base:rate*employDays;
+      pay-=unpaid*rate;
+    }
   }
   pay=Math.max(0,pay);
   const dd=MD_ST.ded[e.code]||{};
   // หักกรอกมือช่องเดียว (dd.man) — ข้อมูลเก่าแบบ อบรม+เงินกู้ จะถูกรวมให้อัตโนมัติ
   const man = (dd.man!==undefined && dd.man!==null) ? num(dd.man) : (num(dd.train)+num(dd.loan));
   const inc=num(MD_ST.inc[e.code]);
+  // รายการผ่อนหักอัตโนมัติ (เงินกู้ / ค่าอบรม) ตามงวด
+  const items = IS_ADMIN ? dedItemsOf(e, mdYm()) : [];
+  const train = items.filter(i=>i.kind==="train").reduce((a2,i)=>a2+i.amt,0);
+  const loan  = items.filter(i=>i.kind==="loan").reduce((a2,i)=>a2+i.amt,0);
   const pgBase = (e.payType||"monthly")==="monthly" ? base : pay; // รายเดือนคิดจากฐานเงินเดือนจริง · รายวันคิดจากค่าจ้างรอบนี้
   const pg = IS_ADMIN ? progDedOf(e, pgBase) : {total:0, parts:[]};
-  return {workDays,leaveDays,unpaid,lateMins,employDays,offDays,hdDays,cycleDays:days.length,pay,man,inc,
-    prog:pg.total, progParts:pg.parts, net:pay-man-pg.total+inc};
+  return {workDays,leaveDays,unpaid,lateMins,employDays,offDays,hdDays,cycleDays:days.length,pay,man,inc,train,loan,items,segs,prorated,
+    prog:pg.total, progParts:pg.parts, net:pay-man-train-loan-pg.total+inc};
+}
+/* นับลาป่วยสะสมทั้งปี (ปีปฏิทินของเดือนที่เลือก) — โหลดรอบอื่น ๆ ของปีเดียวกันมาแคชไว้ */
+let MD_YEAR_CACHE={}; let mdYearLoading=null;
+function loadMdYear(){
+  const ymv=mdYm(); const y=ymv.slice(0,4); const need=[];
+  for(let m=1;m<=12;m++){ const k=`${y}-${String(m).padStart(2,"0")}`; if(k!==ymv && MD_YEAR_CACHE[k]===undefined) need.push(k); }
+  if(!need.length) return Promise.resolve();
+  mdYearLoading = (async ()=>{
+    for(const k of need){ try{ const d=await readMdDoc(k); MD_YEAR_CACHE[k]=d.grid||{}; }catch(e){ MD_YEAR_CACHE[k]={}; } }
+    if(mdYm().slice(0,4)===y) renderMDPay();
+  })();
+  return mdYearLoading;
+}
+function sickDaysYear(code){
+  const ymv=mdYm(); const y=ymv.slice(0,4); let n=0;
+  const cnt=g=>{ for(const [iso,c] of Object.entries(g||{})){ if(!iso.startsWith(y)||!c) continue; if(c.c==="S") n++; else if(c.c==="HF"&&c.hfType==="S") n+=.5; } };
+  for(const [k,g] of Object.entries(MD_YEAR_CACHE)){ if(k.slice(0,4)!==y||k===ymv) continue; cnt((g||{})[code]); }
+  cnt((MD_ST.grid||{})[code]);
+  return n;
 }
 function mdFlags(x,r){
   const days=mdDays(), first=days[0];
@@ -3747,13 +4081,14 @@ function mdFlags(x,r){
     f.push({t:"r",m:"เริ่มงานกลางรอบแต่ได้ค่าแรงเต็มรอบ"});
   if(x.rs && r.workDays>0 && r.pay===0 && IS_ADMIN) f.push({t:"r",m:"ออกระหว่างรอบ มีวันทำงานแต่เงินเป็น 0"});
   if(IS_ADMIN){
-    const ymv=mdYm();
-    const hit=(SALHIST||[]).find(h=>h.code===e.code && h.ts2 && new Date(h.ts2).toISOString().slice(0,7)===ymv);
-    if(hit) f.push({t:"y",m:"มีการปรับเงินเดือนในช่วงรอบนี้ — โปรดตรวจสัดส่วนวัน"});
+    if(r.prorated) f.push({t:"y",m:"ปรับเงินเดือนกลางรอบ — ระบบคิดสัดส่วนวันให้แล้ว: "+r.segs.map(sg=>`${sg.days} วัน @ ${fmt(sg.sal)}`).join(" + ")});
     const prev=num(MD_PREV_NETS[e.code]);
+    const thPct=num(S.mdDiffPct)||20, thAmt=num(S.mdDiffAmt)||5000;
     if(prev>0){ const diff=Math.abs(r.net-prev), pc=diff/prev*100;
-      if(pc>20||diff>5000) f.push({t:"y",m:`ยอดต่างจากรอบก่อน ${pc.toFixed(0)}% (${fmt(diff)} บ.)`}); }
+      if(pc>thPct||diff>thAmt) f.push({t:"y",m:`ยอดต่างจากรอบก่อน ${pc.toFixed(0)}% (${fmt(diff)} บ.) เกินเกณฑ์ ${thPct}% / ${fmt(thAmt)} บ.`}); }
+    for(const it of (r.items||[])) if(it.amt && it.left===0) f.push({t:"y",m:`${it.kind==="loan"?"เงินกู้":"ค่าอบรม"} "${it.name}" หักงวดสุดท้ายรอบนี้ (ครบ ${it.n} งวด)`});
   }
+  { const mx=num(S.mdSickYearMax)||30; const sy=sickDaysYear(e.code); if(sy>mx) f.push({t:"r",m:`ลาป่วยสะสมทั้งปี ${fmt(sy)} วัน (เกิน ${mx} วัน)`}); }
   let run=0;
   for(const d of days){ const cell=(MD_ST.grid[e.code]||{})[mdIso(d)];
     if(cell&&cell.c==="S"){ run++;
@@ -3793,7 +4128,7 @@ function renderMD(){
     const dd=MD_ST.ded[e.code]||{};
     let row=`<tr id="mdrow-${esc(e.code)}"><td class="emp"><span class="mainname" title="${esc(e.name||e.nick)}">${esc(e.name||e.nick)}</span>
       <span class="subname">${esc(e.nick||"")} <span class="badge g${x.group}">ก.${x.group}</span></span>
-      <span style="font-size:.7rem;color:var(--muted)">${esc(e.code)} · ${(e.payType||"monthly")==="daily"?fmt(num(e.dayRate))+"/วัน":(IS_ADMIN?"เดือนละ "+fmt(getSalary(e.code)):"รายเดือน")} · ${esc(e.company||"UO")}</span></td>`;
+      <span style="font-size:.7rem;color:var(--muted)" title="${esc([e.division,e.dept,e.pos,e.branch,e.workTime?("เวลาเข้างาน "+e.workTime):""].filter(Boolean).join(" · "))}">${esc(e.code)} · ${(e.payType||"monthly")==="daily"?fmt(num(e.dayRate))+"/วัน":(IS_ADMIN?"เดือนละ "+fmt(getSalary(e.code)):"รายเดือน")} · ${esc(e.company||"UO")}${e.workTime?` · ⏰${esc(e.workTime)}`:""}</span></td>`;
     for(const d of days){
       const t=mdIso(d), we=d.getDay()===0||d.getDay()===6;
       if((x.st&&d<x.st)||(x.rs&&d>x.rs)){ row+=`<td class="day out" title="นอกช่วงการจ้าง"></td>`; continue; }
@@ -3809,6 +4144,7 @@ function renderMD(){
     tb.insertAdjacentHTML("beforeend",row);
   }
   if(typeof applySort==="function") applySort("tstable");
+  renderMDLog();
   renderMDDash();
   renderMDPay();
   const ae=document.activeElement;
@@ -3869,7 +4205,7 @@ function renderMDPay(){
     return true;
   });
   const total=rows.reduce((a2,o)=>a2+o.r.net,0);
-  const ded=rows.reduce((a2,o)=>a2+o.r.man+o.r.prog,0);
+  const ded=rows.reduce((a2,o)=>a2+o.r.man+o.r.prog+o.r.train+o.r.loan,0);
   const gsum=n=>rows.filter(o=>o.x.group===n).reduce((a2,o)=>a2+o.r.net,0);
   const prevTotal=Object.values(MD_PREV_NETS).reduce((a2,v)=>a2+num(v),0);
   const diff=total-prevTotal;
@@ -3884,34 +4220,45 @@ function renderMDPay(){
     <div class="stat"><div class="k">กลุ่ม 1 ทดลอง/รายวัน</div><div class="v">${fmt(gsum(1))}</div></div>
     <div class="stat"><div class="k">กลุ่ม 2 ออกระหว่างรอบ</div><div class="v red">${fmt(gsum(2))}</div></div>
     <div class="stat"><div class="k">กลุ่ม 3 ประจำ</div><div class="v">${fmt(gsum(3))}</div></div>
-    <div class="stat"><div class="k">ยอดหักรวม (หักอื่น ๆ + รายการเข้าร่วม)</div><div class="v red">−${fmt(ded)}</div></div>
+    <div class="stat"><div class="k">ยอดหักรวม (รายการเข้าร่วม + อบรม + เงินกู้ + อื่น ๆ)</div><div class="v red">−${fmt(ded)}</div><div class="d">อบรม ${fmt(rows.reduce((a2,o)=>a2+o.r.train,0))} · เงินกู้ ${fmt(rows.reduce((a2,o)=>a2+o.r.loan,0))}</div></div>
     <div class="stat"><div class="k">รอ HR ตรวจ (${esc(HRS.join(" / "))})</div><div class="v ${pendChk?'red':''}">${pendChk} คน</div><div class="d">${pendChk?"ติ๊กช่องท้ายแถวให้ครบทั้ง 2 คน":"ตรวจครบทุกคนแล้ว ✓"}</div></div>`;
   const ul=$("md-alerts"); ul.innerHTML="";
   let n=0;
-  for(const o of rows){
-    const chk=fullChk(o.x.e.code);
-    for(const f of o.f){ n++;
+  // แดงขึ้นก่อน · ป้ายซ้ำ ๆ แบบเดียวกัน (เช่น ยังไม่กรอกบัญชี) รวมเป็นบรรทัดเดียวเมื่อเกิน 4 คน
+  const groups={}; const singles=[];
+  for(const o of rows){ for(const f of o.f){ n++; (groups[f.m]=groups[f.m]||[]).push({o,f}); } }
+  for(const [m,L] of Object.entries(groups)){ if(L.length>4) singles.push({grp:true,m,L,t:L[0].f.t}); else L.forEach(z=>singles.push({o:z.o,f:z.f,t:z.f.t})); }
+  singles.sort((a,b)=>(a.t==="r"?0:1)-(b.t==="r"?0:1));
+  for(const it of singles){
+    if(it.grp){
       ul.insertAdjacentHTML("beforeend",
-        `<li data-mdcode="${esc(o.x.e.code)}" style="${chk?'opacity:.55':''}">${chk?'<span class="flag" style="background:var(--money-soft);color:var(--money)">✓ ตรวจแล้ว</span> ':''}<span class="flag ${f.t}">${f.t==="r"?"แดง":"เหลือง"}</span> <strong>${esc(o.x.e.name||o.x.e.nick)}</strong> <span style="color:var(--muted);font-size:.78rem">${esc(o.x.e.nick||"")}</span> — ${esc(f.m)}</li>`); }
+        `<li><span class="flag ${it.t}">${it.t==="r"?"แดง":"เหลือง"}</span> <strong>${it.L.length} คน</strong> — ${esc(it.m)}<br><span style="font-size:.8rem">${it.L.map(z=>`<a href="#" data-mdcode="${esc(z.o.x.e.code)}" style="color:var(--ink);text-decoration:underline dotted">${esc(z.o.x.e.nick||z.o.x.e.name)}</a>`).join(" · ")}</span></li>`);
+      continue;
+    }
+    const o=it.o, f=it.f; const chk=fullChk(o.x.e.code);
+    ul.insertAdjacentHTML("beforeend",
+      `<li data-mdcode="${esc(o.x.e.code)}" style="${chk?'opacity:.55':''}">${chk?'<span class="flag" style="background:var(--money-soft);color:var(--money)">✓ ตรวจแล้ว</span> ':''}<span class="flag ${f.t}">${f.t==="r"?"แดง":"เหลือง"}</span> <strong>${esc(o.x.e.name||o.x.e.nick)}</strong> <span style="color:var(--muted);font-size:.78rem">${esc(o.x.e.nick||"")}</span> — ${esc(f.m)}</li>`);
   }
   $("md-noalert").hidden=n>0;
   // หัวตาราง: คอลัมน์หักตามรายการที่ตั้งไว้ (ประกันสังคม / กองทุนฯ / กยศ. ...)
   const PG = progCfg().map(p=>p.name);
   $("mdpayhead").innerHTML = `<tr class="ghead">
       <th class="g-emp" colspan="5">พนักงาน</th><th class="g-cp" colspan="3">🧮 จากตารางลงเวลา</th>
-      <th class="g-lk" colspan="${PG.length}">🔗 หักตามรายการที่เข้าร่วม</th><th class="g-in" colspan="2">🟩 กรอกมือ</th><th class="g-cp">🧮</th><th class="g-lk" colspan="${1+HRS.length}">ตรวจสอบ</th></tr>
+      <th class="g-lk" colspan="${PG.length+2}">🔗 หักอัตโนมัติ (รายการที่เข้าร่วม · ผ่อนงวด)</th><th class="g-in" colspan="2">🟩 กรอกมือ</th><th class="g-cp">🧮</th><th class="g-lk" colspan="${1+HRS.length}">ตรวจสอบ</th></tr>
     <tr><th class="l">พนักงาน</th><th class="l">รหัส</th><th class="l">ประเภท</th><th class="l">บัญชีจ่าย</th><th class="l">ธนาคาร · เลขบัญชี</th>
       <th>วันทำงาน</th><th>วันลา</th><th>เงินที่ได้</th>
       ${PG.map(p=>`<th title="หักอัตโนมัติ (ตั้งค่าได้ในฟอร์มพนักงาน/ตั้งค่าเรต)">${esc(p)} 🔗</th>`).join("")}
-      <th title="หักกรอกมือ เช่น อบรม เงินกู้">หักอื่น ๆ</th><th>Incentive</th><th>คงเหลือสุทธิ</th><th class="l">ป้ายเตือน</th>
+      <th title="ค่าอบรมผ่อนงวด (ตั้งในฟอร์มพนักงาน → รายการผ่อนหัก) ชี้เมาส์ดูว่าเหลือกี่งวด">หักอบรม 🔗</th><th title="เงินกู้ผ่อนงวด (ตั้งในฟอร์มพนักงาน → รายการผ่อนหัก) ชี้เมาส์ดูว่าเหลือกี่งวด">หักเงินกู้ 🔗</th>
+      <th title="หักกรอกมืออื่น ๆ">หักอื่น ๆ</th><th>Incentive</th><th>คงเหลือสุทธิ</th><th class="l">ป้ายเตือน</th>
       ${HRS.map(h=>`<th>☑ ${esc(h)}</th>`).join("")}</tr>`;
   const tb=$("mdpaybody"); tb.innerHTML="";
   const lock=MD_ST.locked?"disabled":"";
-  const t2={w:0,l:0,p:0,man:0,pg:0,i:0,n:0}; const tPG={}; PG.forEach(p=>tPG[p]=0);
+  const t2={w:0,l:0,p:0,man:0,pg:0,i:0,n:0,tr:0,lo:0}; const tPG={}; PG.forEach(p=>tPG[p]=0);
+  const itemTip=(list,kind)=>{ const L=list.filter(i=>i.kind===kind); return L.length?L.map(i=>`${i.name}: ${i.amt?fmt(i.amt)+" บ. · ":""}${i.status} (รวม ${fmt(i.total)} งวดละ ${fmt(i.per)})`).join("\n"):"ไม่มีรายการ"; };
   for(const o of rows){
     const e=o.x.e, dd=MD_ST.ded[e.code]||{};
     const manVal=(dd.man!==undefined&&dd.man!==null)?num(dd.man):(num(dd.train)+num(dd.loan));
-    t2.w+=o.r.workDays; t2.l+=o.r.leaveDays; t2.p+=o.r.pay; t2.man+=o.r.man; t2.pg+=o.r.prog; t2.i+=o.r.inc; t2.n+=o.r.net;
+    t2.w+=o.r.workDays; t2.l+=o.r.leaveDays; t2.p+=o.r.pay; t2.man+=o.r.man; t2.pg+=o.r.prog; t2.i+=o.r.inc; t2.n+=o.r.net; t2.tr+=o.r.train; t2.lo+=o.r.loan;
     const parts=o.r.progParts||[]; parts.forEach(z=>{ if(tPG[z.name]!==undefined) tPG[z.name]+=z.amt; });
     const chks=chkOf(e.code);
     tb.insertAdjacentHTML("beforeend",
@@ -3924,6 +4271,8 @@ function renderMDPay(){
        <td class="cp">${o.r.workDays}</td><td class="cp">${o.r.leaveDays}</td>
        <td class="cp pos">${fmt(o.r.pay)}</td>
        ${PG.map(p=>{ const z=parts.find(q=>q.name===p); const on=progsOf(e).includes(p); return `<td class="lk ${z?'neg':''}" title="${on?(z?`${p} ${z.pct?z.pct+'%':'คงที่'} = ${fmt(z.amt)}`:'เข้าร่วมแต่ยังไม่ได้ตั้ง %/จำนวนหัก'):'ไม่ได้เข้าร่วม'}">${z?"−"+fmt(z.amt):(on?'<span class="flag y">0</span>':'<span style="color:var(--muted)">—</span>')}</td>`; }).join("")}
+       <td class="lk ${o.r.train?'neg':''}" title="${esc(itemTip(o.r.items||[],"train"))}">${o.r.train?"−"+fmt(o.r.train):((o.r.items||[]).some(i=>i.kind==="train")?'<span style="color:var(--muted)">0</span>':'<span style="color:var(--muted)">—</span>')}</td>
+       <td class="lk ${o.r.loan?'neg':''}" title="${esc(itemTip(o.r.items||[],"loan"))}">${o.r.loan?"−"+fmt(o.r.loan):((o.r.items||[]).some(i=>i.kind==="loan")?'<span style="color:var(--muted)">0</span>':'<span style="color:var(--muted)">—</span>')}</td>
        <td class="in"><input type="text" inputmode="decimal" data-num="1" placeholder="0" data-mdded="${esc(e.code)}" data-f="man" value="${fmtIn(manVal)}" ${lock}></td>
        <td class="in"><input type="text" inputmode="decimal" data-num="1" placeholder="0" data-mdinc="${esc(e.code)}" value="${fmtIn(MD_ST.inc[e.code])}" ${lock}></td>
        <td class="cp pos netcell"><strong>${fmt(o.r.net)}</strong></td>
@@ -3933,6 +4282,7 @@ function renderMDPay(){
   $("mdpayfoot").innerHTML = rows.length ?
     `<td class="l" colspan="5">รวม ${rows.length} คน</td><td>${t2.w}</td><td>${t2.l}</td><td>${fmt(t2.p)}</td>
      ${PG.map(p=>`<td>−${fmt(tPG[p])}</td>`).join("")}
+     <td>−${fmt(t2.tr)}</td><td>−${fmt(t2.lo)}</td>
      <td>−${fmt(t2.man)}</td><td>${fmt(t2.i)}</td><td><strong>${fmt(t2.n)}</strong></td><td></td>${HRS.map(()=>"<td></td>").join("")}` : "";
   if(typeof applySort==="function") applySort("mdpaytable");
 }
@@ -3948,18 +4298,68 @@ function mdPayRowsForCsv(){
     if(q && !(e.code.includes(q)||(e.nick||"").toLowerCase().includes(q)||(e.name||"").toLowerCase().includes(q))) return false;
     return true; }).map(x=>({x,r:mdCalc(x)}));
 }
-$("btn-mpcsv").addEventListener("click",()=>{
-  const rows=mdPayRowsForCsv(); if(!rows.length) return alert("ไม่มีข้อมูล");
+function mdPayTableData(){
+  const rows=mdPayRowsForCsv(); if(!rows.length) return null;
   const PG=progCfg().map(p=>p.name), HRS=hrCheckers();
-  const head=["ชื่อ-นามสกุล","ชื่อเล่น","รหัส","แผนก","ตำแหน่ง","สาขา","บริษัท","กลุ่ม","ประเภท","บัญชีจ่าย","ธนาคาร","เลขบัญชี","วันทำงาน","วันลา","เงินที่ได้",...PG.map(p=>"หัก"+p),"หักอื่น ๆ","Incentive","คงเหลือสุทธิ",...HRS.map(h=>"ตรวจ "+h)];
-  const out=rows.map(o=>{ const e=o.x.e, parts=o.r.progParts||[]; const h=(MD_ST.hrchk||{})[e.code]||{};
-    return [e.name||"",e.nick||"",e.code,e.dept||"",e.pos||"",e.branch||"",e.company||"",o.x.group,(e.payType||"monthly")==="daily"?"รายวัน":"รายเดือน",e.acctType||"",e.bank||"",e.acct||"",o.r.workDays,o.r.leaveDays,o.r.pay.toFixed(2),
-      ...PG.map(p=>{ const z=parts.find(q=>q.name===p); return z?z.amt.toFixed(2):"0"; }), o.r.man.toFixed(2), o.r.inc.toFixed(2), o.r.net.toFixed(2), ...HRS.map(n=>h[n]?("✓ "+(h[n].at||"")):"")]; });
-  const tot=["รวม "+rows.length+" คน","","","","","","","","","","","",rows.reduce((a,o)=>a+o.r.workDays,0),rows.reduce((a,o)=>a+o.r.leaveDays,0),rows.reduce((a,o)=>a+o.r.pay,0).toFixed(2),
-    ...PG.map(p=>rows.reduce((a,o)=>a+(((o.r.progParts||[]).find(q=>q.name===p)||{amt:0}).amt),0).toFixed(2)), rows.reduce((a,o)=>a+o.r.man,0).toFixed(2), rows.reduce((a,o)=>a+o.r.inc,0).toFixed(2), rows.reduce((a,o)=>a+o.r.net,0).toFixed(2), ...HRS.map(()=>"")];
-  const csv="\uFEFF"+[head,...out,tot].map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
-  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
-  a.download=`payroll-${mdYm()}.csv`; a.click(); URL.revokeObjectURL(a.href);
+  const head=["ชื่อ-นามสกุล","ชื่อเล่น","รหัส","ฝ่าย","แผนก","ตำแหน่ง","สาขา","บริษัท","กลุ่ม","ประเภท","บัญชีจ่าย","ธนาคาร","เลขบัญชี","วันทำงาน","วันลา","เงินที่ได้",...PG.map(p=>"หัก"+p),"หักอบรม","หักเงินกู้","หักอื่น ๆ","Incentive","คงเหลือสุทธิ","ป้ายเตือน",...HRS.map(h=>"ตรวจ "+h)];
+  const out=rows.map(o=>{ const e=o.x.e, parts=o.r.progParts||[]; const h=(MD_ST.hrchk||{})[e.code]||{}; const fl=mdFlags(o.x,o.r).map(f=>f.m).join(" | ");
+    return [e.name||"",e.nick||"",e.code,e.division||"",e.dept||"",e.pos||"",e.branch||"",e.company||"",o.x.group,(e.payType||"monthly")==="daily"?"รายวัน":"รายเดือน",e.acctType||"",e.bank||"",e.acct||"",o.r.workDays,o.r.leaveDays,+o.r.pay.toFixed(2),
+      ...PG.map(p=>{ const z=parts.find(q=>q.name===p); return z?+z.amt.toFixed(2):0; }), +o.r.train.toFixed(2), +o.r.loan.toFixed(2), +o.r.man.toFixed(2), +o.r.inc.toFixed(2), +o.r.net.toFixed(2), fl, ...HRS.map(n=>h[n]?("✓ "+(h[n].at||"")):"")]; });
+  const sum=f=>+rows.reduce((a,o)=>a+f(o),0).toFixed(2);
+  const tot=["รวม "+rows.length+" คน","","","","","","","","","","","","",sum(o=>o.r.workDays),sum(o=>o.r.leaveDays),sum(o=>o.r.pay),
+    ...PG.map(p=>sum(o=>(((o.r.progParts||[]).find(q=>q.name===p)||{amt:0}).amt))), sum(o=>o.r.train), sum(o=>o.r.loan), sum(o=>o.r.man), sum(o=>o.r.inc), sum(o=>o.r.net), "", ...HRS.map(()=>"")];
+  return {rows, head, out, tot};
+}
+function dlBlob(blob, name){ const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); }
+$("btn-mpcsv").addEventListener("click",()=>{
+  const d=mdPayTableData(); if(!d) return alert("ไม่มีข้อมูล");
+  const csv="\uFEFF"+[d.head,...d.out,d.tot].map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+  dlBlob(new Blob([csv],{type:"text/csv;charset=utf-8"}), `payroll-${mdYm()}.csv`);
+});
+/* Excel (SheetJS) — ตารางเงินเดือน + สรุป + ไฟล์โอนเงิน */
+$("btn-mpxlsx").addEventListener("click",()=>{
+  const d=mdPayTableData(); if(!d) return alert("ไม่มีข้อมูล");
+  if(!window.XLSX){ alert("โหลดตัวสร้าง Excel ไม่สำเร็จ (ต้องมีอินเทอร์เน็ต) — ดาวน์โหลด CSV แทนได้"); return; }
+  const wb=XLSX.utils.book_new();
+  const ws1=XLSX.utils.aoa_to_sheet([["ตารางเงินเดือน "+mdCycleLabel()+(MD_ST.locked?" · อนุมัติแล้ว "+(MD_ST.approvedAt||""):" · ยังไม่อนุมัติ")],[],d.head,...d.out,d.tot]);
+  ws1["!cols"]=d.head.map((h,i)=>({wch: i===0?26:(String(h).length>8?16:11)}));
+  XLSX.utils.book_append_sheet(wb, ws1, "เงินเดือน");
+  const g=n=>d.rows.filter(o=>o.x.group===n);
+  const sumN=L=>+L.reduce((a,o)=>a+o.r.net,0).toFixed(2);
+  const ws2=XLSX.utils.aoa_to_sheet([["สรุป "+mdCycleLabel()],[],["รายการ","จำนวนคน","ยอดสุทธิ"],
+    ["กลุ่ม 1 ทดลองงาน/รายวัน/ฝึกงาน",g(1).length,sumN(g(1))],["กลุ่ม 2 ออกระหว่างรอบ",g(2).length,sumN(g(2))],["กลุ่ม 3 ประจำ",g(3).length,sumN(g(3))],["รวม",d.rows.length,sumN(d.rows)],[],
+    ["หักรวม (รายการเข้าร่วม)", "", +d.rows.reduce((a,o)=>a+o.r.prog,0).toFixed(2)],["หักอบรม","",+d.rows.reduce((a,o)=>a+o.r.train,0).toFixed(2)],["หักเงินกู้","",+d.rows.reduce((a,o)=>a+o.r.loan,0).toFixed(2)],["หักอื่น ๆ","",+d.rows.reduce((a,o)=>a+o.r.man,0).toFixed(2)],["Incentive","",+d.rows.reduce((a,o)=>a+o.r.inc,0).toFixed(2)]]);
+  ws2["!cols"]=[{wch:34},{wch:10},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, ws2, "สรุป");
+  const bk=bankRows(d.rows);
+  const ws3=XLSX.utils.aoa_to_sheet([bk.head, ...bk.out]);
+  ws3["!cols"]=bk.head.map(()=>({wch:16}));
+  XLSX.utils.book_append_sheet(wb, ws3, "ไฟล์โอนเงิน");
+  XLSX.writeFile(wb, `payroll-${mdYm()}.xlsx`);
+});
+/* ไฟล์โอนเงินธนาคาร (รูปแบบทั่วไป) */
+const BANK_CODES={"กรุงเทพ":"002","กสิกรไทย":"004","กรุงไทย":"006","ทหารไทยธนชาต (ttb)":"011","ttb":"011","ไทยพาณิชย์":"014","ซิตี้แบงก์":"017","CIMB Thai":"022","UOB":"024","กรุงศรีอยุธยา":"025","ออมสิน":"030","ธ.ก.ส.":"034","เกียรตินาคินภัทร":"069","LH Bank":"073","ทิสโก้":"067","ธอส.":"033"};
+function bankCodeOf(name){ name=String(name||"").trim(); if(BANK_CODES[name]) return BANK_CODES[name]; const k=Object.keys(BANK_CODES).find(b=>name.toLowerCase().includes(b.toLowerCase())||b.toLowerCase().includes(name.toLowerCase())); return k?BANK_CODES[k]:""; }
+function bankRows(rows){
+  const head=["ลำดับ","รหัสธนาคาร","ธนาคาร","เลขบัญชี (ตัวเลข)","ชื่อบัญชี","จำนวนเงิน","รหัสพนักงาน","บัญชีจ่าย","รอบ","หมายเหตุ"];
+  const out=[]; let i=0;
+  for(const o of rows){ const e=o.x.e; if(o.r.net<=0) continue; i++;
+    out.push([i, bankCodeOf(e.bank), e.bank||"", String(e.acct||"").replace(/[^0-9]/g,""), e.name||e.nick||"", +o.r.net.toFixed(2), e.code, e.acctType||"", mdCycleLabel(), (!e.acct?"⚠ ยังไม่กรอกเลขบัญชี":"")+(!e.bank?" ⚠ ยังไม่กรอกธนาคาร":"")]); }
+  return {head,out};
+}
+$("btn-mpbank").addEventListener("click",()=>{
+  const d=mdPayTableData(); if(!d) return alert("ไม่มีข้อมูล");
+  if(!MD_ST.locked && !confirm("รอบนี้ยังไม่อนุมัติ — ต้องการออกไฟล์โอนเงินต่อหรือไม่?")) return;
+  const bk=bankRows(d.rows); const missing=bk.out.filter(r=>r[9]).length;
+  if(missing && !confirm(`มี ${missing} คนที่ยังไม่มีธนาคาร/เลขบัญชี (ดูคอลัมน์หมายเหตุ) — ออกไฟล์ต่อหรือไม่?`)) return;
+  const fmtSel=$("mp-bankfmt").value;
+  if(fmtSel==="txt"){
+    const txt=bk.out.map(r=>[r[1],r[3],r[4],r[5].toFixed(2),r[6]].join("|")).join("\r\n");
+    dlBlob(new Blob([txt],{type:"text/plain;charset=utf-8"}), `bank-transfer-${mdYm()}.txt`);
+  }else{
+    const csv="\uFEFF"+[bk.head,...bk.out].map(r=>r.map(c=>`"${String(c??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+    dlBlob(new Blob([csv],{type:"text/csv;charset=utf-8"}), `bank-transfer-${mdYm()}.csv`);
+  }
 });
 $("mdpaybody").addEventListener("input",e=>{
   const t=e.target;
@@ -3969,6 +4369,7 @@ $("mdpaybody").addEventListener("input",e=>{
     const h = MD_ST.hrchk[t.dataset.hrchk] = MD_ST.hrchk[t.dataset.hrchk] || {};
     if(t.checked) h[t.dataset.hr] = {by: ensureEditor(), at: nowTH()};
     else delete h[t.dataset.hr];
+    mdLog(t.dataset.hrchk, "ตรวจสอบโดย "+t.dataset.hr, t.checked?"ยังไม่ตรวจ":"ตรวจแล้ว", t.checked?"ตรวจแล้ว":"ยกเลิกการตรวจ");
     mdSave(); renderMDPay();
     return;
   }
@@ -3982,6 +4383,10 @@ $("mdpaybody").addEventListener("input",e=>{
   if(tr&&x){ const r=mdCalc(x); const nc=tr.querySelector(".netcell"); if(nc) nc.innerHTML=`<strong>${fmt(r.net)}</strong>`; }
 });
 numInputBehavior($("mdpaybody"));
+$("mdpaybody").addEventListener("focusin",e=>{ const t=e.target; if(t.dataset&&(t.dataset.mdinc||t.dataset.mdded)) t.dataset.old=String(num(t.value)); });
+$("mdpaybody").addEventListener("change",e=>{ const t=e.target; if(!t.dataset||!(t.dataset.mdinc||t.dataset.mdded)) return;
+  const old=num(t.dataset.old), nv=num(t.value); if(old===nv) return;
+  mdLog(t.dataset.mdinc||t.dataset.mdded, t.dataset.mdinc?"Incentive":"หักอื่น ๆ", fmt(old), fmt(nv)); t.dataset.old=String(nv); mdSave(); renderMDLog(); });
 let mdPopCtx=null;
 $("tsbody").addEventListener("click",e=>{
   if(MD_ST.locked) return;
@@ -3997,7 +4402,8 @@ $("tsbody").addEventListener("click",e=>{
       <select id="pop-hft"><option value="S">ลาป่วย</option><option value="PL">ลากิจ</option><option value="LP">ไม่รับเงิน</option></select>
       <select id="pop-hfh"><option>เช้า</option><option>บ่าย</option></select>
     </div>
-    <div class="row" id="pop-ml" ${cell.c==="ML"?"":"hidden"}><span>ลาคลอด: บริษัทจ่ายรวม (วัน/รอบ)</span><input type="number" id="pop-mlp" value="${MD_ST.mlPaid[mdPopCtx.code]||0}" style="width:70px"></div>
+    <div class="row" id="pop-ml" ${cell.c==="ML"?"":"hidden"} style="flex-wrap:wrap;gap:.3rem"><span>ลาคลอด: บริษัทจ่ายรวม (วัน/รอบ)</span><input type="number" id="pop-mlp" value="${MD_ST.mlPaid[mdPopCtx.code]||0}" style="width:70px">
+      <span style="width:100%;font-size:.78rem;color:var(--muted)">ช่วงลาคลอด (ว/ด/ปปปป): <input type="text" id="pop-mlfrom" value="${esc(((MD_ST.mlRange||{})[mdPopCtx.code]||{}).from||"")}" placeholder="เริ่ม" style="width:92px"> – <input type="text" id="pop-mlto" value="${esc(((MD_ST.mlRange||{})[mdPopCtx.code]||{}).to||"")}" placeholder="ถึง" style="width:92px"> <button type="button" class="ghost" id="pop-mlfill" style="min-height:26px;padding:.1rem .5rem;font-size:.74rem">ลง ML ทุกวันในช่วง (เฉพาะวันในรอบนี้)</button></span></div>
     <textarea id="pop-note" placeholder="เหตุผล / หมายเหตุ (แสดงเมื่อชี้เมาส์ · ป่วยพิมพ์ 'มีใบรับรอง' หรือ 'ไม่มีใบรับรอง')">${esc(cell.note||"")}</textarea>
     <div class="btns"><button class="danger" id="pop-clear">ล้างช่อง</button><button class="primary" id="pop-save">บันทึก</button></div>`;
   if(cell.hfType) pp.querySelector("#pop-hft").value=cell.hfType;
@@ -4014,17 +4420,35 @@ $("tsbody").addEventListener("click",e=>{
     pp.querySelector("#pop-hf").hidden = sel!=="HF";
     pp.querySelector("#pop-ml").hidden = sel!=="ML";
   }));
+  const saveMlRange=()=>{ const f=toBE(pp.querySelector("#pop-mlfrom").value.trim()), t=toBE(pp.querySelector("#pop-mlto").value.trim());
+    MD_ST.mlRange=MD_ST.mlRange||{}; if(f||t) MD_ST.mlRange[mdPopCtx.code]={from:f,to:t}; else delete MD_ST.mlRange[mdPopCtx.code]; };
   pp.querySelector("#pop-save").addEventListener("click",()=>{
     if(!sel){ pp.hidden=true; return; }
     const extra={note:pp.querySelector("#pop-note").value.trim()};
     if(sel==="L") extra.mins=num(pp.querySelector("#pop-mins").value);
     if(sel==="HF"){ extra.hfType=pp.querySelector("#pop-hft").value; extra.hfHalf=pp.querySelector("#pop-hfh").value; }
-    if(sel==="ML") MD_ST.mlPaid[mdPopCtx.code]=num(pp.querySelector("#pop-mlp").value);
-    (MD_ST.grid[mdPopCtx.code]=MD_ST.grid[mdPopCtx.code]||{})[mdPopCtx.d]=Object.assign({c:sel},extra);
+    if(sel==="ML"){ MD_ST.mlPaid[mdPopCtx.code]=num(pp.querySelector("#pop-mlp").value); saveMlRange(); }
+    const before=(MD_ST.grid[mdPopCtx.code]||{})[mdPopCtx.d];
+    const after=Object.assign({c:sel},extra);
+    (MD_ST.grid[mdPopCtx.code]=MD_ST.grid[mdPopCtx.code]||{})[mdPopCtx.d]=after;
+    if(mdCellText(before)!==mdCellText(after)) mdLog(mdPopCtx.code, "ลงเวลา "+mdBE(new Date(mdPopCtx.d)), mdCellText(before), mdCellText(after));
     pp.hidden=true; mdSave(); renderMD();
   });
+  pp.querySelector("#pop-mlfill").addEventListener("click",()=>{
+    const f=parseBE(pp.querySelector("#pop-mlfrom").value.trim()), t=parseBE(pp.querySelector("#pop-mlto").value.trim());
+    if(!f||!t||t<f){ alert("กรอกวันเริ่ม–ถึง ของช่วงลาคลอดก่อน (ว/ด/ปปปป)"); return; }
+    MD_ST.mlPaid[mdPopCtx.code]=num(pp.querySelector("#pop-mlp").value); saveMlRange();
+    const x=mdEmpsBase().find(z=>z.e.code===mdPopCtx.code); const note=pp.querySelector("#pop-note").value.trim()||"ลาคลอด";
+    let n=0; const g=(MD_ST.grid[mdPopCtx.code]=MD_ST.grid[mdPopCtx.code]||{});
+    for(const d of mdDays()){ if(d<f||d>t) continue; if(x&&((x.st&&d<x.st)||(x.rs&&d>x.rs))) continue; g[mdIso(d)]={c:"ML",note}; n++; }
+    mdLog(mdPopCtx.code, "ลง ML ทั้งช่วง", "", `${mdBE(f)} – ${mdBE(t)} (${n} วันในรอบนี้)`);
+    pp.hidden=true; mdSave(); renderMD();
+    alert(`ลง ML แล้ว ${n} วันในรอบนี้ — ถ้าช่วงลาคลอดข้ามรอบ ให้ไปที่รอบถัดไปแล้วกดลงซ้ำ`);
+  });
   pp.querySelector("#pop-clear").addEventListener("click",()=>{
+    const before=(MD_ST.grid[mdPopCtx.code]||{})[mdPopCtx.d];
     if(MD_ST.grid[mdPopCtx.code]) delete MD_ST.grid[mdPopCtx.code][mdPopCtx.d];
+    if(before) mdLog(mdPopCtx.code, "ล้างช่อง "+mdBE(new Date(mdPopCtx.d)), mdCellText(before), "ว่าง");
     pp.hidden=true; mdSave(); renderMD();
   });
 });
@@ -4113,7 +4537,7 @@ $("btn-careject").addEventListener("click",()=>{
   renderComm();
 });
 $("md-alerts").addEventListener("click",e=>{
-  const li=e.target.closest("li[data-mdcode]"); if(!li) return;
+  const li=e.target.closest("[data-mdcode]"); if(!li) return; e.preventDefault();
   const btn=document.querySelectorAll('nav.tabs button[data-panel="p-md"]')[0];
   if(btn) btn.click();
   const row=$("mdrow-"+li.dataset.mdcode);
@@ -4128,6 +4552,8 @@ $("btn-approve").addEventListener("click",()=>{
   for(const x of mdEmpsBase()) nets[x.e.code]=mdCalc(x).net;
   MD_ST.nets=nets; MD_ST.locked=true; MD_ST.rejectNote="";
   MD_ST.approvedAt=new Date().toLocaleString("th-TH",{dateStyle:"medium",timeStyle:"short"}) + (ensureEditor()?" · โดย คุณ"+ensureEditor():"");
+  mdLog("—", "อนุมัติเงินเดือนรอบนี้", "ยังไม่อนุมัติ", "อนุมัติ · ล็อกรอบ · ยอดรวม "+fmt(Object.values(nets).reduce((a2,v)=>a2+num(v),0)));
+  DB.hist.unshift({ts:nowTH(), ts2:Date.now(), by:ensureEditor(), code:"—", nick:"Manday "+mdYm(), action:"อนุมัติเงินเดือน "+mdCycleLabel(), changes:[]}); saveDB(); if(typeof renderHist==="function") renderHist();
   mdSave(true); renderMD();
 });
 $("btn-reject").addEventListener("click",()=>{
@@ -4135,12 +4561,17 @@ $("btn-reject").addEventListener("click",()=>{
   const reason=prompt("เหตุผลที่ส่งกลับให้แก้ไข (จำเป็น):");
   if(!reason||!reason.trim()) return;
   MD_ST.rejectNote=reason.trim();
+  mdLog("—", "ส่งกลับให้แก้ไข", "", reason.trim());
+  DB.hist.unshift({ts:nowTH(), ts2:Date.now(), by:ensureEditor(), code:"—", nick:"Manday "+mdYm(), action:"ส่งกลับเงินเดือน "+mdCycleLabel()+" — "+reason.trim(), changes:[]}); saveDB(); if(typeof renderHist==="function") renderHist();
   mdSave(true); renderMD();
 });
 $("btn-unlock").addEventListener("click",()=>{
   if(!MD_ST.locked) return;
   if(!askPin("ปลดล็อก"+mdCycleLabel()+" เพื่อแก้ไขย้อนหลัง (สถานะอนุมัติจะถูกยกเลิก ต้องอนุมัติใหม่เมื่อแก้เสร็จ)")) return;
+  const wasAt=MD_ST.approvedAt||"";
   MD_ST.locked=false; MD_ST.approvedAt=""; MD_ST.rejectNote="";
+  mdLog("—", "ปลดล็อกรอบ", "อนุมัติแล้ว "+wasAt, "ปลดล็อกเพื่อแก้ไข");
+  DB.hist.unshift({ts:nowTH(), ts2:Date.now(), by:ensureEditor(), code:"—", nick:"Manday "+mdYm(), action:"ปลดล็อกเงินเดือน "+mdCycleLabel(), changes:[]}); saveDB(); if(typeof renderHist==="function") renderHist();
   mdSave(true); renderMD();
 });
 $("md-legend").innerHTML="รหัส: "+Object.entries(MD_CODES).map(([c,t])=>`<span class="cc ${c}" title="${esc(t)}">${c}</span> ${t}`).join(" · ");
@@ -4195,6 +4626,55 @@ $("btn-mdclear").addEventListener("click",()=>{
   trashSnapshot("ล้างตารางลงเวลา", "manday", mdYm(), MD_ST);
   MD_ST=mdBlank(); mdSave(true); renderMD();
   $("mdmv-msg").textContent="✅ ล้างรอบนี้แล้ว";
+  mdLog("—", "ล้างตารางลงเวลาทั้งรอบ", n+" คน", "ว่าง (สำเนาอยู่ในถังขยะ)");
+  mdSave(true);
+});
+$("mdlog-q").addEventListener("input", renderMDLog);
+/* ---------- นำเข้าตารางลงเวลาจาก CSV/ชีท ---------- */
+$("md-file").addEventListener("change",ev=>{ const f=ev.target.files[0]; if(!f) return; const fr=new FileReader();
+  fr.onload=()=>{ $("md-paste").value=String(fr.result||"").replace(/^\uFEFF/,""); $("md-import-msg").textContent=`โหลดไฟล์ ${f.name} แล้ว — กด "นำเข้าเข้ารอบที่เลือก"`; }; fr.readAsText(f); ev.target.value=""; });
+function mdParseHeaderDate(txt){
+  const days=mdDays(); const t=String(txt||"").trim();
+  if(!t) return null;
+  const m=t.match(/^(\d{1,2})\s*[\/\-.]\s*(\d{1,2})(?:\s*[\/\-.]\s*(\d{2,4}))?$/);
+  if(m){ const dd=Number(m[1]), mm=Number(m[2]); const hit=days.find(d=>d.getDate()===dd && d.getMonth()+1===mm); return hit?mdIso(hit):null; }
+  if(/^\d{1,2}$/.test(t)){ const dd=Number(t); const hit=days.find(d=>d.getDate()===dd); return hit?mdIso(hit):null; }
+  const d2=parseBE(t); if(d2){ const hit=days.find(d=>mdIso(d)===mdIso(d2)); return hit?mdIso(hit):null; }
+  return null;
+}
+function mdParseCode(raw){
+  let t=String(raw||"").trim().toUpperCase().replace(/\s+/g,""); if(!t) return null;
+  if(t==="W"||t==="WORK"||t==="มา") return {c:"W"};
+  let m=t.match(/^L[\-:]?(\d+)$/); if(m) return {c:"L",mins:Number(m[1])};
+  m=t.match(/^HF[\-\/:]?(S|PL|LP)?[\-\/:]?(เช้า|บ่าย|AM|PM)?$/); if(m) return {c:"HF",hfType:m[1]||"PL",hfHalf:(m[2]==="PM"||m[2]==="บ่าย")?"บ่าย":"เช้า"};
+  if(MD_CODES[t]) return {c:t};
+  const th={"ป่วย":"S","ลาป่วย":"S","กิจ":"PL","ลากิจ":"PL","พักร้อน":"AL","ขาด":"AA","สาย":"L","หยุด":"OFF","ลาออก":"LO","ลาคลอด":"ML","นักขัตฤกษ์":"HD"};
+  const k=Object.keys(th).find(x=>String(raw||"").trim()===x); return k?{c:th[k]}:null;
+}
+$("btn-mdimport").addEventListener("click",()=>{
+  if(MD_ST.locked){ $("md-import-msg").textContent="รอบนี้อนุมัติแล้ว — ปลดล็อกก่อน"; return; }
+  const txt=$("md-paste").value.replace(/^\uFEFF/,""); const lines=txt.split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<2){ $("md-import-msg").textContent="วางข้อมูลก่อน (ต้องมีแถวหัวตาราง + อย่างน้อย 1 คน)"; return; }
+  const head=splitCells(lines[0]); const colDate=head.map(h=>mdParseHeaderDate(h));
+  const dateCols=colDate.map((v,i)=>v?i:-1).filter(i=>i>=0);
+  if(!dateCols.length){ $("md-import-msg").textContent="อ่านหัวตารางไม่ได้ — หัวคอลัมน์ต้องเป็นวันที่ในรอบนี้ เช่น 26/8/2569 หรือ 26"; return; }
+  const norm=v=>String(v||"").trim().toLowerCase();
+  let ok=0, cells=0, bad=0; const miss=[]; const changes=[];
+  for(const ln of lines.slice(1)){
+    const c=splitCells(ln); const key=norm(c[0]); if(!key) continue;
+    const e=DB.emp.find(z=>norm(z.code)===key) || DB.emp.find(z=>norm(z.nick)===key) || DB.emp.find(z=>norm(z.name)===key) || DB.emp.find(z=>key && norm(z.name).includes(key));
+    if(!e){ miss.push(c[0]); continue; }
+    const g=(MD_ST.grid[e.code]=MD_ST.grid[e.code]||{}); let any=false;
+    for(const i of dateCols){ const raw=c[i]; if(raw===undefined||!String(raw).trim()) continue; const code=mdParseCode(raw); if(!code){ bad++; continue; }
+      const iso=colDate[i]; const before=g[iso]; g[iso]=code; cells++; any=true; if(mdCellText(before)!==mdCellText(code)) changes.push({code:e.code, iso, before, after:code}); }
+    if(any) ok++;
+  }
+  if(!cells){ $("md-import-msg").textContent="ไม่พบช่องที่นำเข้าได้"+(miss.length?` · หาไม่เจอ: ${miss.slice(0,5).join(", ")}`:""); return; }
+  if(!askPin(`นำเข้าตารางลงเวลา ${ok} คน ${cells} ช่อง เข้ารอบ ${mdCycleLabel()}`)){ subscribeMD(); return; }
+  mdLog("—", "นำเข้าตารางลงเวลาจากชีท/CSV", "", `${ok} คน · ${cells} ช่อง${bad?` · อ่านไม่ออก ${bad} ช่อง`:""}`);
+  for(const ch of changes.slice(0,150)) mdLog(ch.code, "นำเข้า "+mdBE(new Date(ch.iso)), mdCellText(ch.before), mdCellText(ch.after));
+  mdSave(true); renderMD();
+  $("md-import-msg").textContent=`✅ นำเข้า ${ok} คน ${cells} ช่อง`+(bad?` · อ่านรหัสไม่ออก ${bad} ช่อง (ข้าม)`:"")+(miss.length?` · หาไม่เจอ: ${miss.slice(0,6).join(", ")}${miss.length>6?"…":""}`:"");
 });
 $("md-divisor").addEventListener("change",()=>{ S.mdDivisor=num($("md-divisor").value)||30; persistS(); renderMD(); });
 $("md-month").addEventListener("input",()=>{ subscribeMD(); if($("sub-month")){ $("sub-month").value=$("md-month").value; subscribeSub(); } });
@@ -4581,7 +5061,10 @@ const HELP_DOCS = [
     "คลิกช่องวันของพนักงาน → เลือกรหัส (S ป่วย · PL กิจ · LP กิจไม่รับเงิน · HF ครึ่งวัน · AL พักร้อน · L สาย+นาที · AA ขาด · WFH · W มาทำงานวันหยุด · LO ลาออก · ML ลาคลอด) → ใส่เหตุผล → บันทึก",
     "ลาป่วยพิมพ์ในเหตุผลว่า \"มีใบรับรอง\" หรือ \"ไม่มีใบรับรอง\" (ป่วยเกิน 3 วันไม่มีใบรับรองจะขึ้นป้ายเตือน)",
     "ลงให้ครบทุกวันก่อน 18:00 — วันลา/สาย จะไปหักในหน้าคำนวณค่าคอมและเงินเดือนอัตโนมัติ",
-    "แดชบอร์ดด้านบนตารางสรุป มา/ลา/สาย/ขาด และ 10 อันดับ ไว้ใส่รายงานรายวัน"],
+    "แดชบอร์ดด้านบนตารางสรุป มา/ลา/สาย/ขาด และ 10 อันดับ ไว้ใส่รายงานรายวัน",
+    "ลาคลอด (ML): คลิกวันแรก → เลือก ML → ใส่ช่วงวันที่เริ่ม–ถึง และจำนวนวันที่บริษัทจ่าย → กด \"ลง ML ทุกวันในช่วง\" ระบบลงให้ทั้งช่วงในรอบนี้",
+    "มีข้อมูลรอบเก่าในชีท: เปิด \"นำเข้าตารางลงเวลาจากชีท/CSV\" → วางตาราง (หัวคอลัมน์เป็นวันที่) → นำเข้าเข้ารอบที่เลือก (PIN)",
+    "ทุกการแก้ไขถูกบันทึกใน \"ประวัติการแก้ไขรอบนี้\" — ใครแก้ ช่องไหน เมื่อไร ค่าเดิม → ค่าใหม่"],
    tips:["คอลัมน์ขวาสุด วันทำงาน · รวมวันลา · วันหยุด ชี้เมาส์จะเห็นที่มาของตัวเลข","ลงผิดรอบ: เปิด \"ลงเวลาผิดรอบ?\" → ย้ายทั้งรอบไปเดือนที่ถูกได้ (ใส่ PIN)"], warn:["รอบที่อนุมัติแล้วจะล็อก แก้ไม่ได้ — ต้องให้แอดมินปลดล็อกที่หน้าอนุมัติ"]},
   {id:"p-comm", ic:"🧮", title:"คำนวณค่าคอม", who:"HRBP · ผู้ดูแลค่าคอม", steps:[
     "เลือกงวดเดือน → กรองสาขา/แผนก/ตำแหน่ง/หัวหน้าได้ แถวเรียงตามทีม",
@@ -4606,10 +5089,12 @@ const HELP_DOCS = [
     "🖨 พิมพ์ / บันทึก PDF หรือ 📧 ส่งสลิปทางอีเมล (ถ้าแอดมินตั้ง Apps Script ไว้ จะส่งถึงพนักงานทันที)"]},
   {id:"p-mdpay", ic:"✅", title:"อนุมัติเงินเดือน & ค่าคอม", who:"แอดมิน · HR ผู้ตรวจ", steps:[
     "เลือกงวด → กล่องสถานะ 2 ขั้นบอกว่าเงินเดือนและค่าคอมอยู่ขั้นไหน",
-    "ส่วนที่ 1 เงินเดือน: ตรวจรายการป้ายเตือน (ยังไม่กรอกบัญชี, เริ่มกลางรอบ, ยอดต่างจากรอบก่อน) → ตารางหักรายการเข้าร่วมอัตโนมัติ · กรอกมือแค่ \"หักอื่น ๆ\" และ \"Incentive\"",
+    "ส่วนที่ 1 เงินเดือน: ตรวจรายการป้ายเตือน (ยังไม่กรอกบัญชี, เริ่มกลางรอบ, ปรับเงินเดือนกลางรอบ, ยอดต่างจากรอบก่อน, ป่วยสะสมทั้งปีเกินเกณฑ์) → ตารางหักอัตโนมัติ: รายการเข้าร่วม + ค่าอบรม/เงินกู้ผ่อนงวด (ชี้เมาส์ดูว่าเหลือกี่งวด) · กรอกมือแค่ \"หักอื่น ๆ\" และ \"Incentive\"",
+    "รายเดือน = ฐานเงินเดือน − (วันลาไม่รับเงิน/ขาด × อัตราต่อวัน) · รายวัน = อัตราต่อวัน × วันที่มาจริง · ปรับเงินเดือนกลางรอบ ระบบแบ่งสัดส่วนวันก่อน/หลังวันที่มีผลให้อัตโนมัติ (ตั้งวันที่มีผลในฟอร์มพนักงาน)",
     "HR ผู้ตรวจ 2 คน (มิ้นท์ / หวาน) ติ๊ก ☑ ท้ายแถวทุกคน → แอดมินกด \"อนุมัติเงินเดือนรอบนี้\" (PIN) ระบบเตือนถ้ายังติ๊กไม่ครบ",
     "ส่วนที่ 2 ค่าคอม: ต้องผ่านการตรวจที่ท้ายหน้าค่าคอมก่อน แล้วกด \"อนุมัติค่าคอมงวดนี้\" (PIN)",
-    "ดาวน์โหลด CSV ตารางเงินเดือน ส่งบัญชีได้เลย · ส่งกลับให้แก้ไข ต้องใส่เหตุผล"]},
+    "ดาวน์โหลด Excel (เงินเดือน + สรุป + ไฟล์โอนเงิน) หรือ CSV ส่งบัญชีได้เลย · ออกไฟล์โอนเงินธนาคาร (CSV / TXT) · ส่งกลับให้แก้ไข ต้องใส่เหตุผล",
+    "เกณฑ์ป้ายเตือน (% / บาท ที่ต่างจากรอบก่อน · ลาป่วยสะสมทั้งปี) ตั้งได้ที่ตั้งค่าเรต → วันหยุดพิเศษ/Manday"]},
   {id:"p-sub", ic:"📑", title:"นำส่ง ปกส. / กองทุน / กยศ.", who:"มิ้นท์ · HRBP", steps:[
     "เลือกเดือน → กดปุ่มรายการ (ประกันสังคม / กองทุน / กยศ.) → เห็นคนที่ติ๊กเข้าร่วมพร้อมยอดหักพนักงานและสมทบนายจ้าง",
     "เลขที่/เลขสมาชิกและ % หรือยอดคงที่ของแต่ละคน ตั้งในฟอร์มพนักงาน (หัวข้อ \"เข้าร่วม\")",
@@ -4620,7 +5105,7 @@ const HELP_DOCS = [
     "ติ๊ก \"เข้าร่วม\" ประกันสังคม/กองทุน/กยศ. แล้วกรอกเลขที่, % หรือยอดคงที่ (ถ้ามี) → มีผลต่อหน้าอนุมัติ สลิป และนำส่ง",
     "กดบันทึก → ยืนยันชื่อผู้แก้ → ทุกการเปลี่ยนแปลงลงประวัติ",
     "แก้หลายคนพร้อมกัน: ติ๊กหน้าชื่อ → การ์ด \"แก้ไขหลายคน\" เลือกเฉพาะช่องที่จะเปลี่ยน (แอดมิน)"],
-   tips:["สำรองข้อมูล (.json) ทำทุกเดือน · ธนาคาร/เลขบัญชี/ใบสมัคร เห็นเฉพาะแอดมิน"]},
+   tips:["สำรองข้อมูล (.json) ทำทุกเดือน · ธนาคาร/เลขบัญชี/เลขบัตรประชาชน/ใบสมัคร เห็นเต็มเฉพาะแอดมิน (คนอื่นเห็นเลขบัญชีแค่ 4 หลักท้าย)","ช่องเพิ่ม: ฝ่าย · เวลาเข้างาน · หมายเหตุ · (แอดมิน) รายการผ่อนหัก เงินกู้/ค่าอบรม ตั้งยอดรวม-ต่องวด-รอบเริ่ม ระบบหักให้ทุกรอบจนครบ · วันที่มีผลของเงินเดือนใหม่","แอดมินนำเข้าทะเบียนพนักงานทั้งชุดจาก Excel/Google Sheets ได้ที่ \"นำเข้าทะเบียนพนักงาน\" (หัวคอลัมน์ภาษาไทย)"]},
   {id:"p-prob", ic:"🌱", title:"ทดลองงาน", who:"HRBP · HR สาขา", steps:[
     "รายชื่อคนสถานะทดลองงานขึ้นอัตโนมัติ พร้อมวันครบกำหนด (90 วัน หรือวันผ่านงานที่กรอกไว้) และ KPI งวดนี้",
     "ครบกำหนดและผ่าน → กด \"ผ่านทดลองงาน\" ใส่วันที่ → สถานะเป็นปัจจุบันทุกหน้าทันที · ไม่ผ่าน → กด \"ไม่ผ่าน\" ใส่วันที่มีผล",
@@ -4834,6 +5319,7 @@ $("editor-chip").addEventListener("click",()=>ensureEditor(true));
   renderEmp(); renderComm(); renderHist(); renderLead(); renderKPI();
   renderBell();
   renderHelp();
+  if($("app-ver")) $("app-ver").textContent = APP_VERSION;
   subscribeTrash();
   if(!$("sub-month").value) $("sub-month").value = mdYm();
   if(!(CLOUD && AUTHED)) subscribeSub();
