@@ -181,6 +181,7 @@ label.f span.bepick,.bepick{display:flex;gap:.3rem;flex-wrap:nowrap;width:100%;m
 .subtabs{display:flex;flex-wrap:wrap;gap:.4rem}
 .subtabs button{font-family:inherit;font-size:.9rem;font-weight:700;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:.4rem .9rem;cursor:pointer;color:var(--ink)}
 .subtabs button.on{background:var(--money);color:#fff;border-color:var(--money)}
+.set-savebar{position:sticky;bottom:0;z-index:5;display:flex;flex-wrap:wrap;align-items:center;gap:.6rem 1rem;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.6rem .9rem;box-shadow:0 -6px 20px rgba(20,40,30,.08);margin-top:.5rem}
 .navcount{margin-left:auto;background:var(--deduct);color:#fff;font-size:.7rem;font-weight:800;border-radius:999px;padding:.05rem .45rem}
 .hrd-bar{display:inline-block;height:8px;border-radius:999px;background:#E4EBE2;width:90px;vertical-align:middle;overflow:hidden}
 .hrd-bar i{display:block;height:100%;background:var(--money)}
@@ -1131,7 +1132,18 @@ table.sum td.l,table.sum th.l{text-align:left}
 
 <!-- ================= ตั้งค่า ================= -->
 <section class="panel" id="p-set">
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" style="margin-bottom:1rem;padding:.7rem .9rem">
+    <h2 style="margin-bottom:.5rem">ตั้งค่าระบบ <small>เลือกหมวดที่ต้องการตั้งค่า</small></h2>
+    <div class="subtabs" id="set-nav">
+      <button type="button" data-sg="comm">💰 เรตค่าคอม & Incentive</button>
+      <button type="button" data-sg="kpi">📊 เกณฑ์ KPI / ใบเตือน</button>
+      <button type="button" data-sg="pay">🗓️ เงินเดือน & Manday</button>
+      <button type="button" data-sg="org">🏢 บริษัท · แผนก · สาขา · ทีม HR</button>
+      <button type="button" data-sg="users">👤 ผู้ใช้และสิทธิ์</button>
+      <button type="button" data-sg="sys">⚙️ อีเมลสลิป · PIN</button>
+    </div>
+  </div>
+  <div class="card" data-sg="comm" style="margin-bottom:1rem">
     <h2>เทียร์ % ค่าคอม ยอดสุทธิ CRM+แนะนำ <small>ใช้ % ของขั้นสูงสุดที่ยอดสุทธิถึง คูณยอดสุทธิทั้งก้อน</small></h2>
     <table class="tiers">
       <thead><tr><th>ยอดสุทธิตั้งแต่ (บาท)</th><th>ค่าคอม (%)</th><th></th></tr></thead>
@@ -1141,7 +1153,7 @@ table.sum td.l,table.sum th.l{text-align:left}
     <p class="hint">ตัวอย่าง: 0 → 0.5%, 100,000 → 1%, 300,000 → 1.5% หมายถึงยอด 350,000 ได้ค่าคอม 350,000 × 1.5% = 5,250 บาท</p>
   </div>
 
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" data-sg="comm" style="margin-bottom:1rem">
     <h2>เทียร์ % ค่าคอม Sales Admin <small>ใช้กับพนักงานแผนก/ตำแหน่ง Sales Admin แทนเทียร์ CRM ด้านบน</small></h2>
     <table class="tiers">
       <thead><tr><th>ยอดสุทธิตั้งแต่ (บาท)</th><th>ค่าคอม (%)</th><th></th></tr></thead>
@@ -1150,7 +1162,7 @@ table.sum td.l,table.sum th.l{text-align:left}
     <div class="btnrow"><button class="ghost" id="btn-addsatier">เพิ่มเทียร์</button></div>
   </div>
 
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" data-sg="comm" style="margin-bottom:1rem">
     <h2>เทียร์ % ค่าคอม Upsell <small>ใช้กับพนักงานแผนก/ตำแหน่ง Upsell (ค่าเริ่มต้น 3% ทุกยอด)</small></h2>
     <table class="tiers">
       <thead><tr><th>ยอดสุทธิตั้งแต่ (บาท)</th><th>ค่าคอม (%)</th><th></th></tr></thead>
@@ -1159,7 +1171,7 @@ table.sum td.l,table.sum th.l{text-align:left}
     <div class="btnrow"><button class="ghost" id="btn-adduptier">เพิ่มเทียร์</button></div>
   </div>
 
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" data-sg="comm" style="margin-bottom:1rem">
     <h2>ช่องทางยอดขายเพิ่มเติม <small>โผล่เป็นช่องกรอกในหน้าคำนวณค่าคอม · รวมเข้ายอดสุทธิอัตโนมัติ (CRM + แนะนำ + ช่องทางเหล่านี้ − หัก690)</small></h2>
     <table class="tiers" style="max-width:460px">
       <thead><tr><th class="l">ชื่อช่องทาง</th><th></th></tr></thead>
@@ -1169,7 +1181,7 @@ table.sum td.l,table.sum th.l{text-align:left}
     <p class="hint">ค่าตั้งต้น: Upsell · Facebook · Incall · Line — เพิ่ม/ลบ/เปลี่ยนชื่อได้ กด "บันทึกการตั้งค่า" เพื่อซิงก์</p>
   </div>
 
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" data-sg="org" style="margin-bottom:1rem">
     <h2>บริษัทในระบบ <small>ลิงก์อัตโนมัติ: ฟอร์มพนักงาน · ฟิลเตอร์ Manday/เงินเดือน</small></h2>
     <table class="tiers" style="max-width:900px">
       <thead><tr><th class="l">ชื่อย่อ</th><th class="l">ชื่อเต็มบนสลิป</th><th class="l">ที่อยู่ / เลขผู้เสียภาษี (บนสลิป)</th><th></th></tr></thead>
@@ -1179,7 +1191,7 @@ table.sum td.l,table.sum th.l{text-align:left}
     <p class="hint">บริษัทแรกในรายการเป็นค่าตั้งต้นของพนักงานใหม่</p>
   </div>
 
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" data-sg="org" style="margin-bottom:1rem">
     <h2>แผนก · ตำแหน่ง · สาขา <small>ลิงก์อัตโนมัติ: ตัวเลือกในฟอร์มพนักงาน และฟิลเตอร์ทุกหน้า (ค่าที่พนักงานใช้อยู่แล้วยังโผล่ให้เลือกเสมอ)</small></h2>
     <div style="display:flex;flex-wrap:wrap;gap:1.5rem;align-items:flex-start">
       <div>
@@ -1207,7 +1219,7 @@ table.sum td.l,table.sum th.l{text-align:left}
     <p class="hint">กด "บันทึกการตั้งค่า" ด้านล่างเพื่อซิงก์ทุกเครื่อง · การลบรายการไม่กระทบพนักงานที่ใช้ค่านั้นอยู่ (ยังแสดงและกรองได้ตามเดิม)</p>
   </div>
 
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" data-sg="pay" style="margin-bottom:1rem">
     <h2>รายการที่พนักงานเข้าร่วม + หักอัตโนมัติ <small>ติ๊กรายคนในฟอร์มพนักงาน · ระบบหักจากเงินเดือนให้เองในหน้าอนุมัติเงินเดือนและสลิป</small></h2>
     <table class="tiers" style="max-width:640px">
       <thead><tr><th class="l">ชื่อรายการ</th><th>หัก % ของเงินเดือน</th><th>เพดานหัก/เดือน (บาท)</th><th></th></tr></thead>
@@ -1217,7 +1229,7 @@ table.sum td.l,table.sum th.l{text-align:left}
     <p class="hint">ตัวอย่างประกันสังคม: หัก 5% เพดาน 875 → เงินเดือน 10,000 หัก 500 · เงินเดือน 17,500 ขึ้นไปหัก 875 ตามกฎหมาย · % = 0 คือไม่หัก (เช่น กองทุนฯ ที่ยังไม่คิดเงิน) · เพดาน 0 = ไม่จำกัด — กด "บันทึกการตั้งค่า" เพื่อซิงก์</p>
   </div>
 
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" data-sg="pay" style="margin-bottom:1rem">
     <h2>วันหยุดพิเศษของบริษัท (Manday) <small>วันที่ตั้งไว้จะขึ้น OFF อัตโนมัติทั้งบริษัทในตารางลงเวลา · วันอาทิตย์เป็น OFF อัตโนมัติอยู่แล้ว</small></h2>
     <table class="tiers" style="max-width:560px">
       <thead><tr><th class="l">วันที่</th><th class="l">ชื่อวันหยุด</th><th></th></tr></thead>
@@ -1234,7 +1246,7 @@ table.sum td.l,table.sum th.l{text-align:left}
     <p class="hint">ป้ายเตือนอื่นที่ระบบเช็กให้เอง: เริ่มงานกลางรอบแต่ได้เต็มรอบ · ปรับเงินเดือนกลางรอบ (คิดสัดส่วนวันอัตโนมัติ) · ออกระหว่างรอบแต่เงิน 0 · ป่วยต่อเนื่องเกิน 3 วันไม่มีใบรับรอง · ยังไม่กรอกธนาคาร/เลขบัญชี · หักเงินกู้/อบรมงวดสุดท้าย</p>
   </div>
 
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" data-sg="comm" style="margin-bottom:1rem">
     <h2>เรทค่าคอมหัวหน้าทีม <small>ระบบรวมยอดสุทธิของลูกทีม เทียบกับเป้าที่กรอก แล้วจ่าย % คูณยอดทีมทั้งก้อน</small></h2>
     <table class="tiers">
       <thead><tr><th>ทำได้ตั้งแต่ (% ของเป้า)</th><th>ค่าคอม (%)</th><th></th></tr></thead>
@@ -1249,7 +1261,7 @@ table.sum td.l,table.sum th.l{text-align:left}
   </div>
 
 
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" data-sg="comm" style="margin-bottom:1rem">
     <h2>ขั้น Ontime เบี้ยขยัน <small>จ่ายเมื่อไม่มีลา/สาย · ใช้ขั้นสูงสุดที่ยอดสุทธิถึง</small></h2>
     <table class="tiers">
       <thead><tr><th>ยอดสุทธิตั้งแต่ (บาท)</th><th>จ่าย (บาท)</th><th></th></tr></thead>
@@ -1258,7 +1270,7 @@ table.sum td.l,table.sum th.l{text-align:left}
     <div class="btnrow"><button class="ghost" id="btn-addtier">เพิ่มขั้น</button></div>
   </div>
 
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" data-sg="comm" style="margin-bottom:1rem">
     <h2>ขั้นโบนัสไตรมาส <small>จ่ายตามยอดสุทธิของเดือน · ใช้ขั้นสูงสุดที่ยอดถึง</small></h2>
     <table class="tiers">
       <thead><tr><th>ยอดสุทธิตั้งแต่ (บาท)</th><th>จ่าย (บาท)</th><th></th></tr></thead>
@@ -1273,7 +1285,7 @@ table.sum td.l,table.sum th.l{text-align:left}
     <p class="hint">ไม่ใส่ขั้น = ไม่จ่ายอัตโนมัติ (กรอกเองในช่อง "โบนัส/อื่น" ได้เหมือนเดิม)</p>
   </div>
 
-  <div class="card" id="kpi-crit-card" style="margin-bottom:1rem">
+  <div class="card" id="kpi-crit-card" data-sg="kpi" style="margin-bottom:1rem">
     <h2>เกณฑ์ KPI / ใบเตือน <small>เฉพาะแอดมิน · ใช้ออกสถานะในแท็บ KPI/ใบเตือน และหัก KPI อัตโนมัติในหน้าคำนวณค่าคอม</small></h2>
     <div class="frow" style="display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:flex-end">
       <span style="font-size:.8rem;color:var(--muted);font-weight:700;width:100%">เกณฑ์เฉลี่ยต่อวัน (ต่ำกว่าเกณฑ์ 1 ตัว = ตักเตือน · 2 ตัวขึ้นไป = ใบเตือน):</span>
@@ -1293,7 +1305,7 @@ table.sum td.l,table.sum th.l{text-align:left}
     </div>
   </div>
 
-  <div class="card" id="users-card" style="margin-bottom:1rem;border-left:4px solid var(--money)">
+  <div class="card" id="users-card" data-sg="users" style="margin-bottom:1rem;border-left:4px solid var(--money)">
     <h2>ผู้ใช้และสิทธิ์ <small>เฉพาะแอดมิน · สร้างบัญชีให้แต่ละคน แล้วติ๊กว่าเห็นเมนูไหนได้บ้าง · ซิงก์ทันที</small></h2>
     <div class="tablewrap" style="margin-bottom:.8rem"><table class="team" id="userstable" style="min-width:900px"><thead><tr><th class="l">ชื่อ</th><th class="l">อีเมล (ใช้ล็อกอิน)</th><th class="l">ระดับ</th><th class="l">เมนูที่เห็น</th><th class="l">สถานะ</th><th class="l">จัดการ</th></tr></thead><tbody id="usersbody"></tbody></table></div>
     <div id="user-form" style="background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:.8rem 1rem">
@@ -1337,7 +1349,7 @@ service cloud.firestore {
     </details>
   </div>
 
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" data-sg="org" style="margin-bottom:1rem">
     <h2>ทีม HR (รายงานรายวัน) <small>ใครอยู่ทีม บทบาทอะไร — บทบาทกำหนดว่าต้องกรอกตัวเลขอะไรและเป้าเริ่มต้นเท่าไร</small></h2>
     <table class="tiers" style="max-width:720px">
       <thead><tr><th class="l">ชื่อ</th><th class="l">บทบาท</th><th class="l">สาขา/หมายเหตุ</th><th></th></tr></thead>
@@ -1347,7 +1359,7 @@ service cloud.firestore {
     <p class="hint">บทบาท: QA ฟังสาย · HRBP หัวหน้าทีม · HR สาขา · มิ้นท์ (สาขา+เทรนนิ่ง+สวัสดิการ+เบิก) · ฝึกงานซัพพอร์ตทีมขาย · ฝึกงานจัดสรรรายชื่อ · Audit — กด "บันทึกการตั้งค่า" ด้านล่าง</p>
   </div>
 
-  <div class="card" style="margin-bottom:1rem">
+  <div class="card" data-sg="sys" style="margin-bottom:1rem">
     <h2>ส่งสลิปทางอีเมลอัตโนมัติ <small>ใช้ Google Apps Script ของบัญชี Gmail บริษัท (ฟรี) · ถ้าเว้นว่าง ปุ่มส่งอีเมลจะเปิดโปรแกรมอีเมลของเครื่องแทน</small></h2>
     <div class="frow" style="max-width:960px">
       <label class="f" style="grid-column:span 2"><span>URL ของ Web App (Apps Script)</span><input type="url" id="s-email-url" placeholder="https://script.google.com/macros/s/....../exec"></label>
@@ -1366,8 +1378,7 @@ function out(o){ return ContentService.createTextOutput(JSON.stringify(o)).setMi
     </details>
   </div>
 
-  <div class="grid cols-2">
-    <div class="card">
+    <div class="card" data-sg="comm" style="margin-bottom:1rem">
       <h2>ค่าเดินทาง · ตีกลับ · สาย · ลา</h2>
       <div class="frow">
         <label class="f"><span>เกณฑ์ยอดสุทธิรับค่าเดินทาง</span><input type="number" id="s-travel-th"></label>
@@ -1380,20 +1391,25 @@ function out(o){ return ContentService.createTextOutput(JSON.stringify(o)).setMi
         </label>
       </div>
     </div>
-    <div class="card">
-      <h2>บันทึก / ความปลอดภัย</h2>
-      <div class="frow" style="max-width:320px">
-        <label class="f"><span>รหัสยืนยัน (PIN) สำหรับล้างยอด/ย้อนประวัติ</span><input type="text" id="s-pin" placeholder="เช่น 1234"></label>
+    <div class="card" data-sg="pay" style="margin-bottom:1rem">
+      <h2>ผู้ตรวจหน้าอนุมัติ · ทดลองงาน</h2>
+      <div class="frow" style="max-width:520px">
         <label class="f"><span>HR ผู้ตรวจคนที่ 1 (หน้าอนุมัติ)</span><input type="text" id="s-hr1" placeholder="มิ้นท์"></label>
         <label class="f"><span>HR ผู้ตรวจคนที่ 2</span><input type="text" id="s-hr2" placeholder="หวาน"></label>
         <label class="f"><span>ทดลองงาน (วัน)</span><input type="number" id="s-probdays" placeholder="90"></label>
       </div>
-      <p class="hint">กด "บันทึก" ทุกครั้งหลังแก้ การตั้งค่าจะซิงก์ไปทุกเครื่อง แล้วตารางค่าคอมคำนวณใหม่ให้ทันที</p>
-      <div class="btnrow">
-        <button class="primary" id="btn-save">บันทึกการตั้งค่า</button>
-        <span class="saved-flash" id="savedflash">บันทึกแล้ว ✓</span>
-      </div>
     </div>
+    <div class="card" data-sg="sys" style="margin-bottom:1rem">
+      <h2>ความปลอดภัย</h2>
+      <div class="frow" style="max-width:320px">
+        <label class="f"><span>รหัสยืนยัน (PIN) สำหรับอนุมัติ/ล้างยอด/ย้อนประวัติ</span><input type="text" id="s-pin" placeholder="เช่น 1234"></label>
+      </div>
+      <p class="hint">PIN เป็นคนละอันกับรหัสผ่านล็อกอิน — ใช้ยืนยันก่อนทำรายการสำคัญ</p>
+    </div>
+  <div class="set-savebar">
+    <span class="hint" style="margin:0">กด "บันทึก" ทุกครั้งหลังแก้ · ตั้งค่าซิงก์ไปทุกเครื่องและคำนวณใหม่ทันที</span>
+    <button class="primary" id="btn-save">บันทึกการตั้งค่า</button>
+    <span class="saved-flash" id="savedflash">บันทึกแล้ว ✓</span>
   </div>
 </section>
 </div><!-- /tabpanels -->
@@ -1422,7 +1438,7 @@ const FIREBASE_CONFIG = {
 /* ============================================================ */
 
 const $ = id => document.getElementById(id);
-const APP_VERSION = "v5.11.2569-8";
+const APP_VERSION = "v5.11.2569-9";
 const fmt = n => (isFinite(n)?n:0).toLocaleString("th-TH",{maximumFractionDigits:2});
 const num = v => { const n = parseFloat(String(v??"").replace(/[, ]/g,"")); return isFinite(n)?n:0; };
 const fmt2 = n => (isFinite(n)?n:0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -1680,8 +1696,7 @@ function applyAdminUI(){
   $("emptable").classList.toggle("noadmin", !IS_ADMIN);
   $("sal-label").hidden = !IS_ADMIN;
   $("fsal-label").hidden = !IS_ADMIN;
-  if($("kpi-crit-card")) $("kpi-crit-card").hidden = !IS_ADMIN;
-  if($("users-card")) $("users-card").hidden = !(IS_ADMIN && CLOUD && AUTHED);
+  if(typeof showSetGroup==="function") showSetGroup();
   if(typeof applyTabPerms==="function") applyTabPerms();
   if(typeof subscribeUsers==="function") subscribeUsers();
   if(typeof renderHelp==="function") renderHelp();
@@ -4676,6 +4691,21 @@ $("btn-mdimport").addEventListener("click",()=>{
   mdSave(true); renderMD();
   $("md-import-msg").textContent=`✅ นำเข้า ${ok} คน ${cells} ช่อง`+(bad?` · อ่านรหัสไม่ออก ${bad} ช่อง (ข้าม)`:"")+(miss.length?` · หาไม่เจอ: ${miss.slice(0,6).join(", ")}${miss.length>6?"…":""}`:"");
 });
+/* ---------- หน้าตั้งค่า: แยกหมวด ---------- */
+let SET_GROUP = lsGet("uo-setgrp") || "comm";
+function showSetGroup(g){
+  if(g) { SET_GROUP = g; lsSet("uo-setgrp", g); }
+  const cur=SET_GROUP;
+  document.querySelectorAll('#p-set [data-sg]').forEach(el=>{
+    if(el.tagName==="BUTTON"){ el.classList.toggle("on", el.dataset.sg===cur); return; }
+    let hide = el.dataset.sg!==cur;
+    if(el.id==="users-card") hide = hide || !(IS_ADMIN && CLOUD && AUTHED);
+    if(el.id==="kpi-crit-card") hide = hide || !IS_ADMIN;
+    el.hidden = hide;
+  });
+}
+$("set-nav").addEventListener("click",e=>{ const b=e.target.closest("button[data-sg]"); if(!b) return; showSetGroup(b.dataset.sg); window.scrollTo({top:0,behavior:"smooth"}); });
+showSetGroup();
 $("md-divisor").addEventListener("change",()=>{ S.mdDivisor=num($("md-divisor").value)||30; persistS(); renderMD(); });
 $("md-month").addEventListener("input",()=>{ subscribeMD(); if($("sub-month")){ $("sub-month").value=$("md-month").value; subscribeSub(); } });
 
@@ -5114,6 +5144,7 @@ const HELP_DOCS = [
     "ทุกการแก้ไขทะเบียน/เงินเดือน/บัญชีผู้ใช้ บันทึกว่าใคร แก้อะไร เมื่อไร ย้อนกลับได้ (PIN)",
     "ถังขยะด้านบน: รายการที่ล้างยอด ย้ายเดือน ล้าง Manday เก็บสำเนาไว้ กด \"กู้คืนข้อมูลชุดนี้\" (PIN) ได้ทันที"]},
   {id:"p-set", ic:"⚙️", title:"ตั้งค่าเรต (แอดมิน)", who:"แอดมิน", adminOnly:true, steps:[
+    "ด้านบนมีปุ่มหมวด 6 หมวด: 💰 เรตค่าคอม & Incentive · 📊 KPI/ใบเตือน · 🗓️ เงินเดือน & Manday · 🏢 บริษัท/แผนก/สาขา/ทีม HR · 👤 ผู้ใช้และสิทธิ์ · ⚙️ อีเมลสลิป/PIN — กดหมวดแล้วจะเห็นเฉพาะการตั้งค่าเรื่องนั้น · ปุ่ม \"บันทึกการตั้งค่า\" ลอยอยู่ด้านล่างทุกหมวด",
     "เทียร์ค่าคอม CRM / Sales Admin / Upsell · เรทหัวหน้าทีม · โบนัสไตรมาส · ค่าเดินทาง/ตีกลับ/สาย",
     "เกณฑ์ KPI/ใบเตือน และยอดหัก KPI · รายการที่พนักงานเข้าร่วม (% / เพดาน) · ช่องทางขาย · แผนก ตำแหน่ง สาขา บริษัท (ชื่อเต็มบนสลิป)",
     "วันหยุดพิเศษ (Manday) · HR ผู้ตรวจ 2 คน · ระยะทดลองงาน · PIN",
